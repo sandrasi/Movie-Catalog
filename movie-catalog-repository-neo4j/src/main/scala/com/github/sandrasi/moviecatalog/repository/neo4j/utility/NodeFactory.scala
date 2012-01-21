@@ -11,7 +11,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager.setLocalizedTextOf
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager._
 
 private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
@@ -57,8 +57,8 @@ private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends Movi
     val movieNode = createNodeForEntity(m)
     movieNode.setProperty(MovieLength, m.length.getMillis)
     movieNode.setProperty(MovieReleaseDate, m.releaseDate.toDateTimeAtStartOfDay.getMillis)
-    setLocalizedTextOf(movieNode, MovieOriginalTitle, m.originalTitle)
-    setLocalizedTextOf(movieNode, MovieLocalizedTitles, m.localizedTitles)
+    setLocalizedText(movieNode, MovieOriginalTitle, m.originalTitle)
+    setLocalizedText(movieNode, MovieLocalizedTitles, m.localizedTitles)
     connectNodeToSubreferenceNode(movieNode, classOf[Movie])
     movieNode
   }
@@ -77,8 +77,8 @@ private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends Movi
     val soundtrackNode = createNodeForEntity(s)
     soundtrackNode.setProperty(SoundtrackLanguageCode, s.languageCode)
     soundtrackNode.setProperty(SoundtrackFormatCode, s.formatCode)
-    if (s.languageName != None) setLocalizedTextOf(soundtrackNode, SoundtrackLanguageNames, s.languageName.get)
-    if (s.formatName != None) setLocalizedTextOf(soundtrackNode, SoundtrackFormatNames, s.formatName.get)
+    if (s.languageName != None) setLocalizedText(soundtrackNode, SoundtrackLanguageNames, s.languageName.get)
+    if (s.formatName != None) setLocalizedText(soundtrackNode, SoundtrackFormatNames, s.formatName.get)
     connectNodeToSubreferenceNode(soundtrackNode, classOf[Soundtrack])
     soundtrackNode
   }
@@ -86,7 +86,7 @@ private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends Movi
   private def createNodeFrom(s: Subtitle): Node = {
     val subtitleNode = createNodeForEntity(s)
     subtitleNode.setProperty(SubtitleLanguageCode, s.languageCode)
-    if (s.languageName != None) setLocalizedTextOf(subtitleNode, SubtitleLanguageNames, s.languageName.get)
+    if (s.languageName != None) setLocalizedText(subtitleNode, SubtitleLanguageNames, s.languageName.get)
     connectNodeToSubreferenceNode(subtitleNode, classOf[Subtitle])
     subtitleNode
   }

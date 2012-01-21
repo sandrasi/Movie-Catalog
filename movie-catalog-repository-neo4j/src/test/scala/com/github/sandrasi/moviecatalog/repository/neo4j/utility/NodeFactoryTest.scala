@@ -17,6 +17,7 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager._
 
 @RunWith(classOf[JUnitRunner])
 class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -228,16 +229,5 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should remove the soundtrack language and format names from the node properties") {
-  }
-
-  private def getLocalizedText(n: Node, key: String) = getLocalizedTextSet(n, key).iterator.next()
-
-  private def getLocalizedTextSet(n: Node, key: String) = {
-    val text = n.getProperty(key).asInstanceOf[Array[String]]
-    val languages = n.getProperty(key + LocaleLanguage).asInstanceOf[Array[String]]
-    val countries = n.getProperty(key + LocaleCountry).asInstanceOf[Array[String]]
-    val variants = n.getProperty(key + LocaleVariant).asInstanceOf[Array[String]]
-    val localizedTextArray = for (i <- 0 until text.length) yield LocalizedText(text(i), new Locale(languages(i), countries(i), variants(i)))
-    localizedTextArray.toSet
   }
 }

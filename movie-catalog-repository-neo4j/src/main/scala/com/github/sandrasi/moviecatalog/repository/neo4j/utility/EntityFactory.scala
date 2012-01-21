@@ -17,8 +17,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Abstr
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager.getLocalizedTextFrom
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager.getLocalizedTextSetFrom
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager._
 
 private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
@@ -57,19 +56,19 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
 
   private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).map(r => createSubtitleFrom(r.getEndNode, l)).toSet
 
-  private def createMovieFrom(n: Node) = Movie(getLocalizedTextFrom(n, MovieOriginalTitle), getLocalizedTextSetFrom(n, MovieLocalizedTitles), getDurationProp(n, MovieLength), getDateProp(n, MovieReleaseDate), n.getId)
+  private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDurationProp(n, MovieLength), getDateProp(n, MovieReleaseDate), n.getId)
 
   private def createPersonFrom(n: Node) = Person(getStringProp(n, PersonName), Gender.withName(getStringProp(n, PersonGender)), getDateProp(n, PersonDateOfBirth), getStringProp(n, PersonPlaceOfBirth), n.getId)
 
   private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getStringProp(n, SoundtrackLanguageCode), getStringProp(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), n.getId)
 
-  private def getSoundtrackLanguageName(n: Node, l: Locale) = try { Some(getLocalizedTextFrom(n, SoundtrackLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException=> None }
+  private def getSoundtrackLanguageName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SoundtrackLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException=> None }
   
-  private def getSoundtrackFormatName(n: Node, l: Locale) = try { Some(getLocalizedTextFrom(n, SoundtrackFormatNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
+  private def getSoundtrackFormatName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SoundtrackFormatNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
 
   private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getStringProp(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), n.getId)
 
-  private def getSubtitleLanguageName(n: Node, l: Locale) = try { Some(getLocalizedTextFrom(n, SubtitleLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
+  private def getSubtitleLanguageName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SubtitleLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
   
   def createEntityFrom[A <: LongIdEntity](r: Relationship, entityType: Class[A]): A = entityType match {
     case ClassActor => withTypeCheck(r, entityType, FilmCrewRelationshipType.forClass(ClassActor)) { createActorFrom(r) }
