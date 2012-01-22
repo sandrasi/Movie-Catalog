@@ -3,15 +3,27 @@ package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 import java.util.Locale
 import org.neo4j.graphdb.Node
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
+import org.joda.time.{Duration, LocalDate, ReadableDuration}
 
-private[utility] object LocalizedTextManager extends MovieCatalogGraphPropertyNames {
+private[utility] object NodePropertyManager extends MovieCatalogGraphPropertyNames {
   
-  def hasLocalizedText(node: Node, key: String): Boolean = node.hasProperty(key) && node.getProperty(key).isInstanceOf[Array[String]] &&
-    node.hasProperty(key + LocaleLanguage) && node.getProperty(key + LocaleLanguage).isInstanceOf[Array[String]] &&
-    node.hasProperty(key + LocaleCountry) && node.getProperty(key + LocaleCountry).isInstanceOf[Array[String]] &&
-    node.hasProperty(key + LocaleVariant) && node.getProperty(key + LocaleVariant).isInstanceOf[Array[String]]
+  def getString(node: Node, key: String): String = node.getProperty(key).asInstanceOf[String]
+  
+  def setString(node: Node, key: String, str: String) = { node.setProperty(key, str) }
+
+  def getDuration(node: Node, key: String): ReadableDuration = Duration.millis(node.getProperty(key).asInstanceOf[Long])
+
+  def setDuration(node: Node, key: String, duration: ReadableDuration) { node.setProperty(key, duration.getMillis) }
+  
+  def getLocalDate(node: Node, key: String): LocalDate = new LocalDate(node.getProperty(key).asInstanceOf[Long])
+  
+  def setLocalDate(node: Node, key: String, date: LocalDate) = { node.setProperty(key, date.toDateTimeAtStartOfDay.getMillis) }
+  
+  def hasLocalizedText(node: Node, key: String): Boolean = hasProperty(node, key, classOf[Array[String]]) && hasProperty(node, key + LocaleLanguage, classOf[Array[String]]) && hasProperty(node, key + LocaleCountry, classOf[Array[String]]) && hasProperty(node, key + LocaleVariant, classOf[Array[String]])
   
   def hasLocalizedText(node: Node, key: String, locale: Locale): Boolean = hasLocalizedText(node, key) && getLocalizedTextSet(node, key).find(_.locale == locale) != None
+  
+  private def hasProperty(node: Node, key: String, propertyType: Class[_]) = node.hasProperty(key) && node.getProperty(key).getClass == propertyType
 
   def getLocalizedText(node: Node, key: String): LocalizedText = getLocalizedTextSet(node, key).head
 
@@ -26,9 +38,7 @@ private[utility] object LocalizedTextManager extends MovieCatalogGraphPropertyNa
     localizedTextArray.toSet
   }
 
-  def setLocalizedText(node: Node, key: String, localizedText: LocalizedText) {
-    setLocalizedText(node, key, Set(localizedText))
-  }
+  def setLocalizedText(node: Node, key: String, localizedText: LocalizedText) { setLocalizedText(node, key, Set(localizedText)) }
 
   def setLocalizedText(node: Node, key: String, localizedTextSet: Set[LocalizedText]) {
     val lta = localizedTextSet.toArray
@@ -41,5 +51,19 @@ private[utility] object LocalizedTextManager extends MovieCatalogGraphPropertyNa
   def addLocalizedText(node: Node,  key: String, localizedText: LocalizedText) {
     val lts = if (hasLocalizedText(node, key)) getLocalizedTextSet(node, key) else Set[LocalizedText]()
     setLocalizedText(node, key, (lts + localizedText))
+  }
+  
+  def deleteLocalizedText(node: Node, key: String) {
+    node.removeProperty(key)
+    node.removeProperty(key + LocaleLanguage)
+    node.removeProperty(key + LocaleCountry)
+    node.removeProperty(key + LocaleVariant)
+  }
+  
+  def deleteLocalizedText(node: Node, key: String, locale: Locale) {
+    if (hasLocalizedText(node, key)) {
+      val newLts = getLocalizedTextSet(node, key).view.filter(_.locale != locale).toSet
+      setLocalizedText(node, key, newLts)
+    }
   }
 }

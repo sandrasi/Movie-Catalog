@@ -17,7 +17,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Abstr
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager._
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodePropertyManager._
 
 private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
@@ -48,7 +48,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   
   private def withTypeCheck[A <: LongIdEntity](n: Node, entityType: Class[A])(op: => LongIdEntity) = if (SubrefNodeSupp.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
   
-  private def createCharacterFrom(n: Node) = Character(getStringProp(n, CharacterName), getStringProp(n, CharacterDiscriminator), n.getId)
+  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterDiscriminator), n.getId)
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(StoredIn, INCOMING).getStartNode), getSoundtracks(n, l), getSubtitles(n, l), n.getId)
   
@@ -56,17 +56,17 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
 
   private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).map(r => createSubtitleFrom(r.getEndNode, l)).toSet
 
-  private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDurationProp(n, MovieLength), getDateProp(n, MovieReleaseDate), n.getId)
+  private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDuration(n, MovieLength), getLocalDate(n, MovieReleaseDate), n.getId)
 
-  private def createPersonFrom(n: Node) = Person(getStringProp(n, PersonName), Gender.withName(getStringProp(n, PersonGender)), getDateProp(n, PersonDateOfBirth), getStringProp(n, PersonPlaceOfBirth), n.getId)
+  private def createPersonFrom(n: Node) = Person(getString(n, PersonName), Gender.withName(getString(n, PersonGender)), getLocalDate(n, PersonDateOfBirth), getString(n, PersonPlaceOfBirth), n.getId)
 
-  private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getStringProp(n, SoundtrackLanguageCode), getStringProp(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), n.getId)
+  private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getString(n, SoundtrackLanguageCode), getString(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), n.getId)
 
   private def getSoundtrackLanguageName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SoundtrackLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException=> None }
   
   private def getSoundtrackFormatName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SoundtrackFormatNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
 
-  private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getStringProp(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), n.getId)
+  private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getString(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), n.getId)
 
   private def getSubtitleLanguageName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SubtitleLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
   
@@ -83,12 +83,6 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   private def createActressFrom(r: Relationship) = Actress(createPersonFrom(r.getStartNode), getCharacter(r), createMovieFrom(r.getEndNode), r.getId)
 
   private def getCharacter(r: Relationship) = createCharacterFrom(r.getStartNode.getRelationships(PlayedBy, INCOMING).filter(_.getProperty(PlayedByRelationshipCastRelationshipId) == r.getId).head.getStartNode)
-
-  private def getDurationProp(n: Node, key: String) = Duration.millis(n.getProperty(key).asInstanceOf[Long])
-
-  private def getStringProp(n: Node, key: String) = n.getProperty(key).asInstanceOf[String]
-  
-  private def getDateProp(n: Node, key: String) = new LocalDate(n.getProperty(key).asInstanceOf[Long])
 }
 
 private[neo4j] object EntityFactory {

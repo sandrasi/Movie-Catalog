@@ -1,11 +1,10 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
 import scala.collection.JavaConversions._
-import java.util.Locale
 import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.Direction._
-import org.neo4j.graphdb.{Node, NotFoundException}
+import org.neo4j.graphdb.NotFoundException
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -17,7 +16,7 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.LocalizedTextManager._
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodePropertyManager._
 
 @RunWith(classOf[JUnitRunner])
 class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -44,8 +43,8 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should create node from character") {
     val characterNode = transaction(db) { subject.createNodeFrom(Johnny) }
-    characterNode.getProperty(CharacterName) should be(Johnny.name)
-    characterNode.getProperty(CharacterDiscriminator) should be(Johnny.discriminator)
+    getString(characterNode, CharacterName) should be(Johnny.name)
+    getString(characterNode, CharacterDiscriminator) should be(Johnny.discriminator)
     characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character]))
   }
 
@@ -139,8 +138,8 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should create node from movie") {
     val movieNode = transaction(db) { subject.createNodeFrom(TestMovie) }
-    movieNode.getProperty(MovieLength) should be(TestMovie.length.getMillis)
-    movieNode.getProperty(MovieReleaseDate) should be(TestMovie.releaseDate.toDateTimeAtStartOfDay.getMillis)
+    getDuration(movieNode, MovieLength) should be(TestMovie.length)
+    getLocalDate(movieNode, MovieReleaseDate) should be(TestMovie.releaseDate)
     getLocalizedText(movieNode, MovieOriginalTitle) should be(TestMovie.originalTitle)
     getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(TestMovie.localizedTitles)
     movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie]))
@@ -154,10 +153,10 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should create node from person") {
     val personNode = transaction(db) { subject.createNodeFrom(JohnDoe) }
-    personNode.getProperty(PersonName) should be(JohnDoe.name)
-    personNode.getProperty(PersonGender) should be(JohnDoe.gender.toString)
-    personNode.getProperty(PersonDateOfBirth) should be(JohnDoe.dateOfBirth.toDateTimeAtStartOfDay.getMillis)
-    personNode.getProperty(PersonPlaceOfBirth) should be(JohnDoe.placeOfBirth)
+    getString(personNode, PersonName) should be(JohnDoe.name)
+    getString(personNode, PersonGender) should be(JohnDoe.gender.toString)
+    getLocalDate(personNode, PersonDateOfBirth) should be(JohnDoe.dateOfBirth)
+    getString(personNode, PersonPlaceOfBirth) should be(JohnDoe.placeOfBirth)
     personNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person]))
   }
 
@@ -169,9 +168,9 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should create node from soundtrack") {
     val soundtrackNode = transaction(db) { subject.createNodeFrom(EnglishSoundtrack) }
-    soundtrackNode.getProperty(SoundtrackLanguageCode) should be(EnglishSoundtrack.languageCode)
+    getString(soundtrackNode, SoundtrackLanguageCode) should be(EnglishSoundtrack.languageCode)
+    getString(soundtrackNode, SoundtrackFormatCode) should be(EnglishSoundtrack.formatCode)
     Some(getLocalizedText(soundtrackNode, SoundtrackLanguageNames)) should be(EnglishSoundtrack.languageName)
-    soundtrackNode.getProperty(SoundtrackFormatCode) should be(EnglishSoundtrack.formatCode)
     Some(getLocalizedText(soundtrackNode, SoundtrackFormatNames)) should be(EnglishSoundtrack.formatName)
     soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack]))
   }
@@ -198,7 +197,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   
   test("should create node from subtitle") {
     val subtitleNode = transaction(db) { subject.createNodeFrom(EnglishSubtitle) }
-    subtitleNode.getProperty(SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
+    getString(subtitleNode, SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
     Some(getLocalizedText(subtitleNode, SubtitleLanguageNames)) should be(EnglishSubtitle.languageName)
     subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle]))
   }
@@ -221,13 +220,21 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
       subject.createNodeFrom(new LongIdEntity(0) {})
     }
   }
-  
+
+  // TODO: implement the tests
   test("should update soundtrack node") {
+    //subject.updateNodeOf(EnglishSoundtrack)
   }
   
   test("should add the soundtrack language and format names to the node properties") {
   }
 
   test("should remove the soundtrack language and format names from the node properties") {
+  }
+
+  test("should not update the soundtrack if it does not have an id") {
+  }
+
+  test("should not update unsupported entity") {
   }
 }
