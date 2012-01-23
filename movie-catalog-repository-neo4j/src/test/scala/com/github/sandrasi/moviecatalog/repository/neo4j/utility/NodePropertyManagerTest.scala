@@ -244,7 +244,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
       node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
-      NodePropertyManager.addLocalizedText(node, "key", LocalizedText("teszt", HungarianLocale))
+      NodePropertyManager.addOrReplaceLocalizedText(node, "key", LocalizedText("teszt", HungarianLocale))
     }
     node.getProperty("key").asInstanceOf[Array[String]] should have size(2)
     node.getProperty("key").asInstanceOf[Array[String]] should contain("test")
@@ -258,22 +258,22 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
     node.getProperty("key" + LocaleVariant).asInstanceOf[Array[String]] should be(Array("", ""))
   }
 
-  test("should not add the same localized text to the existing localized text properties") {
+  test("should replace the localized text with the same locale in the existing localized text properties") {
     val node = createNode()
     transaction(db) {
       node.setProperty("key", Array("test"))
       node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
-      NodePropertyManager.addLocalizedText(node, "key", LocalizedText("test", AmericanLocale))
+      NodePropertyManager.addOrReplaceLocalizedText(node, "key", LocalizedText("other test", AmericanLocale))
     }
-    node.getProperty("key").asInstanceOf[Array[String]] should be(Array("test"))
+    node.getProperty("key").asInstanceOf[Array[String]] should be(Array("other test"))
     node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should be(Array("en"))
     node.getProperty("key" + LocaleCountry).asInstanceOf[Array[String]] should be(Array("US"))
     node.getProperty("key" + LocaleVariant).asInstanceOf[Array[String]] should be(Array(""))
   }
   
-  test("should delete the localized set property") {
+  test("should delete the localized text property") {
     val node = createNode()
     transaction(db) {
       node.setProperty("key", Array("test"))
@@ -288,7 +288,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
     node.hasProperty("key" + LocaleVariant) should be(false)
   }
 
-  test("should delete the localized set property with the given locale") {
+  test("should delete the localized text property with the given locale") {
     val node = createNode()
     transaction(db) {
       node.setProperty("key", Array("test", "teszt"))
@@ -301,5 +301,20 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
     node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should be(Array("hu"))
     node.getProperty("key" + LocaleCountry).asInstanceOf[Array[String]] should be(Array("HU"))
     node.getProperty("key" + LocaleVariant).asInstanceOf[Array[String]] should be(Array(""))
+  }
+  
+  test("should delete the localized text property if the given locale is the only one") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+      node.setProperty("key" + LocaleVariant, Array(""))
+      NodePropertyManager.deleteLocalizedText(node, "key", AmericanLocale)
+    }
+    node.hasProperty("key") should be(false)
+    node.hasProperty("key" + LocaleLanguage) should be(false)
+    node.hasProperty("key" + LocaleCountry) should be(false)
+    node.hasProperty("key" + LocaleVariant) should be(false)
   }
 }

@@ -96,10 +96,8 @@ private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends Movi
     val soundtrackNode = getNodeOf(s)
     setString(soundtrackNode, SoundtrackLanguageCode, s.languageCode)
     setString(soundtrackNode, SoundtrackFormatCode, s.formatCode)
-    if (s.languageName != None) addLocalizedText(soundtrackNode, SoundtrackLanguageNames, s.languageName.get)
-    else if (hasLocalizedText(soundtrackNode, SoundtrackLanguageNames, l)) deleteLocalizedText(soundtrackNode, SoundtrackLanguageNames, l)
-    if (s.formatName != None) addLocalizedText(soundtrackNode, SoundtrackFormatNames, s.formatName.get)
-    else if (hasLocalizedText(soundtrackNode, SoundtrackFormatNames, l)) deleteLocalizedText(soundtrackNode, SoundtrackFormatNames, l)
+    if (s.languageName != None) addOrReplaceLocalizedText(soundtrackNode, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(soundtrackNode, SoundtrackLanguageNames, l)
+    if (s.formatName != None) addOrReplaceLocalizedText(soundtrackNode, SoundtrackFormatNames, s.formatName.get) else deleteLocalizedText(soundtrackNode, SoundtrackFormatNames, l)
     soundtrackNode
   }
 

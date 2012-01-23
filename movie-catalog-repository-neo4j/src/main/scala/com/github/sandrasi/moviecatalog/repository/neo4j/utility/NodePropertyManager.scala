@@ -48,8 +48,8 @@ private[utility] object NodePropertyManager extends MovieCatalogGraphPropertyNam
     node.setProperty(key + LocaleVariant, for (lt <- lta) yield lt.locale.getVariant)
   }
 
-  def addLocalizedText(node: Node,  key: String, localizedText: LocalizedText) {
-    val lts = if (hasLocalizedText(node, key)) getLocalizedTextSet(node, key) else Set[LocalizedText]()
+  def addOrReplaceLocalizedText(node: Node,  key: String, localizedText: LocalizedText) {
+    val lts = if (hasLocalizedText(node, key)) getLocalizedTextSet(node, key).view.filterNot(_.locale == localizedText.locale).toSet else Set[LocalizedText]()
     setLocalizedText(node, key, (lts + localizedText))
   }
   
@@ -62,8 +62,8 @@ private[utility] object NodePropertyManager extends MovieCatalogGraphPropertyNam
   
   def deleteLocalizedText(node: Node, key: String, locale: Locale) {
     if (hasLocalizedText(node, key)) {
-      val newLts = getLocalizedTextSet(node, key).view.filter(_.locale != locale).toSet
-      setLocalizedText(node, key, newLts)
+      val newLts = getLocalizedTextSet(node, key).view.filterNot(_.locale == locale).toSet
+      if (newLts.size == 0) deleteLocalizedText(node, key) else setLocalizedText(node, key, newLts)
     }
   }
 }

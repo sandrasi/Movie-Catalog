@@ -36,7 +36,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create character entity from node") {
-    val characterNode = createNode(Johnny)
+    val characterNode = createNodeFrom(Johnny)
     val character = subject.createEntityFrom(characterNode, classOf[Character])
     character.name should be(Johnny.name)
     character.discriminator should be(Johnny.discriminator)
@@ -44,12 +44,12 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
   
   test("should create digital container entity from node") {
-    val movie = saveEntity(TestMovie)
-    val englishSoundtrack = saveEntity(EnglishSoundtrack)
-    val hungarianSoundtrack = saveEntity(HungarianSoundtrack)
-    val englishSubtitle = saveEntity(EnglishSubtitle)
-    val hungarianSubtitle = saveEntity(HungarianSubtitle)
-    val digitalContainerNode = createNode(DigitalContainer(movie, Set(englishSoundtrack, hungarianSoundtrack), Set(englishSubtitle, hungarianSubtitle)))
+    val movie = insertEntity(TestMovie)
+    val englishSoundtrack = insertEntity(EnglishSoundtrack)
+    val hungarianSoundtrack = insertEntity(HungarianSoundtrack)
+    val englishSubtitle = insertEntity(EnglishSubtitle)
+    val hungarianSubtitle = insertEntity(HungarianSubtitle)
+    val digitalContainerNode = createNodeFrom(DigitalContainer(movie, Set(englishSoundtrack, hungarianSoundtrack), Set(englishSubtitle, hungarianSubtitle)))
     val digitalContainer = subject.createEntityFrom(digitalContainerNode, classOf[DigitalContainer])
     digitalContainer.motionPicture should be(movie)
     digitalContainer.soundtracks should be(Set(englishSoundtrack, hungarianSoundtrack))
@@ -58,7 +58,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
   
   test("should create movie entity from node") {
-    val movieNode = createNode(TestMovie)
+    val movieNode = createNodeFrom(TestMovie)
     val movie = subject.createEntityFrom(movieNode, classOf[Movie])
     movie.originalTitle should be(TestMovie.originalTitle)
     movie.localizedTitles should be(TestMovie.localizedTitles)
@@ -68,7 +68,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create person entity from node") {
-    val personNode = createNode(JohnDoe)
+    val personNode = createNodeFrom(JohnDoe)
     val person = subject.createEntityFrom(personNode, classOf[Person])
     person.name should be(JohnDoe.name)
     person.gender should be(JohnDoe.gender)
@@ -78,7 +78,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
   
   test("should create soundtrack entity from node") {
-    val soundtrackNode = createNode(EnglishSoundtrack)
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
     val soundtrack = subject.createEntityFrom(soundtrackNode, classOf[Soundtrack])
     soundtrack.languageCode should be(EnglishSoundtrack.languageCode)
     soundtrack.formatCode should be(EnglishSoundtrack.formatCode)
@@ -88,18 +88,23 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
   
   test("should create soundtrack entity from node with language and format names of which locale matches the given locale") {
-    // TODO: implement update soundtrack first
+    val nodeId = insertEntity(EnglishSoundtrack).id.get
+    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, Some(LocalizedText("Angol", HungarianLocale)), Some(LocalizedText("DTS", HungarianLocale)), nodeId)
+    val soundtrackNode = transaction(db) { updateNodeOf(soundtrackWithDifferentLocale) }
+    val soundtrack = subject.createEntityFrom(soundtrackNode, classOf[Soundtrack])(AmericanLocale)
+    soundtrack.languageName should be(EnglishSoundtrack.languageName)
+    soundtrack.formatName should be(EnglishSoundtrack.formatName)
   }
 
   test("should create soundtrack entity from node without language and format names if the locale does not match any of the saved values") {
-    val soundtrackNode = createNode(EnglishSoundtrack)
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
     val soundtrack = subject.createEntityFrom(soundtrackNode, classOf[Soundtrack])(HungarianLocale)
     soundtrack.languageName should be(None)
     soundtrack.formatName should be(None)
   }
 
   test("should create subtitle entity from node") {
-    val subtitleNode = createNode(EnglishSubtitle)
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
     val subtitle = subject.createEntityFrom(subtitleNode, classOf[Subtitle])
     subtitle.languageCode should be(EnglishSubtitle.languageCode)
     subtitle.languageName should be(EnglishSubtitle.languageName)
@@ -111,14 +116,14 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create subtitle entity from node without language name if the locale does not match any of the saved values") {
-    val subtitleNode = createNode(EnglishSubtitle)
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
     val subtitle = subject.createEntityFrom(subtitleNode, classOf[Subtitle])(HungarianLocale)
     subtitle.languageName should be(None)
   }
 
   test("should not create entity if the node represents a different type of entity") {
     intercept[ClassCastException] {
-      subject.createEntityFrom(createNode(Johnny), classOf[Movie]) should be(None)
+      subject.createEntityFrom(createNodeFrom(Johnny), classOf[Movie]) should be(None)
     }
   }
 
@@ -137,10 +142,10 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create actor entity from relationship") {
-    val person = saveEntity(JohnDoe)
-    val character = saveEntity(Johnny)
-    val movie = saveEntity(TestMovie)
-    val actorRelationship = createRelationship(Actor(person, character, movie))
+    val person = insertEntity(JohnDoe)
+    val character = insertEntity(Johnny)
+    val movie = insertEntity(TestMovie)
+    val actorRelationship = createRelationshipFrom(Actor(person, character, movie))
     val actor = subject.createEntityFrom(actorRelationship, classOf[Actor])
     actor.person should be(JohnDoe)
     actor.character should be(Johnny)
@@ -149,10 +154,10 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create actress entity from relationship") {
-    val person = saveEntity(JaneDoe)
-    val character = saveEntity(Jenny)
-    val movie = saveEntity(TestMovie)
-    val actressRelationship = createRelationship(Actress(person, character, movie))
+    val person = insertEntity(JaneDoe)
+    val character = insertEntity(Jenny)
+    val movie = insertEntity(TestMovie)
+    val actressRelationship = createRelationshipFrom(Actress(person, character, movie))
     val actress = subject.createEntityFrom(actressRelationship, classOf[Actress])
     actress.person should be(JaneDoe)
     actress.character should be(Jenny)
@@ -161,13 +166,13 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create actor entity from relationship with correct character if the person played two different characters in two motion pictures") {
-    val person = saveEntity(JohnDoe)
-    val characterOne = saveEntity(Johnny)
-    val characterTwo = saveEntity(Character("Jackie"))
-    val movieOne = saveEntity(TestMovie)
-    val movieTwo = saveEntity(Movie(LocalizedText("Another test movie")))
-    val actorRelationshipOne = createRelationship(Actor(person, characterOne, movieOne))
-    val actorRelationshipTwo = createRelationship(Actor(person, characterTwo, movieTwo))
+    val person = insertEntity(JohnDoe)
+    val characterOne = insertEntity(Johnny)
+    val characterTwo = insertEntity(Character("Jackie"))
+    val movieOne = insertEntity(TestMovie)
+    val movieTwo = insertEntity(Movie(LocalizedText("Another test movie")))
+    val actorRelationshipOne = createRelationshipFrom(Actor(person, characterOne, movieOne))
+    val actorRelationshipTwo = createRelationshipFrom(Actor(person, characterTwo, movieTwo))
     val actorOne = subject.createEntityFrom(actorRelationshipOne, classOf[Actor])
     actorOne.person should be(JohnDoe)
     actorOne.character should be(Johnny)
@@ -179,12 +184,12 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create actor entity from relationship with correct character if the person played two different characters in a motion picture") {
-    val person = saveEntity(JohnDoe)
-    val characterOne = saveEntity(Johnny)
-    val characterTwo = saveEntity(Character("Jackie"))
-    val movie = saveEntity(TestMovie)
-    val actorRelationshipOne = createRelationship(Actor(person, characterOne, movie))
-    val actorRelationshipTwo = createRelationship(Actor(person, characterTwo, movie))
+    val person = insertEntity(JohnDoe)
+    val characterOne = insertEntity(Johnny)
+    val characterTwo = insertEntity(Character("Jackie"))
+    val movie = insertEntity(TestMovie)
+    val actorRelationshipOne = createRelationshipFrom(Actor(person, characterOne, movie))
+    val actorRelationshipTwo = createRelationshipFrom(Actor(person, characterTwo, movie))
     val actorOne = subject.createEntityFrom(actorRelationshipOne, classOf[Actor])
     actorOne.person should be(JohnDoe)
     actorOne.character should be(Johnny)
@@ -196,9 +201,9 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should not create entity if the relationship represents a different type of entity") {
-    val actor = Actor(saveEntity(JohnDoe), saveEntity(Johnny), saveEntity(TestMovie))
+    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie))
     intercept[ClassCastException] {
-      subject.createEntityFrom(createRelationship(actor), classOf[Actress]) should be(None)
+      subject.createEntityFrom(createRelationshipFrom(actor), classOf[Actress]) should be(None)
     }
   }
 

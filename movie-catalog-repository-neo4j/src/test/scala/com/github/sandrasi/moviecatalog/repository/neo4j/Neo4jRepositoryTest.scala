@@ -21,42 +21,42 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should fetch actor from the database by id") {
-    val actorRelationship = createRelationship(Actor(saveEntity(JohnDoe), saveEntity(Johnny), saveEntity(TestMovie)))
+    val actorRelationship = createRelationshipFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     subject.get(actorRelationship.getId, classOf[Actor]).get.isInstanceOf[Actor] should be(true)
   }
 
   test("should fetch actress from the database by id") {
-    val actorRelationship = createRelationship(Actress(saveEntity(JaneDoe), saveEntity(Jenny), saveEntity(TestMovie)))
+    val actorRelationship = createRelationshipFrom(Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie)))
     subject.get(actorRelationship.getId, classOf[Actress]).get.isInstanceOf[Actress] should be(true)
   }
 
   test("should fetch character from the database by id") {
-    val characterNode = createNode(Johnny)
+    val characterNode = createNodeFrom(Johnny)
     subject.get(characterNode.getId, classOf[Character]).get.isInstanceOf[Character] should be(true)
   }
 
   test("should fetch digital container from the database by id") {
-    val digitalContainerNode = createNode(DigitalContainer(saveEntity(TestMovie), Set(saveEntity(EnglishSoundtrack)), Set(saveEntity(EnglishSubtitle))))
+    val digitalContainerNode = createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     subject.get(digitalContainerNode.getId, classOf[DigitalContainer]).get.isInstanceOf[DigitalContainer] should be(true)
   }
 
   test("should fetch movie from the database by id") {
-    val movieNode = createNode(TestMovie)
+    val movieNode = createNodeFrom(TestMovie)
     subject.get(movieNode.getId, classOf[Movie]).get.isInstanceOf[Movie] should be(true)
   }
 
   test("should fetch person from the database by id") {
-    val personNode = createNode(JohnDoe)
+    val personNode = createNodeFrom(JohnDoe)
     subject.get(personNode.getId, classOf[Person]).get.isInstanceOf[Person] should be(true)
   }
   
   test("should fetch soundtrack from the database by id") {
-    val soundtrackNode = createNode(EnglishSoundtrack)
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
     subject.get(soundtrackNode.getId, classOf[Soundtrack]).get.isInstanceOf[Soundtrack] should be(true)
   }
 
   test("should fetch subtitle from the database by id") {
-    val subtitleNode = createNode(EnglishSubtitle)
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
     subject.get(subtitleNode.getId, classOf[Subtitle]).get.isInstanceOf[Subtitle] should be(true)
   }
 
@@ -66,12 +66,12 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
   
   test("should return nothing if the node cannot be converted to the given type") {
-    val characterNode = createNode(Johnny)
+    val characterNode = createNodeFrom(Johnny)
     subject.get(characterNode.getId, classOf[Movie]) should be(None)
   }
 
   test("should insert actor into the database and return a managed instance") {
-    val actor = Actor(saveEntity(JohnDoe), saveEntity(Johnny), saveEntity(TestMovie))
+    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie))
     val savedActor = subject.save(actor)
     savedActor.id should not be(None)
     savedActor should equal(actor)
@@ -83,7 +83,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should insert actress into the database and return a managed instance") {
-    val actress = Actress(saveEntity(JaneDoe), saveEntity(Jenny), saveEntity(TestMovie))
+    val actress = Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie))
     val savedActress = subject.save(actress)
     savedActress.id should not be(None)
     savedActress should equal(actress)
@@ -106,7 +106,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should insert digital container into the database and return a managed instance") {
-    val digitalContainer = DigitalContainer(saveEntity(TestMovie), Set(saveEntity(EnglishSoundtrack)), Set(saveEntity(EnglishSubtitle)))
+    val digitalContainer = DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle)))
     val savedDigitalContainer = subject.save(digitalContainer)
     savedDigitalContainer.id should not be(None)
     savedDigitalContainer should equal(digitalContainer)

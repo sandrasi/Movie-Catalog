@@ -89,30 +89,32 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
 
   protected def createNode(): Node = transaction(db) { db.createNode() }
 
-  protected def createNode(e: LongIdEntity): Node = transaction(db) { NodeFactory(db).createNodeFrom(e) }
+  protected def createNodeFrom(e: LongIdEntity): Node = transaction(db) { NodeFactory(db).createNodeFrom(e) }
+  
+  protected def updateNodeOf(e: LongIdEntity): Node = transaction(db) { NodeFactory(db).updateNodeOf(e) }
 
   protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { db.createNode().createRelationshipTo(db.createNode(), relType) }
 
-  protected def createRelationship(e: LongIdEntity): Relationship = transaction(db) { RelationshipFactory(db).createRelationshipFrom(e) }
+  protected def createRelationshipFrom(e: LongIdEntity): Relationship = transaction(db) { RelationshipFactory(db).createRelationshipFrom(e) }
 
-  protected def saveEntity[A <: LongIdEntity](entity: A): A = entity match {
-    case c: Character => createCharacterEntity(createNode(c)).asInstanceOf[A]
-    case m: Movie => createMovieEntity(createNode(m)).asInstanceOf[A]
-    case p: Person => createPersonEntity(createNode(p)).asInstanceOf[A]
-    case s: Soundtrack => createSoundtrackEntity(createNode(s)).asInstanceOf[A]
-    case s: Subtitle => createSubtitleEntity(createNode(s)).asInstanceOf[A]
+  protected def insertEntity[A <: LongIdEntity](entity: A): A = entity match {
+    case c: Character => createCharacterFrom(createNodeFrom(c)).asInstanceOf[A]
+    case m: Movie => createMovieFrom(createNodeFrom(m)).asInstanceOf[A]
+    case p: Person => createPersonFrom(createNodeFrom(p)).asInstanceOf[A]
+    case s: Soundtrack => createSoundtrackFrom(createNodeFrom(s)).asInstanceOf[A]
+    case s: Subtitle => createSubtitleFrom(createNodeFrom(s)).asInstanceOf[A]
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(entity.getClass.getName))
   }
+  
+  protected def createCharacterFrom(n: Node): Character = EntityFactory(db).createEntityFrom(n, classOf[Character])
 
-  protected def createCharacterEntity(n: Node): Character = EntityFactory(db).createEntityFrom(n, classOf[Character])
+  protected def createMovieFrom(n: Node): Movie = EntityFactory(db).createEntityFrom(n, classOf[Movie])
 
-  protected def createMovieEntity(n: Node): Movie = EntityFactory(db).createEntityFrom(n, classOf[Movie])
+  protected def createPersonFrom(n: Node): Person = EntityFactory(db).createEntityFrom(n, classOf[Person])
 
-  protected def createPersonEntity(n: Node): Person = EntityFactory(db).createEntityFrom(n, classOf[Person])
+  protected def createSoundtrackFrom(n: Node): Soundtrack = EntityFactory(db).createEntityFrom(n, classOf[Soundtrack])
 
-  protected def createSoundtrackEntity(n: Node): Soundtrack = EntityFactory(db).createEntityFrom(n, classOf[Soundtrack])
-
-  protected def createSubtitleEntity(n: Node): Subtitle = EntityFactory(db).createEntityFrom(n, classOf[Subtitle])
+  protected def createSubtitleFrom(n: Node): Subtitle = EntityFactory(db).createEntityFrom(n, classOf[Subtitle])
 
   protected final class TestRelationshipType(override val name: String) extends RelationshipType
 }

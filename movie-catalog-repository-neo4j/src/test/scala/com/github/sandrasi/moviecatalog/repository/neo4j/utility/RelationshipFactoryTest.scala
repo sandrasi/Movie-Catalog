@@ -32,10 +32,10 @@ class RelationshipFactoryTest extends FunSuite with BeforeAndAfterAll with Befor
   }
 
   test("should create relationship from actor") {
-    val personNode = createNode(JohnDoe)
-    val characterNode = createNode(Johnny)
-    val movieNode = createNode(TestMovie)
-    val actorRelationship = transaction(db) { subject.createRelationshipFrom(Actor(createPersonEntity(personNode), createCharacterEntity(characterNode), createMovieEntity(movieNode))) }
+    val personNode = createNodeFrom(JohnDoe)
+    val characterNode = createNodeFrom(Johnny)
+    val movieNode = createNodeFrom(TestMovie)
+    val actorRelationship = transaction(db) { subject.createRelationshipFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode))) }
     actorRelationship.getType should be(FilmCrewRelationshipType.Actor)
     actorRelationship.getStartNode should be(personNode)
     actorRelationship.getEndNode should  be(movieNode)
@@ -50,10 +50,10 @@ class RelationshipFactoryTest extends FunSuite with BeforeAndAfterAll with Befor
   }
 
   test("should create relationship from actress") {
-    val personNode = createNode(JaneDoe)
-    val characterNode = createNode(Jenny)
-    val movieNode = createNode(TestMovie)
-    val actressRelationship = transaction(db) { subject.createRelationshipFrom(Actress(createPersonEntity(personNode), createCharacterEntity(characterNode), createMovieEntity(movieNode))) }
+    val personNode = createNodeFrom(JaneDoe)
+    val characterNode = createNodeFrom(Jenny)
+    val movieNode = createNodeFrom(TestMovie)
+    val actressRelationship = transaction(db) { subject.createRelationshipFrom(Actress(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode))) }
     actressRelationship.getType should be(FilmCrewRelationshipType.Actress)
     actressRelationship.getStartNode should be(personNode)
     actressRelationship.getEndNode should  be(movieNode)
@@ -69,25 +69,25 @@ class RelationshipFactoryTest extends FunSuite with BeforeAndAfterAll with Befor
 
   test("should not create relationship from the actor if the person does not exist in the database") {
     intercept[IllegalStateException] {
-      subject.createRelationshipFrom(Actor(JohnDoe, saveEntity(Johnny), saveEntity(TestMovie)))
+      subject.createRelationshipFrom(Actor(JohnDoe, insertEntity(Johnny), insertEntity(TestMovie)))
     }
   }
 
   test("should not create relationship from the actor if the character does not exist in the database") {
     intercept[IllegalStateException] {
-      subject.createRelationshipFrom(Actor(saveEntity(JohnDoe), Johnny, saveEntity(TestMovie)))
+      subject.createRelationshipFrom(Actor(insertEntity(JohnDoe), Johnny, insertEntity(TestMovie)))
     }
   }
 
   test("should not create relationship from the actor if the movie does not exist in the database") {
     intercept[IllegalStateException] {
-      subject.createRelationshipFrom(Actor(saveEntity(JohnDoe), saveEntity(Johnny), TestMovie))
+      subject.createRelationshipFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), TestMovie))
     }
   }
 
   test("should not create relationship from the actor if the actor already has an id") {
     intercept[IllegalStateException] {
-      subject.createRelationshipFrom(Actor(saveEntity(JohnDoe), saveEntity(Johnny), saveEntity(TestMovie), 1))
+      subject.createRelationshipFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), 1))
     }
   }
 
