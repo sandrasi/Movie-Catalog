@@ -37,8 +37,11 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
   }
 
   private def update[A <: LongIdEntity](e: A, l: Locale): A = e match {
+    case s: Soundtrack => EntityFactory.createEntityFrom(NodeFactory.updateNodeOf(e)(l), classOf[Soundtrack])(l).asInstanceOf[A]
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 
   override def search(text: String)(implicit locale: Locale = US): Set[LongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")
+
+  override def delete[A <: LongIdEntity](id: Long, entityType: Class[A]) { throw new UnsupportedOperationException("Not yet implemented") }
 }

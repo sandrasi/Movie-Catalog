@@ -167,12 +167,11 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     }
   }
 
-  // TODO: test soundtrack update
-//  test("should update soundtrack in the database and return a managed instance") {
-//    val soundtrackInDb = saveEntity(EnglishSoundtrack)
-//    val modifiedSoundtrack = Soundtrack("modified language code", "modified format code", id = soundtrackInDb.id.get)
-//    val updatedSoundtrack = subject.save(modifiedSoundtrack)
-//    updatedSoundtrack.id should be (soundtrackInDb.id)
-//    updatedSoundtrack should equal(modifiedSoundtrack)
-//  }
+  test("should update soundtrack in the database and return a managed instance") {
+    val soundtrackInDb = insertEntity(EnglishSoundtrack)
+    val modifiedSoundtrack = Soundtrack("modified language code", "modified format code", id = soundtrackInDb.id.get)
+    val updatedSoundtrack = subject.save(modifiedSoundtrack)
+    updatedSoundtrack.id should be (soundtrackInDb.id)
+    updatedSoundtrack should equal(modifiedSoundtrack)
+  }
 }
