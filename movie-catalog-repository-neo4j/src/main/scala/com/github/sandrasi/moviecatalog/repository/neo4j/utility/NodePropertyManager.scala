@@ -9,7 +9,7 @@ private[utility] object NodePropertyManager extends MovieCatalogGraphPropertyNam
   
   def getString(node: Node, key: String): String = node.getProperty(key).asInstanceOf[String]
   
-  def setString(node: Node, key: String, str: String) = { node.setProperty(key, str) }
+  def setString(node: Node, key: String, str: String) { node.setProperty(key, str) }
 
   def getDuration(node: Node, key: String): ReadableDuration = Duration.millis(node.getProperty(key).asInstanceOf[Long])
 
@@ -17,7 +17,7 @@ private[utility] object NodePropertyManager extends MovieCatalogGraphPropertyNam
   
   def getLocalDate(node: Node, key: String): LocalDate = new LocalDate(node.getProperty(key).asInstanceOf[Long])
   
-  def setLocalDate(node: Node, key: String, date: LocalDate) = { node.setProperty(key, date.toDateTimeAtStartOfDay.getMillis) }
+  def setLocalDate(node: Node, key: String, date: LocalDate) { node.setProperty(key, date.toDateTimeAtStartOfDay.getMillis) }
   
   def hasLocalizedText(node: Node, key: String): Boolean = hasProperty(node, key, classOf[Array[String]]) && hasProperty(node, key + LocaleLanguage, classOf[Array[String]]) && hasProperty(node, key + LocaleCountry, classOf[Array[String]]) && hasProperty(node, key + LocaleVariant, classOf[Array[String]])
   
@@ -34,7 +34,7 @@ private[utility] object NodePropertyManager extends MovieCatalogGraphPropertyNam
     val languages = node.getProperty(key + LocaleLanguage).asInstanceOf[Array[String]]
     val countries = node.getProperty(key + LocaleCountry).asInstanceOf[Array[String]]
     val variants = node.getProperty(key + LocaleVariant).asInstanceOf[Array[String]]
-    val localizedTextArray = for (i <- 0 until text.length) yield LocalizedText(text(i), new Locale(languages(i), countries(i), variants(i)))
+    val localizedTextArray = for (i <- 0 until text.length) yield LocalizedText(text(i))(new Locale(languages(i), countries(i), variants(i)))
     localizedTextArray.toSet
   }
 

@@ -5,7 +5,6 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.core._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
@@ -14,7 +13,7 @@ class AbstractCastTest extends FunSuite with ShouldMatchers {
   
   private final val JohnDoe = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
   private final val Johnny = Character("Johnny")
-  private final val TestMovie = Movie(LocalizedText("Test movie"))
+  private final val TestMovie = Movie("Test movie")
 
   test("should create abstract cast with specified person, character and motion picture") {
     val subject = TestCast(JohnDoe, Johnny, TestMovie)
@@ -47,7 +46,7 @@ class AbstractCastTest extends FunSuite with ShouldMatchers {
     val otherCast = TestCast(JohnDoe, Johnny, TestMovie)
     val otherCastWithDifferentPerson = TestCast(Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville"), Johnny, TestMovie)
     val otherCastWithDifferentCharacter = TestCast(JohnDoe, Character("Jenny"), TestMovie)
-    val otherCastWithDifferentMovie = TestCast(JohnDoe, Johnny, Movie(LocalizedText("Other movie")))
+    val otherCastWithDifferentMovie = TestCast(JohnDoe, Johnny, Movie("Other movie"))
 
     cast should not equal(null)
     cast should not equal(new AnyRef)

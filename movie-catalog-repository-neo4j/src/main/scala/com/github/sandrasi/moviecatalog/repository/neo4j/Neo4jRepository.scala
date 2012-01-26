@@ -13,7 +13,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.Transaction
 class Neo4jRepository(db: GraphDatabaseService) extends Repository with TransactionSupport {
 
   private final val EntityFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.EntityFactory(db)
-  private final val NodeFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodeFactory(db)
+  private final val NodeManager = com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodeManager(db)
   private final val RelationshipFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.RelationshipFactory(db)
 
   override def get[A <: LongIdEntity](id: Long, entityType: Class[A])(implicit locale: Locale = US): Option[A] = try {
@@ -32,12 +32,13 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
 
   private def insert[A <: LongIdEntity](e: A, l: Locale): A = e match {
     case _: Actor | _: Actress => EntityFactory.createEntityFrom(RelationshipFactory.createRelationshipFrom(e), e.getClass).asInstanceOf[A]
-    case _: Character | _: DigitalContainer | _: Movie | _: Person | _: Soundtrack | _: Subtitle => EntityFactory.createEntityFrom(NodeFactory.createNodeFrom(e), e.getClass)(l).asInstanceOf[A]
+    case _: Character | _: DigitalContainer | _: Movie | _: Person | _: Soundtrack | _: Subtitle => EntityFactory.createEntityFrom(NodeManager.createNodeFrom(e), e.getClass)(l).asInstanceOf[A]
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 
   private def update[A <: LongIdEntity](e: A, l: Locale): A = e match {
-    case s: Soundtrack => EntityFactory.createEntityFrom(NodeFactory.updateNodeOf(e)(l), classOf[Soundtrack])(l).asInstanceOf[A]
+    // TODO: test subtitle case
+    case _: Soundtrack | _: Subtitle => EntityFactory.createEntityFrom(NodeManager.updateNodeOf(e)(l), e.getClass)(l).asInstanceOf[A]
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 

@@ -14,6 +14,7 @@ class Soundtrack(val languageCode: String,
   Validate.notBlank(formatCode)
   Validate.notNull(languageName)
   Validate.notNull(formatName)
+  if (languageName != None && formatName != None) Validate.isTrue(languageName.get.locale == formatName.get.locale)
 
   override def equals(o: Any): Boolean = o match {
     case other: Soundtrack => (languageCode == other.languageCode) && (formatCode == other.formatCode)
@@ -32,7 +33,7 @@ object Soundtrack {
 
   def apply(languageCode: String,
             formatCode: String,
-            languageName: Option[LocalizedText] = None,
-            formatName: Option[LocalizedText] = None,
-            id: Long = 0) = new Soundtrack(languageCode, formatCode, languageName, formatName, id)
+            languageName: LocalizedText = null,
+            formatName: LocalizedText = null,
+            id: Long = 0) = new Soundtrack(languageCode, formatCode, if (languageName != null) Some(languageName) else None, if (formatName != null) Some(formatName) else None, id)
 }

@@ -1,5 +1,6 @@
 package com.github.sandrasi.moviecatalog.domain.entities.container
 
+import java.util.Locale
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -10,67 +11,73 @@ import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 class SoundtrackTest extends FunSuite with ShouldMatchers {
 
   test("should create soundtrack with specified language and format codes and without language and format names") {
-    val subject = Soundtrack("en", "DD 5.1")
+    val subject = Soundtrack("en", "dts")
     subject.languageCode should be("en")
-    subject.formatCode should be("DD 5.1")
+    subject.formatCode should be("dts")
     subject.languageName should be(None)
     subject.formatName should be(None)
     subject.id should be(None)
   }
   
   test("should create soundtrack with specified language name") {
-    val subject = Soundtrack("en", "DD 5.1", languageName = Some(LocalizedText("English")))
+    val subject = Soundtrack("en", "dts", languageName = "English")
     subject.languageName should be(Some(LocalizedText("English")))
   }
 
   test("should create soundtrack with specified format name") {
-    val subject = Soundtrack("en", "DD 5.1", formatName = Some(LocalizedText("Dolby Digital 5.1")))
-    subject.formatName should be(Some(LocalizedText("Dolby Digital 5.1")))
+    val subject = Soundtrack("en", "dts", formatName = "DTS")
+    subject.formatName should be(Some(LocalizedText("DTS")))
   }
 
   test("should not create soundtrack with null language code") {
     intercept[IllegalArgumentException] {
-      Soundtrack(null, "DD 5.1")
+      Soundtrack(null, "dts")
     }
   }
 
   test("should not create soundtrack with blank language code") {
     intercept[IllegalArgumentException] {
-      Soundtrack("  ", "DD 5.1")
+      Soundtrack("  ", "dts")
     }
   }
 
   test("should not create soundtrack with null format code") {
-    intercept[IllegalArgumentException]{
+    intercept[IllegalArgumentException] {
       Soundtrack("en", null)
     }
   }
 
   test("should not create soundtrack with blank format code") {
-    intercept[IllegalArgumentException]{
+    intercept[IllegalArgumentException] {
       Soundtrack("en", "  ")
     }
   }
 
   test("should not create soundtrack with null language name") {
-    intercept[IllegalArgumentException]{
-      Soundtrack("en", "DD 5.1", languageName = null)
+    intercept[IllegalArgumentException] {
+      new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0)
     }
   }
 
   test("should not create soundtrack with null format name") {
-    intercept[IllegalArgumentException]{
-      Soundtrack("en", "DD 5.1", formatName = null)
+    intercept[IllegalArgumentException] {
+      new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0)
+    }
+  }
+
+  test("should not create soundtrack with language and format names having different locale") {
+    intercept[IllegalArgumentException] {
+      Soundtrack("en", "dts", LocalizedText("English")(Locale.US), LocalizedText("DTS")(new Locale("hu", "HU")))
     }
   }
 
   test("should compare two objects for equality") {
-    val soundtrack = Soundtrack("en", "DD 5.1")
-    val otherSoundtrack = Soundtrack("en", "DD 5.1")
-    val otherSoundtrackWithDifferentLanguageCode = Soundtrack("hu", "DD 5.1")
-    val otherSoundtrackWithDifferentFormatCode = Soundtrack("en", "DTS")
-    val otherSoundtrackWithDifferentLanguageName = Soundtrack("en", "DD 5.1", languageName = Some(LocalizedText("English")))
-    val otherSoundtrackWithDifferentFormatName = Soundtrack("en", "DD 5.1", formatName = Some(LocalizedText("Dolby Digital 5.1")))
+    val soundtrack = Soundtrack("en", "dts")
+    val otherSoundtrack = Soundtrack("en", "dts")
+    val otherSoundtrackWithDifferentLanguageCode = Soundtrack("hu", "dts")
+    val otherSoundtrackWithDifferentFormatCode = Soundtrack("en", "dd51")
+    val otherSoundtrackWithDifferentLanguageName = Soundtrack("en", "dts", languageName = "English")
+    val otherSoundtrackWithDifferentFormatName = Soundtrack("en", "dts", formatName = "DTS")
 
     soundtrack should not equal(null)
     soundtrack should not equal(new AnyRef)
@@ -83,8 +90,8 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
   }
 
   test("should calculate hash code") {
-    val soundtrack = Soundtrack("en", "DD 5.1")
-    val otherSoundtrack = Soundtrack("en", "DD 5.1")
+    val soundtrack = Soundtrack("en", "dts")
+    val otherSoundtrack = Soundtrack("en", "dts")
 
     soundtrack.hashCode should equal(otherSoundtrack.hashCode)
   }

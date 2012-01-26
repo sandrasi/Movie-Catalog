@@ -4,13 +4,12 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.core.Movie
 
 @RunWith(classOf[JUnitRunner])
 class DigitalContainerTest extends FunSuite with ShouldMatchers {
 
-  private final val MotionPicture = Movie(LocalizedText("Test movie title"))
+  private final val MotionPicture = Movie("Test movie title")
   private final val SoundtrackEn = Soundtrack("en", "dts")
   private final val SoundtrackHu = Soundtrack("hu", "dts")
   private final val SubtitleEn = Subtitle("en")
@@ -67,7 +66,7 @@ class DigitalContainerTest extends FunSuite with ShouldMatchers {
   test("should compare two objects for equality") {
     val digitalContainer = DigitalContainer(MotionPicture, Set(SoundtrackEn), Set(SubtitleEn))
     val otherDigitalContainer = DigitalContainer(MotionPicture, Set(SoundtrackEn), Set(SubtitleEn))
-    val otherDigitalContainerWithDifferentMotionPicture = DigitalContainer(Movie(LocalizedText("Other movie")), Set(SoundtrackEn), Set(SubtitleEn))
+    val otherDigitalContainerWithDifferentMotionPicture = DigitalContainer(Movie("Other movie"), Set(SoundtrackEn), Set(SubtitleEn))
     val otherDigitalContainerWithDifferentSoundtracks = DigitalContainer(MotionPicture, Set(SoundtrackHu), Set(SubtitleEn))
     val otherDigitalContainerWithDifferentSubtitles = DigitalContainer(MotionPicture, Set(SoundtrackEn), Set(SubtitleHu))
 

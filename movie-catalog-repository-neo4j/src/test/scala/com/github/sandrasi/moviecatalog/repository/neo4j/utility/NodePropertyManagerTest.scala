@@ -171,7 +171,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    NodePropertyManager.getLocalizedText(node, "key") should be(LocalizedText("test", AmericanLocale))
+    NodePropertyManager.getLocalizedText(node, "key") should be(LocalizedText("test")(AmericanLocale))
   }
 
   test("should get the localized text property with the given locale") {
@@ -182,7 +182,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
       node.setProperty("key" + LocaleCountry, Array("US", "HU"))
       node.setProperty("key" + LocaleVariant, Array("", ""))
     }
-    NodePropertyManager.getLocalizedText(node, "key", HungarianLocale) should be(LocalizedText("teszt", HungarianLocale))
+    NodePropertyManager.getLocalizedText(node, "key", HungarianLocale) should be(LocalizedText("teszt")(HungarianLocale))
   }
 
   test("should not get the localized text property if it does not match the locale") {
@@ -206,13 +206,13 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
       node.setProperty("key" + LocaleCountry, Array("US", "HU"))
       node.setProperty("key" + LocaleVariant, Array("", ""))
     }
-    NodePropertyManager.getLocalizedTextSet(node, "key") should be(Set(LocalizedText("test", AmericanLocale), LocalizedText("teszt", HungarianLocale)))
+    NodePropertyManager.getLocalizedTextSet(node, "key") should be(Set(LocalizedText("test")(AmericanLocale), LocalizedText("teszt")(HungarianLocale)))
   }
 
   test("should set the localized text property") {
     val node = createNode()
     transaction(db) {
-      NodePropertyManager.setLocalizedText(node, "key", LocalizedText("test", AmericanLocale))
+      NodePropertyManager.setLocalizedText(node, "key", LocalizedText("test")(AmericanLocale))
     }
     node.getProperty("key").asInstanceOf[Array[String]] should be(Array("test"))
     node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should be(Array("en"))
@@ -223,7 +223,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
   test("should set the localized text property from multiple localized text instances") {
     val node = createNode()
     transaction(db) {
-      NodePropertyManager.setLocalizedText(node, "key", Set(LocalizedText("test", AmericanLocale), LocalizedText("teszt", HungarianLocale)))
+      NodePropertyManager.setLocalizedText(node, "key", Set(LocalizedText("test")(AmericanLocale), LocalizedText("teszt")(HungarianLocale)))
     }
     node.getProperty("key").asInstanceOf[Array[String]] should have size(2)
     node.getProperty("key").asInstanceOf[Array[String]] should contain("test")
@@ -244,7 +244,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
       node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
-      NodePropertyManager.addOrReplaceLocalizedText(node, "key", LocalizedText("teszt", HungarianLocale))
+      NodePropertyManager.addOrReplaceLocalizedText(node, "key", LocalizedText("teszt")(HungarianLocale))
     }
     node.getProperty("key").asInstanceOf[Array[String]] should have size(2)
     node.getProperty("key").asInstanceOf[Array[String]] should contain("test")
@@ -265,7 +265,7 @@ class NodePropertyManagerTest extends FunSuite with BeforeAndAfterEach with Befo
       node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
-      NodePropertyManager.addOrReplaceLocalizedText(node, "key", LocalizedText("other test", AmericanLocale))
+      NodePropertyManager.addOrReplaceLocalizedText(node, "key", LocalizedText("other test")(AmericanLocale))
     }
     node.getProperty("key").asInstanceOf[Array[String]] should be(Array("other test"))
     node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should be(Array("en"))

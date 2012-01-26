@@ -28,13 +28,13 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
   protected final val ItalianLocale = Locale.ITALY
   protected final val Johnny = Character("Johnny")
   protected final val Jenny = Character("Jenny")
-  protected final val TestMovie = Movie(LocalizedText("Test movie title"), Set(LocalizedText("Teszt film cím", HungarianLocale), LocalizedText("Prova film titolo", ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+  protected final val TestMovie = Movie("Test movie title", Set(LocalizedText("Teszt film cím")(HungarianLocale), LocalizedText("Prova film titolo")(ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
   protected final val JohnDoe = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
   protected final val JaneDoe = Person("Jane Doe", Female, new LocalDate(1980, 8, 8), "Anyville")
-  protected final val EnglishSoundtrack = Soundtrack("en", "dts", Some(LocalizedText("English")), Some(LocalizedText("DTS")))
-  protected final val HungarianSoundtrack = Soundtrack("hu", "dts", Some(LocalizedText("Hungarian")), Some(LocalizedText("DTS")))
-  protected final val EnglishSubtitle = Subtitle("en", Some(LocalizedText("English")))
-  protected final val HungarianSubtitle = Subtitle("hu", Some(LocalizedText("Hungarian")))
+  protected final val EnglishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
+  protected final val HungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
+  protected final val EnglishSubtitle = Subtitle("en", "English")
+  protected final val HungarianSubtitle = Subtitle("hu", "Hungarian")
 
   protected var db: EmbeddedGraphDatabase = _
   protected var subrefNodeSupp: SubreferenceNodeSupport = _
@@ -89,9 +89,9 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
 
   protected def createNode(): Node = transaction(db) { db.createNode() }
 
-  protected def createNodeFrom(e: LongIdEntity): Node = transaction(db) { NodeFactory(db).createNodeFrom(e) }
+  protected def createNodeFrom(e: LongIdEntity): Node = transaction(db) { NodeManager(db).createNodeFrom(e) }
   
-  protected def updateNodeOf(e: LongIdEntity): Node = transaction(db) { NodeFactory(db).updateNodeOf(e) }
+  protected def updateNodeOf(e: LongIdEntity): Node = transaction(db) { NodeManager(db).updateNodeOf(e) }
 
   protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { db.createNode().createRelationshipTo(db.createNode(), relType) }
 

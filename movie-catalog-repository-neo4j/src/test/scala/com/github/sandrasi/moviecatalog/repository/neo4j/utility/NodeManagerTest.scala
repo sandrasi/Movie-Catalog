@@ -19,25 +19,25 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodePropertyManager._
 
 @RunWith(classOf[JUnitRunner])
-class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
+class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
 
-  private var subject: NodeFactory = _
+  private var subject: NodeManager = _
 
   override protected def beforeEach() {
-    subject = NodeFactory(db)
+    subject = NodeManager(db)
   }
 
   test("should return the same node factory instance for the same database") {
-    subject should be theSameInstanceAs(NodeFactory(db))
+    subject should be theSameInstanceAs(NodeManager(db))
   }
 
   test("should return different node factory instances for different databases") {
-    subject should not be theSameInstanceAs(NodeFactory(createTempDb()))
+    subject should not be theSameInstanceAs(NodeManager(createTempDb()))
   }
 
   test("should not instantiate node factory if the database is null") {
     intercept[IllegalArgumentException] {
-      NodeFactory(null)
+      NodeManager(null)
     }
   }
 
@@ -93,14 +93,14 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not create node from the digital container if any of the soundtracks has an id referring to a node which does not exist in the database") {
-    val soundtrack = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, EnglishSoundtrack.languageName, EnglishSoundtrack.formatName, db.getAllNodes.iterator().size + 1)
+    val soundtrack = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, EnglishSoundtrack.languageName.get, EnglishSoundtrack.formatName.get, db.getAllNodes.iterator().size + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(soundtrack), Set(insertEntity(EnglishSubtitle)))) }
     }
   }
 
   test("should not create node from the digital container if any of the subtitles has an id referring to a node which does not exist in the database") {
-    val subtitle = Subtitle(EnglishSubtitle.languageCode, EnglishSubtitle.languageName, db.getAllNodes.iterator().size + 1)
+    val subtitle = Subtitle(EnglishSubtitle.languageCode, EnglishSubtitle.languageName.get, db.getAllNodes.iterator().size + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(subtitle))) }
     }
@@ -116,7 +116,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from the digital container if any of the soundtracks has an id referring to a non soundtrack node") {
     val node = createNode()
-    val soundtrack = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, EnglishSoundtrack.languageName, EnglishSoundtrack.formatName, node.getId)
+    val soundtrack = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, EnglishSoundtrack.languageName.get, EnglishSoundtrack.formatName.get, node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(soundtrack), Set(insertEntity(EnglishSubtitle)))) }
     }
@@ -124,7 +124,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from the digital container if any of the subtitles has an id referring to a non subtitle node") {
     val node = createNode()
-    val subtitle = Subtitle(EnglishSubtitle.languageCode, EnglishSubtitle.languageName, node.getId)
+    val subtitle = Subtitle(EnglishSubtitle.languageCode, EnglishSubtitle.languageName.get, node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(subtitle))) }
     }
@@ -147,7 +147,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   
   test("should not create node from movie if the movie already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(new Movie(LocalizedText("Movie with id"), Set(), Duration.standardMinutes(90), new LocalDate(2011, 1, 1), 1))
+      subject.createNodeFrom(new Movie("Movie with id", Set(), Duration.standardMinutes(90), new LocalDate(2011, 1, 1), 1))
     }
   }
 
@@ -176,14 +176,14 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from soundtrack without language name") {
-    val soundtrackNode = transaction(db) { subject.createNodeFrom(Soundtrack("en", "dts", None, Some(LocalizedText("DTS")))) }
+    val soundtrackNode = transaction(db) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = "DTS")) }
     intercept[NotFoundException] {
       soundtrackNode.getProperty(SoundtrackLanguageNames)
     }
   }
 
   test("should create node from soundtrack without format name") {
-    val soundtrackNode = transaction(db) { subject.createNodeFrom(Soundtrack("en", "dts", Some(LocalizedText("English")), None)) }
+    val soundtrackNode = transaction(db) { subject.createNodeFrom(Soundtrack("en", "dts", "English")) }
     intercept[NotFoundException] {
       soundtrackNode.getProperty(SoundtrackFormatNames)
     }
@@ -191,7 +191,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from soundtrack if the soundtrack already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Soundtrack("soundtrack with id", "dts", None, None, 1))
+      subject.createNodeFrom(Soundtrack("soundtrack with id", "dts", null, null, 1))
     }
   }
   
@@ -203,7 +203,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from subtitle without language name") {
-    val subtitleNode = transaction(db) { subject.createNodeFrom(Subtitle("en", None)) }
+    val subtitleNode = transaction(db) { subject.createNodeFrom(Subtitle("en")) }
     intercept[NotFoundException] {
       subtitleNode.getProperty(SubtitleLanguageNames)
     }
@@ -211,7 +211,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from subtitle if the subtitle already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Subtitle("subtitle with id", None, 1))
+      subject.createNodeFrom(Subtitle("subtitle with id", null, 1))
     }
   }
 
@@ -223,7 +223,7 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update soundtrack node") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("foo", "bar", Some(LocalizedText("foo language")), Some(LocalizedText("bar format")), soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack("foo", "bar", "foo language", "bar format", soundtrack.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
     getString(updatedNode, SoundtrackLanguageCode) should be("foo")
     getString(updatedNode, SoundtrackFormatCode) should be("bar")
@@ -234,15 +234,15 @@ class NodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   
   test("should add the soundtrack language and format names to the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("en", "dts", Some(LocalizedText("Angol", HungarianLocale)), Some(LocalizedText("DTS", HungarianLocale)), soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrack.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
-    getLocalizedTextSet(updatedNode, SoundtrackLanguageNames) should be(Set(LocalizedText("English"), LocalizedText("Angol", HungarianLocale)))
-    getLocalizedTextSet(updatedNode, SoundtrackFormatNames) should be(Set(LocalizedText("DTS"), LocalizedText("DTS", HungarianLocale)))
+    getLocalizedTextSet(updatedNode, SoundtrackLanguageNames) should be(Set(LocalizedText("English"), LocalizedText("Angol")(HungarianLocale)))
+    getLocalizedTextSet(updatedNode, SoundtrackFormatNames) should be(Set(LocalizedText("DTS"), LocalizedText("DTS")(HungarianLocale)))
   }
 
   test("should remove the soundtrack language and format names from the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("en", "dts", None, None, soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack("en", "dts", null, null, soundtrack.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
     hasLocalizedText(updatedNode, SoundtrackLanguageNames) should be(false)
     hasLocalizedText(updatedNode, SoundtrackFormatNames) should be(false)

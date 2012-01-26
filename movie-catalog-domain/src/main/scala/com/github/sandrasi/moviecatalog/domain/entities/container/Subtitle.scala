@@ -23,5 +23,5 @@ class Subtitle(val languageCode: String, val languageName: Option[LocalizedText]
 
 object Subtitle {
 
-  def apply(languageCode: String, languageName: Option[LocalizedText] = None, id: Long = 0) = new Subtitle(languageCode, languageName, id)
+  def apply(languageCode: String, languageName: LocalizedText = null, id: Long = 0) = new Subtitle(languageCode, if (languageName != null) Some(languageName) else None, id)
 }

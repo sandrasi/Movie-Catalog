@@ -10,6 +10,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actr
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
+import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
 class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -167,11 +168,13 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     }
   }
 
-  test("should update soundtrack in the database and return a managed instance") {
+  test("should update soundtrack in the database and return a managed instance with language and format name matching the current locale") {
     val soundtrackInDb = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("modified language code", "modified format code", id = soundtrackInDb.id.get)
+    val modifiedSoundtrack = Soundtrack("modified language code", "modified format code", LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), id = soundtrackInDb.id.get)
     val updatedSoundtrack = subject.save(modifiedSoundtrack)
     updatedSoundtrack.id should be (soundtrackInDb.id)
     updatedSoundtrack should equal(modifiedSoundtrack)
+    updatedSoundtrack.languageName.get should be(LocalizedText("English"))
+    updatedSoundtrack.formatName.get should be(LocalizedText("DTS"))
   }
 }

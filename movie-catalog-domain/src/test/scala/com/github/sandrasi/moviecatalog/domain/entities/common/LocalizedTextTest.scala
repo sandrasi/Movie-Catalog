@@ -16,8 +16,27 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
   }
 
   test("should create localized text with specified locale") {
-    val subject = new LocalizedText("honosított szöveg", new Locale("hu", "HU"))
+    val subject = new LocalizedText("honosított szöveg")(new Locale("hu", "HU"))
     subject.locale should be(new Locale("hu", "HU"))
+  }
+
+  test("should create localized text with implicit locale") {
+    implicit val hungarianLocale = new Locale("hu", "HU")
+    val subject = LocalizedText("honosított szöveg")
+    subject.locale should be(hungarianLocale)
+  }
+
+  test("should create localized text from string with default locale using implicit conversion") {
+    val subject: LocalizedText = "localized text"
+    subject.text should be("localized text")
+    subject.locale should be(Locale.US)
+  }
+
+  test("should create localized text from string with implicit locale using implicit conversion") {
+    implicit val hungarianLocale = new Locale("hu", "HU")
+    val subject: LocalizedText = "honosított szöveg"
+    subject.text should be("honosított szöveg")
+    subject.locale should be(hungarianLocale)
   }
 
   test("should not create localized text with null text") {
@@ -28,7 +47,7 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
 
   test("should not create localized text with null locale") {
     intercept[IllegalArgumentException]{
-      LocalizedText("localized text", null)
+      LocalizedText("localized text")(null)
     }
   }
 
@@ -36,7 +55,7 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
     val localizedText = LocalizedText("localized text")
     val otherLocalizedText = LocalizedText("localized text")
     val otherLocalizedTextWithDifferentText = LocalizedText("different text")
-    val otherLocalizedTextWithDifferentLocale = LocalizedText("localized text", Locale.ENGLISH)
+    val otherLocalizedTextWithDifferentLocale = LocalizedText("localized text")(Locale.ENGLISH)
 
     localizedText should not equal(null)
     localizedText should not equal(new AnyRef)

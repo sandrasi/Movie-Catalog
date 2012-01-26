@@ -4,7 +4,6 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.{Map => MutableMap}
 import java.util.Locale
 import java.util.Locale.US
-import org.joda.time.{Duration, LocalDate}
 import org.neo4j.graphdb._
 import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.common.Validate
@@ -62,13 +61,13 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
 
   private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getString(n, SoundtrackLanguageCode), getString(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), n.getId)
 
-  private def getSoundtrackLanguageName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SoundtrackLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException=> None }
+  private def getSoundtrackLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackLanguageNames, l) } catch { case _: NotFoundException | _: NoSuchElementException=> null }
   
-  private def getSoundtrackFormatName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SoundtrackFormatNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
+  private def getSoundtrackFormatName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackFormatNames, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
 
   private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getString(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), n.getId)
 
-  private def getSubtitleLanguageName(n: Node, l: Locale) = try { Some(getLocalizedText(n, SubtitleLanguageNames, l)) } catch { case _: NotFoundException | _: NoSuchElementException => None }
+  private def getSubtitleLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SubtitleLanguageNames, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
   
   def createEntityFrom[A <: LongIdEntity](r: Relationship, entityType: Class[A]): A = entityType match {
     case ClassActor => withTypeCheck(r, entityType, FilmCrewRelationshipType.forClass(ClassActor)) { createActorFrom(r) }

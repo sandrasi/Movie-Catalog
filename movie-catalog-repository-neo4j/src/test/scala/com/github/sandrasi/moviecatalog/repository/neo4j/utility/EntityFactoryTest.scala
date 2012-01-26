@@ -89,7 +89,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   
   test("should create soundtrack entity from node with language and format names of which locale matches the given locale") {
     val nodeId = insertEntity(EnglishSoundtrack).id.get
-    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, Some(LocalizedText("Angol", HungarianLocale)), Some(LocalizedText("DTS", HungarianLocale)), nodeId)
+    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), nodeId)
     val soundtrackNode = transaction(db) { updateNodeOf(soundtrackWithDifferentLocale) }
     val soundtrack = subject.createEntityFrom(soundtrackNode, classOf[Soundtrack])(AmericanLocale)
     soundtrack.languageName should be(EnglishSoundtrack.languageName)
@@ -170,7 +170,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val characterOne = insertEntity(Johnny)
     val characterTwo = insertEntity(Character("Jackie"))
     val movieOne = insertEntity(TestMovie)
-    val movieTwo = insertEntity(Movie(LocalizedText("Another test movie")))
+    val movieTwo = insertEntity(Movie("Another test movie"))
     val actorRelationshipOne = createRelationshipFrom(Actor(person, characterOne, movieOne))
     val actorRelationshipTwo = createRelationshipFrom(Actor(person, characterTwo, movieTwo))
     val actorOne = subject.createEntityFrom(actorRelationshipOne, classOf[Actor])

@@ -12,7 +12,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Digit
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodePropertyManager._
 
-private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
+private[neo4j] class NodeManager private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
   Validate.notNull(db)
   
@@ -109,13 +109,13 @@ private[neo4j] class NodeFactory private (db: GraphDatabaseService) extends Movi
   }
 }
 
-private[neo4j] object NodeFactory {
+private[neo4j] object NodeManager {
 
-  private final val Instances = MutableMap.empty[GraphDatabaseService, NodeFactory]
+  private final val Instances = MutableMap.empty[GraphDatabaseService, NodeManager]
 
-  def apply(db: GraphDatabaseService): NodeFactory = {
+  def apply(db: GraphDatabaseService): NodeManager = {
     if (!Instances.contains(db)) {
-      Instances += db -> new NodeFactory(db)
+      Instances += db -> new NodeManager(db)
     }
     Instances(db)
   }

@@ -14,8 +14,8 @@ class MovieTest extends FunSuite with ShouldMatchers {
   private final val Hu = new Locale("hu", "HU")
   private final val It = Locale.ITALY
   private final val MovieTitleUs = LocalizedText("Test movie title")
-  private final val MovieTitleHu = LocalizedText("Teszt film cím", Hu)
-  private final val MovieTitleIt = LocalizedText("Prova film titolo", It)
+  private final val MovieTitleHu = LocalizedText("Teszt film cím")(Hu)
+  private final val MovieTitleIt = LocalizedText("Prova film titolo")(It)
 
   test("should create movie with given original title and default attributes") {
     val subject = Movie(MovieTitleUs)
