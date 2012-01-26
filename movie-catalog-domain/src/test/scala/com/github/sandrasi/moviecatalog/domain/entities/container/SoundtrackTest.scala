@@ -1,6 +1,7 @@
 package com.github.sandrasi.moviecatalog.domain.entities.container
 
 import java.util.Locale
+import java.util.Locale.US
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -67,7 +68,7 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
 
   test("should not create soundtrack with language and format names having different locale") {
     intercept[IllegalArgumentException] {
-      Soundtrack("en", "dts", LocalizedText("English")(Locale.US), LocalizedText("DTS")(new Locale("hu", "HU")))
+      Soundtrack("en", "dts", LocalizedText("English")(US), LocalizedText("DTS")(new Locale("hu", "HU")))
     }
   }
 

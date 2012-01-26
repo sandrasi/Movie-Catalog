@@ -11,6 +11,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, 
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodePropertyManager._
+import java.lang.IllegalStateException
 
 private[neo4j] class NodeManager private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
@@ -18,13 +19,13 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
   
   private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
 
-  def createNodeFrom(e: LongIdEntity): Node = e match {
+  def createNodeFrom(e: LongIdEntity)(implicit l: Locale = US): Node = e match {
     case c: Character => createNodeFrom(c)
     case dc: DigitalContainer => createNodeFrom(dc)
     case m: Movie => createNodeFrom(m)
     case p: Person => createNodeFrom(p)
-    case s: Soundtrack => createNodeFrom(s)
-    case s: Subtitle => createNodeFrom(s)
+    case s: Soundtrack => createNodeFrom(s, l)
+    case s: Subtitle => createNodeFrom(s, l)
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
   
@@ -65,7 +66,9 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     personNode
   }
 
-  private def createNodeFrom(s: Soundtrack): Node = {
+  private def createNodeFrom(s: Soundtrack, l: Locale): Node = {
+    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale " + s.languageName.get.locale + " does not match the current locale " + l)
+    if ((s.formatName != None) && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale " + s.formatName.get.locale + " does not match the current locale " + l)
     val soundtrackNode = createNodeForEntity(s)
     setString(soundtrackNode, SoundtrackLanguageCode, s.languageCode)
     setString(soundtrackNode, SoundtrackFormatCode, s.formatCode)
@@ -75,7 +78,8 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     soundtrackNode
   }
 
-  private def createNodeFrom(s: Subtitle): Node = {
+  private def createNodeFrom(s: Subtitle, l: Locale): Node = {
+    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale " + s.languageName.get.locale + " does not match the current locale " + l)
     val subtitleNode = createNodeForEntity(s)
     setString(subtitleNode, SubtitleLanguageCode, s.languageCode)
     if (s.languageName != None) setLocalizedText(subtitleNode, SubtitleLanguageNames, s.languageName.get)
@@ -93,6 +97,8 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
   }
 
   private def updateNodeOf(s: Soundtrack, l: Locale): Node = {
+    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale " + s.languageName.get.locale + " does not match the current locale " + l)
+    if ((s.formatName != None) && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale " + s.formatName.get.locale + " does not match the current locale " + l)
     val soundtrackNode = getNodeOf(s)
     setString(soundtrackNode, SoundtrackLanguageCode, s.languageCode)
     setString(soundtrackNode, SoundtrackFormatCode, s.formatCode)

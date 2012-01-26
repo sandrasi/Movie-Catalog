@@ -189,6 +189,18 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
+  test("should not create node from soundtrack if the language name locale does not match the current locale") {
+    intercept[IllegalStateException] {
+      subject.createNodeFrom(Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale)))(AmericanLocale)
+    }
+  }
+
+  test("should not create node from soundtrack if the format name locale does not match the current locale") {
+    intercept[IllegalStateException] {
+      subject.createNodeFrom(Soundtrack("en", "dts", formatName = LocalizedText("DTS")(HungarianLocale)))(AmericanLocale)
+    }
+  }
+
   test("should not create node from soundtrack if the soundtrack already has an id") {
     intercept[IllegalStateException] {
       subject.createNodeFrom(Soundtrack("soundtrack with id", "dts", null, null, 1))
@@ -206,6 +218,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val subtitleNode = transaction(db) { subject.createNodeFrom(Subtitle("en")) }
     intercept[NotFoundException] {
       subtitleNode.getProperty(SubtitleLanguageNames)
+    }
+  }
+
+  test("should not create node from subtitle if the language name locale does not match the current locale") {
+    intercept[IllegalStateException] {
+      subject.createNodeFrom(Subtitle("en", LocalizedText("Angol")(HungarianLocale)))(AmericanLocale)
     }
   }
 
@@ -235,7 +253,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should add the soundtrack language and format names to the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     val modifiedSoundtrack = Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrack.id.get)
-    val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
+    val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack)(HungarianLocale) }
     getLocalizedTextSet(updatedNode, SoundtrackLanguageNames) should be(Set(LocalizedText("English"), LocalizedText("Angol")(HungarianLocale)))
     getLocalizedTextSet(updatedNode, SoundtrackFormatNames) should be(Set(LocalizedText("DTS"), LocalizedText("DTS")(HungarianLocale)))
   }
@@ -246,6 +264,18 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
     hasLocalizedText(updatedNode, SoundtrackLanguageNames) should be(false)
     hasLocalizedText(updatedNode, SoundtrackFormatNames) should be(false)
+  }
+
+  test("should not update soundtrack node if the language name locale does not match the current locale") {
+    intercept[IllegalStateException] {
+      subject.updateNodeOf(Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale)))(AmericanLocale)
+    }
+  }
+
+  test("should not update soundtrack node if the format name locale does not match the current locale") {
+    intercept[IllegalStateException] {
+      subject.updateNodeOf(Soundtrack("en", "dts", formatName = LocalizedText("DTS")(HungarianLocale)))(AmericanLocale)
+    }
   }
 
   test("should not update the soundtrack if it does not have an id") {

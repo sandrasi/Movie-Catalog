@@ -1,6 +1,8 @@
 package com.github.sandrasi.moviecatalog.domain.entities.common
 
 import java.util.Locale
+import java.util.Locale.ENGLISH
+import java.util.Locale.US
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -12,7 +14,7 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
   test("should create localized text with specified text and default locale") {
     val subject = LocalizedText("localized text")
     subject.text should be("localized text")
-    subject.locale should be(Locale.US)
+    subject.locale should be(US)
   }
 
   test("should create localized text with specified locale") {
@@ -29,7 +31,7 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
   test("should create localized text from string with default locale using implicit conversion") {
     val subject: LocalizedText = "localized text"
     subject.text should be("localized text")
-    subject.locale should be(Locale.US)
+    subject.locale should be(US)
   }
 
   test("should create localized text from string with implicit locale using implicit conversion") {
@@ -55,7 +57,7 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
     val localizedText = LocalizedText("localized text")
     val otherLocalizedText = LocalizedText("localized text")
     val otherLocalizedTextWithDifferentText = LocalizedText("different text")
-    val otherLocalizedTextWithDifferentLocale = LocalizedText("localized text")(Locale.ENGLISH)
+    val otherLocalizedTextWithDifferentLocale = LocalizedText("localized text")(ENGLISH)
 
     localizedText should not equal(null)
     localizedText should not equal(new AnyRef)
