@@ -1,6 +1,7 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
 import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 
@@ -8,6 +9,7 @@ private[neo4j] object SubreferenceRelationshipType extends AbstractClassBasedRel
 
   type SubreferenceRelationshipType = RelationshipTypeValue
 
+  final val AbstractCast = relationshipTypeValue(classOf[AbstractCast])
   final val Character = relationshipTypeValue(classOf[Character])
   final val DigitalContainer = relationshipTypeValue(classOf[DigitalContainer])
   final val Movie = relationshipTypeValue(classOf[Movie])

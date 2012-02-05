@@ -12,6 +12,7 @@ import org.neo4j.graphdb.{Node, Relationship, RelationshipType}
 import org.neo4j.kernel.EmbeddedGraphDatabase
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll}
 import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
@@ -30,7 +31,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
   protected final val Jenny = Character("Jenny")
   protected final val TestMovie = Movie("Test movie title", Set(LocalizedText("Teszt film cím")(HungarianLocale), LocalizedText("Prova film titolo")(ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
   protected final val JohnDoe = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-  protected final val JaneDoe = Person("Jane Doe", Female, new LocalDate(1980, 8, 8), "Anyville")
+  protected final val JaneDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
   protected final val EnglishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
   protected final val HungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
   protected final val EnglishSubtitle = Subtitle("en", "English")
@@ -91,22 +92,29 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
 
   protected def createNodeFrom(e: LongIdEntity): Node = transaction(db) { NodeManager(db).createNodeFrom(e) }
   
-  protected def updateNodeOf(e: LongIdEntity): Node = transaction(db) { NodeManager(db).updateNodeOf(e) }
+  protected def updateNodeOf(e: LongIdEntity, l: Locale = AmericanLocale): Node = transaction(db) { NodeManager(db).updateNodeOf(e)(l) }
 
   protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { db.createNode().createRelationshipTo(db.createNode(), relType) }
 
-  protected def createRelationshipFrom(e: LongIdEntity): Relationship = transaction(db) { RelationshipFactory(db).createRelationshipFrom(e) }
-
   protected def insertEntity[A <: LongIdEntity](entity: A): A = entity match {
+    case a: Actor => createActorFrom(createNodeFrom(a)).asInstanceOf[A]
+    case a: Actress => createActressFrom(createNodeFrom(a)).asInstanceOf[A]
     case c: Character => createCharacterFrom(createNodeFrom(c)).asInstanceOf[A]
+    case dc: DigitalContainer => createDigitalContainerFrom(createNodeFrom(dc)).asInstanceOf[A]
     case m: Movie => createMovieFrom(createNodeFrom(m)).asInstanceOf[A]
     case p: Person => createPersonFrom(createNodeFrom(p)).asInstanceOf[A]
     case s: Soundtrack => createSoundtrackFrom(createNodeFrom(s)).asInstanceOf[A]
     case s: Subtitle => createSubtitleFrom(createNodeFrom(s)).asInstanceOf[A]
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(entity.getClass.getName))
   }
-  
+
+  protected def createActorFrom(n: Node): Actor = EntityFactory(db).createEntityFrom(n, classOf[Actor])
+
+  protected def createActressFrom(n: Node): Actress = EntityFactory(db).createEntityFrom(n, classOf[Actress])
+
   protected def createCharacterFrom(n: Node): Character = EntityFactory(db).createEntityFrom(n, classOf[Character])
+
+  protected def createDigitalContainerFrom(n: Node): DigitalContainer = EntityFactory(db).createEntityFrom(n, classOf[DigitalContainer])
 
   protected def createMovieFrom(n: Node): Movie = EntityFactory(db).createEntityFrom(n, classOf[Movie])
 
@@ -115,6 +123,8 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
   protected def createSoundtrackFrom(n: Node): Soundtrack = EntityFactory(db).createEntityFrom(n, classOf[Soundtrack])
 
   protected def createSubtitleFrom(n: Node): Subtitle = EntityFactory(db).createEntityFrom(n, classOf[Subtitle])
+
+  protected def getNodeCount: Int = db.getAllNodes.iterator().size
 
   protected final class TestRelationshipType(override val name: String) extends RelationshipType
 }

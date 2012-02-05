@@ -1,5 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 
+import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.NotFoundException
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
@@ -7,6 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.utility.Gender.Male
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
@@ -22,13 +24,13 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should fetch actor from the database by id") {
-    val actorRelationship = createRelationshipFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    subject.get(actorRelationship.getId, classOf[Actor]).get.isInstanceOf[Actor] should be(true)
+    val actorNode = createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    subject.get(actorNode.getId, classOf[Actor]).get.isInstanceOf[Actor] should be(true)
   }
 
   test("should fetch actress from the database by id") {
-    val actorRelationship = createRelationshipFrom(Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie)))
-    subject.get(actorRelationship.getId, classOf[Actress]).get.isInstanceOf[Actress] should be(true)
+    val actressNode = createNodeFrom(Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie)))
+    subject.get(actressNode.getId, classOf[Actress]).get.isInstanceOf[Actress] should be(true)
   }
 
   test("should fetch character from the database by id") {
@@ -77,21 +79,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedActor.id should not be(None)
     savedActor should equal(actor)
     try {
-      db.getRelationshipById(savedActor.id.get)
+      db.getNodeById(savedActor.id.get)
     } catch {
-      case e: NotFoundException => fail("getRelationshipById(Long) should have returned a relationship")
-    }
-  }
-
-  test("should insert actress into the database and return a managed instance") {
-    val actress = Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie))
-    val savedActress = subject.save(actress)
-    savedActress.id should not be(None)
-    savedActress should equal(actress)
-    try {
-      db.getRelationshipById(savedActress.id.get)
-    } catch {
-      case e: NotFoundException => fail("getRelationshipById(Long) should have returned a relationship")
+      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -168,13 +158,68 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     }
   }
 
+  test("should update actor in the database and return a managed instance") {
+    val actorInDb = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie))
+    val modifiedActor = Actor(insertEntity(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")), insertEntity(Character("Jamie")), insertEntity(Movie("Foo movie title")))
+    val updatedActor = subject.save(modifiedActor)
+    updatedActor.id should not be(actorInDb.id)
+    updatedActor should equal(modifiedActor)
+  }
+
+  test("should update character in the database and return a managed instance") {
+    val characterInDb = insertEntity(Johnny)
+    val modifiedCharacter = Character("Jenny", "foo", characterInDb.id.get)
+    val updatedCharacter = subject.save(modifiedCharacter)
+    updatedCharacter.id should be (characterInDb.id)
+    updatedCharacter should equal(modifiedCharacter)
+  }
+
+  test("should update digital container in the database and return a managed instance") {
+    val digitalContainerInDb = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val modifiedDigitalContainer = DigitalContainer(insertEntity(Movie("Foo movie title")), Set(insertEntity(HungarianSoundtrack)), Set(insertEntity(HungarianSubtitle)), digitalContainerInDb.id.get)
+    val updatedDigitalContainer = subject.save(modifiedDigitalContainer)
+    updatedDigitalContainer.id should be (digitalContainerInDb.id)
+    updatedDigitalContainer should equal(modifiedDigitalContainer)
+  }
+
+  test("should update movie in the database and return a managed instance") {
+    val movieInDb = insertEntity(TestMovie)
+    val modifiedMovie = Movie("Foo movie title", Set(LocalizedText("Foo film cím")(HungarianLocale), LocalizedText("Foo film titolo")(ItalianLocale)), Duration.standardMinutes(100), new LocalDate(2012, 1, 30), movieInDb.id.get)
+    val updatedMovie = subject.save(modifiedMovie)
+    updatedMovie.id should be (movieInDb.id)
+    updatedMovie should equal(modifiedMovie)
+  }
+
+  test("should update person in the database and return a managed instance") {
+    val personInDb = insertEntity(JohnDoe)
+    val modifiedPerson = Person(JaneDoe.name, JaneDoe.gender, JaneDoe.dateOfBirth, JaneDoe.placeOfBirth, personInDb.id.get)
+    val updatedPerson = subject.save(modifiedPerson)
+    updatedPerson.id should be (personInDb.id)
+    updatedPerson should equal(modifiedPerson)
+  }
+
   test("should update soundtrack in the database and return a managed instance with language and format name matching the current locale") {
     val soundtrackInDb = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("modified language code", "modified format code", LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), id = soundtrackInDb.id.get)
-    val updatedSoundtrack = subject.save(modifiedSoundtrack)
+    val modifiedSoundtrack = Soundtrack("modified language code", "modified format code", LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrackInDb.id.get)
+    val updatedSoundtrack = subject.save(modifiedSoundtrack)(HungarianLocale)
     updatedSoundtrack.id should be (soundtrackInDb.id)
     updatedSoundtrack should equal(modifiedSoundtrack)
-    updatedSoundtrack.languageName.get should be(LocalizedText("English"))
-    updatedSoundtrack.formatName.get should be(LocalizedText("DTS"))
+    updatedSoundtrack.languageName.get should be(LocalizedText("Angol")(HungarianLocale))
+    updatedSoundtrack.formatName.get should be(LocalizedText("DTS")(HungarianLocale))
+  }
+
+  test("should update subtitle in the database and return a managed instance with language name matching the current locale") {
+    val subtitleInDb = insertEntity(EnglishSubtitle)
+    val modifiedSubtitle = Subtitle("modified language code", LocalizedText("Angol")(HungarianLocale), subtitleInDb.id.get)
+    val updatedSubtitle = subject.save(modifiedSubtitle)(HungarianLocale)
+    updatedSubtitle.id should be (subtitleInDb.id)
+    updatedSubtitle should equal(modifiedSubtitle)
+    updatedSubtitle.languageName.get should be(LocalizedText("Angol")(HungarianLocale))
+  }
+
+  test("should not update unsupported entity in the database") {
+    intercept[IllegalArgumentException] {
+      subject.save(new LongIdEntity(1) {})
+    }
   }
 }

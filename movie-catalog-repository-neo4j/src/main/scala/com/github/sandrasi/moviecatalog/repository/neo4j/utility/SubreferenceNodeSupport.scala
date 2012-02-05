@@ -5,6 +5,7 @@ import org.neo4j.graphdb.Direction.OUTGOING
 import org.neo4j.graphdb.{GraphDatabaseService, Node}
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType._
@@ -13,13 +14,21 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.Transaction
 private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames with TransactionSupport {
 
   Validate.notNull(db)
+  
+  private final val ClassActor = classOf[Actor]
+  private final val ClassActress = classOf[Actress]
 
   def isSubreferenceNode(n: Node): Boolean = SubreferenceRelationshipType.values.exists(v => getSubreferenceNodeIdOfRelationship(v.asInstanceOf[SubreferenceRelationshipType]) == n.getId)
 
   def getSubrefNodeIdFor[A <: LongIdEntity](c: Class[A]): Long = try {
-    getSubreferenceNodeIdOfRelationship(SubreferenceRelationshipType.forClass(c))
+    getSubreferenceNodeIdOfRelationship(SubreferenceRelationshipType.forClass(mapClassToSubreferenceRelationshipTypeClass(c)))
   } catch {
     case e: NoSuchElementException => throw new IllegalArgumentException("Unsupported entity type %s".format(c.getName))
+  }
+
+  private def mapClassToSubreferenceRelationshipTypeClass[A <: LongIdEntity](c: Class[A]) = c match {
+    case ClassActor | ClassActress => classOf[AbstractCast]
+    case _ => c
   }
 
   private def getSubreferenceNodeIdOfRelationship(relType: SubreferenceRelationshipType): Long = {

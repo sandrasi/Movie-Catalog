@@ -8,15 +8,14 @@ import org.neo4j.graphdb._
 import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.AbstractRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodePropertyManager._
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
 
 private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
@@ -35,6 +34,8 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
 
   def createEntityFrom[A <: LongIdEntity](n: Node, entityType: Class[A])(implicit locale: Locale = US): A = withTypeCheck(n, entityType ) {
     entityType match {
+      case ClassActor => createActorFrom(n)
+      case ClassActress => createActressFrom(n)
       case ClassCharacter => createCharacterFrom(n)
       case ClassDigitalContainer => createDigitalContainerFrom(n, locale)
       case ClassMovie => createMovieFrom(n)
@@ -46,7 +47,11 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   }
   
   private def withTypeCheck[A <: LongIdEntity](n: Node, entityType: Class[A])(op: => LongIdEntity) = if (SubrefNodeSupp.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
-  
+
+  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), n.getId)
+
+  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), n.getId)
+
   private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterDiscriminator), n.getId)
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(StoredIn, INCOMING).getStartNode), getSoundtracks(n, l), getSubtitles(n, l), n.getId)
@@ -68,20 +73,6 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getString(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), n.getId)
 
   private def getSubtitleLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SubtitleLanguageNames, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
-  
-  def createEntityFrom[A <: LongIdEntity](r: Relationship, entityType: Class[A]): A = entityType match {
-    case ClassActor => withTypeCheck(r, entityType, FilmCrewRelationshipType.forClass(ClassActor)) { createActorFrom(r) }
-    case ClassActress => withTypeCheck(r, entityType, FilmCrewRelationshipType.forClass(ClassActress)) { createActressFrom(r) }
-    case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(entityType.getName))
-  }
-
-  private def withTypeCheck[A <: LongIdEntity](r: Relationship, entityType: Class[A], relationshipType: RelationshipType)(op: => LongIdEntity) = if (AbstractRelationshipType.isRelationshipOfType(r, relationshipType)) entityType.cast(op) else throw new ClassCastException("Relationship [id: %d] is not of type %s".format(r.getId, entityType.getName))
-
-  private def createActorFrom(r: Relationship) = Actor(createPersonFrom(r.getStartNode), getCharacter(r), createMovieFrom(r.getEndNode), r.getId)
-
-  private def createActressFrom(r: Relationship) = Actress(createPersonFrom(r.getStartNode), getCharacter(r), createMovieFrom(r.getEndNode), r.getId)
-
-  private def getCharacter(r: Relationship) = createCharacterFrom(r.getStartNode.getRelationships(PlayedBy, INCOMING).filter(_.getProperty(PlayedByRelationshipCastRelationshipId) == r.getId).head.getStartNode)
 }
 
 private[neo4j] object EntityFactory {
