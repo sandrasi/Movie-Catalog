@@ -11,6 +11,8 @@ private[utility] object PropertyManager extends MovieCatalogGraphPropertyNames {
   
   def setString(propCntnr: PropertyContainer, key: String, str: String) { propCntnr.setProperty(key, str) }
 
+  def hasLong(propCntnr: PropertyContainer, key: String): Boolean = hasProperty(propCntnr, key, classOf[java.lang.Long])
+
   def getLong(propCntnr: PropertyContainer, key: String): Long = propCntnr.getProperty(key).asInstanceOf[Long]
 
   def setLong(propCntnr: PropertyContainer, key: String, lng: Long) { propCntnr.setProperty(key, lng) }

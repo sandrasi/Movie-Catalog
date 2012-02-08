@@ -1,13 +1,14 @@
 package com.github.sandrasi.moviecatalog.domain.entities.base
 
-/**
- * Created by IntelliJ IDEA.
- * User: sandrasi
- * Date: 2/7/12
- * Time: 10:38 PM
- * To change this template use File | Settings | File Templates.
- */
+import org.scalatest.FunSuite
 
-class VersionSupportTest {
-
+class VersionSupportTest extends FunSuite {
+  
+  test("should not create entity with negative version") {
+    intercept[IllegalArgumentException] {
+      new TestBaseEntityWithVersionSupport(-1, 0)
+    }
+  }
 }
+
+private class TestBaseEntityWithVersionSupport(val version: Long, id: Int) extends BaseEntity[Int](Some(id)) with VersionSupport

@@ -67,5 +67,5 @@ class AbstractCastTest extends FunSuite with ShouldMatchers {
 
 private object TestCast {
 
-  def apply(person: Person, character: Character, movie: Movie) = new AbstractCast(person, character, movie, 0) {}
+  def apply(person: Person, character: Character, movie: Movie) = new AbstractCast(person, character, movie, 0, 0) {}
 }

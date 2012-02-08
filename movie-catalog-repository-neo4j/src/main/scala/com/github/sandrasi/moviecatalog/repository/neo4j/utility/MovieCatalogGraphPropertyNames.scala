@@ -24,4 +24,5 @@ private[neo4j] trait MovieCatalogGraphPropertyNames {
   final val SubtitleLanguageCode = "languageCode"
   final val SubtitleLanguageNames = "languageName"
   final val SubreferenceNodeClassName = "className"
+  final val Version = "version"
 }

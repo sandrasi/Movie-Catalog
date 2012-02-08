@@ -11,6 +11,14 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 @RunWith(classOf[JUnitRunner])
 class ActressTest extends FunSuite with ShouldMatchers {
 
+  test("should create actress with default version") {
+    val janeDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
+    val jenny = Character("Jenny")
+    val testMovie = Movie("Test movie")
+    val subject = Actor(janeDoe, jenny, testMovie)
+    subject.version should be(0)
+  }
+
   test("should not create male actress") {
     val johnDoe = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
     val johnny = Character("Johnny")
@@ -26,7 +34,7 @@ class ActressTest extends FunSuite with ShouldMatchers {
     val jenny = Character("Jenny")
     val testMovie = Movie("Test movie")
     val actress = Actress(janeDoe, jenny, testMovie)
-    val cast = new AbstractCast(janeDoe, jenny, testMovie, 0) {}
+    val cast = new AbstractCast(janeDoe, jenny, testMovie, 0, 0) {}
     actress should not equal(cast)
   }
 }

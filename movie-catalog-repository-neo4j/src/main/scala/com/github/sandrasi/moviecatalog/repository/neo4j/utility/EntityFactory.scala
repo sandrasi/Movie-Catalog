@@ -52,7 +52,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
 
   private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), n.getId)
 
-  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterDiscriminator), n.getId)
+  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterDiscriminator), getLong(n, Version), n.getId)
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(StoredIn, INCOMING).getStartNode), getSoundtracks(n, l), getSubtitles(n, l), n.getId)
   

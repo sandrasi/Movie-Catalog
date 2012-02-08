@@ -2,9 +2,9 @@ package com.github.sandrasi.moviecatalog.domain.entities.core
 
 import java.util.UUID
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.{LongIdEntity, VersionSupport}
 
-class Character(val name: String, val discriminator: String, id: Long) extends LongIdEntity(id) {
+class Character(val name: String, val discriminator: String, val version: Long, id: Long) extends LongIdEntity(id) with VersionSupport {
 
   Validate.notNull(name)
   Validate.notNull(discriminator)
@@ -24,5 +24,5 @@ class Character(val name: String, val discriminator: String, id: Long) extends L
 
 object Character {
 
-  def apply(name: String, discriminator: String = UUID.randomUUID.toString, id: Long = 0) = new Character(name, discriminator, id)
+  def apply(name: String, discriminator: String = UUID.randomUUID.toString, version: Long = 0, id: Long = 0) = new Character(name, discriminator, version, id)
 }

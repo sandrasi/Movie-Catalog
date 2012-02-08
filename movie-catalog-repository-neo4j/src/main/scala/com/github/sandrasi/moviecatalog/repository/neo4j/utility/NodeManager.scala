@@ -7,7 +7,7 @@ import java.util.Locale
 import java.util.Locale.US
 import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.{LongIdEntity, VersionSupport}
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
@@ -23,7 +23,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
   Validate.notNull(db)
   
   private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
-
+  
   def createNodeFrom(e: LongIdEntity)(implicit l: Locale = US): Node = e match {
     case ac: AbstractCast => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(ac), ac), e.getClass)
     case c: Character => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(c), c), e.getClass)
@@ -59,7 +59,13 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
   private def setNodePropertiesFrom(n: Node, c: Character): Node = {
     setString(n, CharacterName, c.name)
     setString(n, CharacterDiscriminator, c.discriminator)
+    setVersion(n, c)
     n
+  }
+  
+  private def setVersion(n: Node, e: LongIdEntity with VersionSupport) {
+    if (hasLong(n, Version) && getLong(n, Version) != e.version) throw new IllegalStateException("%s [id: %d] has been modified".format(e.getClass.getName, e.id.get))
+    setLong(n, Version, if (e.id == None) 0L else e.version + 1)
   }
 
   private def setNodePropertiesFrom(n: Node, dc: DigitalContainer): Node = {

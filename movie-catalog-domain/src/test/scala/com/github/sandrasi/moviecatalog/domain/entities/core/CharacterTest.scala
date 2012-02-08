@@ -12,7 +12,8 @@ class CharacterTest extends FunSuite with ShouldMatchers {
     val subject = Character("Johnny")
     subject.name should be("Johnny")
     subject.discriminator.length should be(36)
-    subject.id should  be(None)
+    subject.version should be(0)
+    subject.id should be(None)
   }
   
   test("should not create character with null name") {

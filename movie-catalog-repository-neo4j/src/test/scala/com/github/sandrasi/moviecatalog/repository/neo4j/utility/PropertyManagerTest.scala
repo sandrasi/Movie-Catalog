@@ -20,6 +20,18 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
     node.getProperty("key") should be("test")
   }
 
+  test("should return true if the property container has the given long property") {
+    val node = createNode()
+    transaction(db) { node.setProperty("key", 1L) }
+    PropertyManager.hasLong(node, "key") should be(true)
+  }
+
+  test("should return false if the property container has the given property but it is not a long") {
+    val node = createNode()
+    transaction(db) { node.setProperty("key", "foo") }
+    PropertyManager.hasLong(node, "key") should be(false)
+  }
+
   test("should get the long property") {
     val node = createNode()
     transaction(db) { node.setProperty("key", 1L) }

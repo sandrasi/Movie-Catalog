@@ -19,7 +19,7 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
   }
 
   override def save[A <: LongIdEntity](entity: A)(implicit locale: Locale = US): A = transaction(db) {
-    EntityFactory.createEntityFrom(if (entity.id == None) NodeManager.createNodeFrom(entity)(locale) else NodeManager.updateNodeOf(entity)(locale), entity.getClass)(locale).asInstanceOf[A]
+    EntityFactory.createEntityFrom(if (entity.id == None) NodeManager.createNodeFrom(entity) else NodeManager.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
   }
 
   override def search(text: String)(implicit locale: Locale = US): Set[LongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")

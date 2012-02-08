@@ -63,14 +63,13 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     subject.get(subtitleNode.getId, classOf[Subtitle]).get.isInstanceOf[Subtitle] should be(true)
   }
 
-  test("should return nothing if there is no node or relationship in the database with the specified id") {
-    subject.get(Long.MaxValue, classOf[Person]) should be(None)
-    subject.get(Long.MaxValue, classOf[Actor]) should be(None)
+  test("should return nothing if there is no node in the database with the specified id") {
+    subject.get(getNodeCount + 1, classOf[Actor]) should be(None)
   }
   
   test("should return nothing if the node cannot be converted to the given type") {
     val characterNode = createNodeFrom(Johnny)
-    subject.get(characterNode.getId, classOf[Movie]) should be(None)
+    subject.get(characterNode.getId, classOf[Actor]) should be(None)
   }
 
   test("should insert actor into the database and return a managed instance") {
@@ -168,7 +167,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should update character in the database and return a managed instance") {
     val characterInDb = insertEntity(Johnny)
-    val modifiedCharacter = Character("Jenny", "foo", characterInDb.id.get)
+    val modifiedCharacter = Character("Jenny", "foo", 0, characterInDb.id.get)
     val updatedCharacter = subject.save(modifiedCharacter)
     updatedCharacter.id should be (characterInDb.id)
     updatedCharacter should equal(modifiedCharacter)

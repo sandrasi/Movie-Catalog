@@ -7,7 +7,8 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender.Female
 class Actress(person: Person,
               character: Character,
               motionPicture: MotionPicture,
-              id: Long) extends AbstractCast(person, character, motionPicture, id) {
+              version: Long,
+              id: Long) extends AbstractCast(person, character, motionPicture, version, id) {
 
   Validate.isTrue(person.gender == Female)
 
@@ -16,5 +17,5 @@ class Actress(person: Person,
 
 object Actress {
 
-  def apply(person: Person, character: Character, motionPicture: MotionPicture, id: Long = 0) = new Actress(person, character, motionPicture, id)
+  def apply(person: Person, character: Character, motionPicture: MotionPicture, version: Long = 0, id: Long = 0) = new Actress(person, character, motionPicture, version, id)
 }

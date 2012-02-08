@@ -1,6 +1,7 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
 import scala.collection.JavaConversions._
+import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.Direction._
 import org.neo4j.graphdb.NotFoundException
@@ -19,7 +20,6 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Entit
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import org.joda.time.{LocalDate, Duration}
 
 @RunWith(classOf[JUnitRunner])
 class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -128,12 +128,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val characterNode = transaction(db) { subject.createNodeFrom(Johnny) }
     getString(characterNode, CharacterName) should be(Johnny.name)
     getString(characterNode, CharacterDiscriminator) should be(Johnny.discriminator)
+    getLong(characterNode, Version) should be(0)
     characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character]))
   }
 
   test("should not create node from character if the character already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(new Character("Character with id", "", 1))
+      subject.createNodeFrom(new Character("Character with id", "", 0, 1))
     }
   }
 
@@ -433,11 +434,20 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update character node") {
     val character = insertEntity(Johnny)
-    val modifiedCharacter = Character("Jenny", "foo", character.id.get)
+    val modifiedCharacter = Character("Jenny", "foo", character.version, character.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedCharacter) }
     getString(updatedNode, CharacterName) should be("Jenny")
     getString(updatedNode, CharacterDiscriminator) should be("foo")
+    getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getId should be(character.id.get)
+  }
+  
+  test("should not update character node if the version of the character does not match the version of the node") {
+    val character = insertEntity(Johnny)
+    val modifiedCharacter = Character("Jenny", "foo", character.version + 1, character.id.get)
+    intercept[IllegalStateException] {
+      transaction(db) { subject.updateNodeOf(modifiedCharacter) }
+    }
   }
 
   test("should not update character node if the character has an id referring to a node which does not exist in the database") {
@@ -449,7 +459,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update character node if the character has an id referring to a non character node") {
     val node = createNode()
-    val character = Character(Johnny.name, Johnny.discriminator, node.getId)
+    val character = Character(Johnny.name, Johnny.discriminator, 0, node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(character) }
     }
