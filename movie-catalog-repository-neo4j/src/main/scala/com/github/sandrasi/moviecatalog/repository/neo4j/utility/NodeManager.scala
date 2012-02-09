@@ -53,6 +53,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     n.createRelationshipTo(getNode(ac.person), FilmCrewRelationshipType.forClass(ac.getClass))
     n.createRelationshipTo(getNode(ac.character), PlayedBy)
     n.createRelationshipTo(getNode(ac.motionPicture), AppearedIn)
+    setVersion(n, ac)
     n
   }
 
@@ -63,11 +64,6 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     n
   }
   
-  private def setVersion(n: Node, e: LongIdEntity with VersionSupport) {
-    if (hasLong(n, Version) && getLong(n, Version) != e.version) throw new IllegalStateException("%s [id: %d] has been modified".format(e.getClass.getName, e.id.get))
-    setLong(n, Version, if (e.id == None) 0L else e.version + 1)
-  }
-
   private def setNodePropertiesFrom(n: Node, dc: DigitalContainer): Node = {
     n.getRelationships(StoredIn, INCOMING).foreach(_.delete())
     n.getRelationships(WithSoundtrack, OUTGOING).foreach(_.delete())
@@ -120,6 +116,11 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     if (SubrefNodeSupp.isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))
   } catch {
     case _: NotFoundException => throw new IllegalStateException("%s is not in the database".format(e))
+  }
+
+  private def setVersion(n: Node, e: LongIdEntity with VersionSupport) {
+    if (hasLong(n, Version) && getLong(n, Version) != e.version) throw new IllegalStateException("%s [id: %d] is out of date".format(e.getClass.getName, e.id.get))
+    setLong(n, Version, if (e.id == None) e.version else e.version + 1)
   }
 }
 

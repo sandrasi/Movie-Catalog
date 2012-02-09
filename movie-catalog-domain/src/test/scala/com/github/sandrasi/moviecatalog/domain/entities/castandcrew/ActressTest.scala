@@ -15,7 +15,7 @@ class ActressTest extends FunSuite with ShouldMatchers {
     val janeDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
     val jenny = Character("Jenny")
     val testMovie = Movie("Test movie")
-    val subject = Actor(janeDoe, jenny, testMovie)
+    val subject = Actress(janeDoe, jenny, testMovie)
     subject.version should be(0)
   }
 

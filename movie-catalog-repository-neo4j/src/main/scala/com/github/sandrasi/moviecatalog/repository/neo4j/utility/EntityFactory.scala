@@ -48,9 +48,9 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   
   private def withTypeCheck[A <: LongIdEntity](n: Node, entityType: Class[A])(op: => LongIdEntity) = if (SubrefNodeSupp.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
 
-  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), n.getId)
+  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
-  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), n.getId)
+  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
   private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterDiscriminator), getLong(n, Version), n.getId)
 

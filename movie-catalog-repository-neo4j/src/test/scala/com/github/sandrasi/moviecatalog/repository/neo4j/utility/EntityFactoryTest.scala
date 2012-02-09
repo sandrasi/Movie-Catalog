@@ -44,6 +44,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     actor.person should be(JohnDoe)
     actor.character should be(Johnny)
     actor.motionPicture should be(TestMovie)
+    actor.version should be(0)
     actor.id should be(Some(actorNode.getId))
   }
 
@@ -56,6 +57,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     actress.person should be(JaneDoe)
     actress.character should be(Jenny)
     actress.motionPicture should be(TestMovie)
+    actress.version should be(0)
     actress.id should be(Some(actressNode.getId))
   }
 
@@ -64,6 +66,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val character = subject.createEntityFrom(characterNode, classOf[Character])
     character.name should be(Johnny.name)
     character.discriminator should be(Johnny.discriminator)
+    character.version should be(Johnny.version)
     character.id should be(Some(characterNode.getId))
   }
   

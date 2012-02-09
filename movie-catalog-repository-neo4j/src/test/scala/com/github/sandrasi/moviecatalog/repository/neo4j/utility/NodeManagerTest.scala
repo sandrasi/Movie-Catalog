@@ -52,6 +52,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     actorNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(personNode)
     actorNode.getSingleRelationship(PlayedBy, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
+    getLong(actorNode, Version) should be(0)
     actorNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
   }
 
@@ -120,7 +121,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from the actor if the actor already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), 1))
+      subject.createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = 1))
     }
   }
 
@@ -134,7 +135,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from character if the character already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(new Character("Character with id", "", 0, 1))
+      subject.createNodeFrom(Character("Character with id", "", id = 1))
     }
   }
 
@@ -328,16 +329,25 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val anotherPersonNode = createNodeFrom(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown"))
     val anotherCharacterNode = createNodeFrom(Character("Jamie"))
     val anotherMovieNode = createNodeFrom(Movie("Foo movie title"))
-    val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.id.get)
+    val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.version, actor.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedActor) }
     updatedNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
     updatedNode.getSingleRelationship(PlayedBy, OUTGOING).getEndNode should be(anotherCharacterNode)
     updatedNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(anotherMovieNode)
+    getLong(updatedNode, Version) should be (actor.version + 1)
     updatedNode.getId should be(actor.id.get)
+  }
+  
+  test("should not update actor node if the version of the actor does not match the version of the node") {
+    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val modifiedActor = Actor(insertEntity(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")), insertEntity(Character("Jamie")), insertEntity(Movie("Foo movie title")), actor.version + 1, actor.id.get)
+    intercept[IllegalStateException] {
+      transaction(db) { subject.updateNodeOf(modifiedActor) }
+    }
   }
 
   test("should not update actor node if the actor has an id referring to a node which does not exist in the database") {
-    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), getNodeCount + 1)
+    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(actor) }
     }
@@ -345,7 +355,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update actor node if the actor has an id referring to a non actor node") {
     val node = createNode()
-    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), node.getId)
+    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(actor) }
     }
@@ -355,7 +365,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     val person = Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.version, actor.id.get)) }
     }
   }
 
@@ -363,7 +373,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     val character = Character("Jamie")
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.version, actor.id.get)) }
     }
   }
 
@@ -371,7 +381,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     val movie = Movie("Foo movie title")
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.version, actor.id.get)) }
     }
   }
 
@@ -379,7 +389,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     val person = Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown", getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.version, actor.id.get)) }
     }
   }
 
@@ -387,7 +397,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     val character = Character("Jamie", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.version, actor.id.get)) }
     }
   }
 
@@ -395,7 +405,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
     val movie = Movie("Foo movie title", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.version, actor.id.get)) }
     }
   }
 
@@ -404,7 +414,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val node = createNode()
     val person = Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown", node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.version, actor.id.get)) }
     }
   }
 
@@ -413,7 +423,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val node = createNode()
     val character = Character("Jamie", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.version, actor.id.get)) }
     }
   }
 
@@ -422,7 +432,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val node = createNode()
     val movie = Movie("Foo movie title", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.version, actor.id.get)) }
     }
   }
 
@@ -451,7 +461,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not update character node if the character has an id referring to a node which does not exist in the database") {
-    val character = Character(Johnny.name, Johnny.discriminator, getNodeCount + 1)
+    val character = Character(Johnny.name, Johnny.discriminator, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(character) }
     }
@@ -459,7 +469,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update character node if the character has an id referring to a non character node") {
     val node = createNode()
-    val character = Character(Johnny.name, Johnny.discriminator, 0, node.getId)
+    val character = Character(Johnny.name, Johnny.discriminator, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(character) }
     }

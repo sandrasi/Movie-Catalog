@@ -158,18 +158,20 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should update actor in the database and return a managed instance") {
-    val actorInDb = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie))
-    val modifiedActor = Actor(insertEntity(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")), insertEntity(Character("Jamie")), insertEntity(Movie("Foo movie title")))
+    val actorInDb = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val modifiedActor = Actor(insertEntity(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")), insertEntity(Character("Jamie")), insertEntity(Movie("Foo movie title")), actorInDb.version, actorInDb.id.get)
     val updatedActor = subject.save(modifiedActor)
-    updatedActor.id should not be(actorInDb.id)
+    updatedActor.id should be(actorInDb.id)
+    updatedActor.version should be(actorInDb.version + 1)
     updatedActor should equal(modifiedActor)
   }
 
   test("should update character in the database and return a managed instance") {
     val characterInDb = insertEntity(Johnny)
-    val modifiedCharacter = Character("Jenny", "foo", 0, characterInDb.id.get)
+    val modifiedCharacter = Character("Jenny", "foo", characterInDb.version, characterInDb.id.get)
     val updatedCharacter = subject.save(modifiedCharacter)
     updatedCharacter.id should be (characterInDb.id)
+    updatedCharacter.version should be(characterInDb.version + 1)
     updatedCharacter should equal(modifiedCharacter)
   }
 
