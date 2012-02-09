@@ -20,6 +20,7 @@ class DigitalContainerTest extends FunSuite with ShouldMatchers {
     subject.motionPicture should be(MotionPicture)
     subject.soundtracks should be('empty)
     subject.subtitles should be('empty)
+    subject.version should be (0)
     subject.id should be(None)
   }
 

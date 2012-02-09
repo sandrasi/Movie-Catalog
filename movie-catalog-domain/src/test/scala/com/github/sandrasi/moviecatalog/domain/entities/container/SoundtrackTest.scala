@@ -17,6 +17,7 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
     subject.formatCode should be("dts")
     subject.languageName should be(None)
     subject.formatName should be(None)
+    subject.version should be(0)
     subject.id should be(None)
   }
   
@@ -56,13 +57,13 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
 
   test("should not create soundtrack with null language name") {
     intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0)
+      new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0, 0)
     }
   }
 
   test("should not create soundtrack with null format name") {
     intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0)
+      new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0, 0)
     }
   }
 

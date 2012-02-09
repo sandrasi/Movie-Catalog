@@ -1,14 +1,15 @@
 package com.github.sandrasi.moviecatalog.domain.entities.container
 
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
 class Soundtrack(val languageCode: String,
                  val formatCode: String,
                  val languageName: Option[LocalizedText],
                  val formatName: Option[LocalizedText],
-                 id: Long) extends LongIdEntity(id) {
+                 version: Long,
+                 id: Long) extends VersionedLongIdEntity(version, id) {
 
   Validate.notBlank(languageCode)
   Validate.notBlank(formatCode)
@@ -35,5 +36,6 @@ object Soundtrack {
             formatCode: String,
             languageName: LocalizedText = null,
             formatName: LocalizedText = null,
-            id: Long = 0) = new Soundtrack(languageCode, formatCode, if (languageName != null) Some(languageName) else None, if (formatName != null) Some(formatName) else None, id)
+            version: Long = 0,
+            id: Long = 0) = new Soundtrack(languageCode, formatCode, if (languageName != null) Some(languageName) else None, if (formatName != null) Some(formatName) else None, version, id)
 }

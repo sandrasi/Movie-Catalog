@@ -7,7 +7,8 @@ class Movie(originalTitle: LocalizedText,
             localizedTitles: Set[LocalizedText],
             length: ReadableDuration,
             releaseDate: LocalDate,
-            id: Long) extends MotionPicture(originalTitle, localizedTitles, length, releaseDate, id) {
+            version: Long,
+            id: Long) extends MotionPicture(originalTitle, localizedTitles, length, releaseDate, version, id) {
 
   override def equals(o: Any): Boolean = o.isInstanceOf[Movie] && super.equals(o)
 }
@@ -18,5 +19,6 @@ object Movie {
             localizedTitles: Set[LocalizedText] = Set(),
             length: ReadableDuration = Duration.ZERO,
             releaseDate: LocalDate = new LocalDate(0),
-            id: Long = 0) = new Movie(originalTitle, localizedTitles, length, releaseDate, id)
+            version: Long = 0,
+            id: Long = 0) = new Movie(originalTitle, localizedTitles, length, releaseDate, version, id)
 }

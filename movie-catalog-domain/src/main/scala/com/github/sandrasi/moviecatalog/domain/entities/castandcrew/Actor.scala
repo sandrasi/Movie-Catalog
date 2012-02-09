@@ -17,5 +17,9 @@ class Actor(person: Person,
 
 object Actor {
 
-  def apply(person: Person, character: Character, motionPicture: MotionPicture, version: Long = 0, id: Long = 0) = new Actor(person, character, motionPicture, version, id)
+  def apply(person: Person,
+            character: Character,
+            motionPicture: MotionPicture,
+            version: Long = 0,
+            id: Long = 0) = new Actor(person, character, motionPicture, version, id)
 }

@@ -2,14 +2,15 @@ package com.github.sandrasi.moviecatalog.domain.entities.core
 
 import org.joda.time.{LocalDate, ReadableDuration}
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
 abstract class MotionPicture(val originalTitle: LocalizedText,
                              val localizedTitles: Set[LocalizedText],
                              val length: ReadableDuration,
                              val releaseDate: LocalDate,
-                             id: Long) extends LongIdEntity(id) {
+                             version: Long,
+                             id: Long) extends VersionedLongIdEntity(version, id) {
 
   Validate.notNull(originalTitle)
   Validate.noNullElements(localizedTitles)

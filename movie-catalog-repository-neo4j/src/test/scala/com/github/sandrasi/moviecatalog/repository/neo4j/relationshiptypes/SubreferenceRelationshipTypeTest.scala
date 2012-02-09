@@ -4,7 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 
 @RunWith(classOf[JUnitRunner])
@@ -27,7 +27,7 @@ class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
   
   test("should not return subreference relationship type for an unsupported class") {
     intercept[NoSuchElementException] {
-      SubreferenceRelationshipType.forClass(classOf[LongIdEntity])
+      SubreferenceRelationshipType.forClass(classOf[VersionedLongIdEntity])
     }
   }
 }

@@ -1,13 +1,14 @@
 package com.github.sandrasi.moviecatalog.domain.entities.container
 
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.core.MotionPicture
 
 class DigitalContainer(val motionPicture: MotionPicture,
                        val soundtracks: Set[Soundtrack],
                        val subtitles: Set[Subtitle],
-                       id: Long) extends LongIdEntity(id) {
+                       version: Long,
+                       id: Long) extends VersionedLongIdEntity(version, id) {
 
   Validate.notNull(motionPicture)
   Validate.noNullElements(soundtracks)
@@ -32,5 +33,6 @@ object DigitalContainer {
   def apply(motionPicture: MotionPicture,
             soundtracks: Set[Soundtrack] = Set(),
             subtitles: Set[Subtitle] = Set(),
-            id: Long = 0) = new DigitalContainer(motionPicture, soundtracks, subtitles, id)
+            version: Long = 0,
+            id: Long = 0) = new DigitalContainer(motionPicture, soundtracks, subtitles, version, id)
 }

@@ -1,10 +1,10 @@
 package com.github.sandrasi.moviecatalog.domain.entities.container
 
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
-class Subtitle(val languageCode: String, val languageName: Option[LocalizedText], id: Long) extends LongIdEntity(id) {
+class Subtitle(val languageCode: String, val languageName: Option[LocalizedText], version: Long, id: Long) extends VersionedLongIdEntity(version, id) {
 
   Validate.notBlank(languageCode)
   Validate.notNull(languageName)
@@ -23,5 +23,8 @@ class Subtitle(val languageCode: String, val languageName: Option[LocalizedText]
 
 object Subtitle {
 
-  def apply(languageCode: String, languageName: LocalizedText = null, id: Long = 0) = new Subtitle(languageCode, if (languageName != null) Some(languageName) else None, id)
+  def apply(languageCode: String,
+            languageName: LocalizedText = null,
+            version: Long = 0,
+            id: Long = 0) = new Subtitle(languageCode, if (languageName != null) Some(languageName) else None, version, id)
 }

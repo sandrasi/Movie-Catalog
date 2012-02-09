@@ -81,5 +81,5 @@ private object TestMotionPicture {
   def apply(originalTitle: LocalizedText,
             localizedTitles: Set[LocalizedText],
             length: ReadableDuration,
-            releaseDate: LocalDate) = new MotionPicture(originalTitle, localizedTitles, length, releaseDate, 0) {}
+            releaseDate: LocalDate) = new MotionPicture(originalTitle, localizedTitles, length, releaseDate, 0, 0) {}
 }

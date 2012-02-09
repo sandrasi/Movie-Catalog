@@ -23,6 +23,7 @@ class MovieTest extends FunSuite with ShouldMatchers {
     subject.localizedTitles should be('empty)
     subject.length should be(Duration.ZERO)
     subject.releaseDate should be(new LocalDate(0))
+    subject.version should be(0)
     subject.id should be(None)
   }
 
@@ -43,7 +44,7 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val movie = Movie(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val motionPicture = new MotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1), 0) {}
+    val motionPicture = new MotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1), 0, 0) {}
     movie should not equal(motionPicture)
   }
 }

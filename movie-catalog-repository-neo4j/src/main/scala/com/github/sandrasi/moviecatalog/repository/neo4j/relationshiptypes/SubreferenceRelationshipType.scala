@@ -1,11 +1,11 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 
-private[neo4j] object SubreferenceRelationshipType extends AbstractClassBasedRelationshipType[LongIdEntity] {
+private[neo4j] object SubreferenceRelationshipType extends AbstractClassBasedRelationshipType[VersionedLongIdEntity] {
 
   type SubreferenceRelationshipType = RelationshipTypeValue
 

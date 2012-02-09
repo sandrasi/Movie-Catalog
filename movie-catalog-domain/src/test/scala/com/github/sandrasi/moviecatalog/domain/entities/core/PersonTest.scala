@@ -16,6 +16,7 @@ class PersonTest extends FunSuite with ShouldMatchers {
     subject.gender should be(Male)
     subject.dateOfBirth should  be(new LocalDate(1980, 8, 8))
     subject.placeOfBirth should be("Anytown")
+    subject.version should be(0)
     subject.id should be(None)
   }
   

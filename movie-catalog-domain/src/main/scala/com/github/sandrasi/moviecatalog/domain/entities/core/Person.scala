@@ -2,14 +2,15 @@ package com.github.sandrasi.moviecatalog.domain.entities.core
 
 import org.joda.time.LocalDate
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
 class Person(val name: String,
              val gender: Gender,
              val dateOfBirth: LocalDate,
              val placeOfBirth: String,
-             id: Long) extends LongIdEntity(id) {
+             version: Long,
+             id: Long) extends VersionedLongIdEntity(version, id) {
   
   Validate.notNull(name)
   Validate.notNull(gender)
@@ -32,5 +33,10 @@ class Person(val name: String,
 
 object Person {
   
-  def apply(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfBirth: String, id: Long = 0) = new Person(name, gender, dateOfBirth, placeOfBirth, id)
+  def apply(name: String,
+            gender: Gender,
+            dateOfBirth: LocalDate,
+            placeOfBirth: String,
+            version: Long = 0,
+            id: Long = 0) = new Person(name, gender, dateOfBirth, placeOfBirth, version, id)
 }

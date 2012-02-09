@@ -5,7 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
@@ -102,7 +102,7 @@ class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with B
     val n = createNode()
     transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[Character])), IsA) }
     intercept[IllegalArgumentException] {
-      subject.isNodeOfType(n, classOf[LongIdEntity])
+      subject.isNodeOfType(n, classOf[VersionedLongIdEntity])
     }
   }
 }

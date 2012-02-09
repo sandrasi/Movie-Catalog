@@ -7,7 +7,7 @@ import java.util.Locale
 import java.util.Locale.US
 import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.{LongIdEntity, VersionSupport}
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
@@ -24,7 +24,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
   
   private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
   
-  def createNodeFrom(e: LongIdEntity)(implicit l: Locale = US): Node = e match {
+  def createNodeFrom(e: VersionedLongIdEntity)(implicit l: Locale = US): Node = e match {
     case ac: AbstractCast => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(ac), ac), e.getClass)
     case c: Character => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(c), c), e.getClass)
     case dc: DigitalContainer => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(dc), dc), e.getClass)
@@ -35,7 +35,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
   
-  def updateNodeOf(e: LongIdEntity)(implicit l: Locale = US): Node = e match {
+  def updateNodeOf(e: VersionedLongIdEntity)(implicit l: Locale = US): Node = e match {
     case ac: AbstractCast => setNodePropertiesFrom(getNode(ac), ac)
     case c: Character => setNodePropertiesFrom(getNode(c), c)
     case dc: DigitalContainer => setNodePropertiesFrom(getNode(dc), dc)
@@ -71,6 +71,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     getNode(dc.motionPicture).createRelationshipTo(n, StoredIn)
     dc.soundtracks.map(getNode(_)).foreach(n.createRelationshipTo(_, WithSoundtrack))
     dc.subtitles.map(getNode(_)).foreach(n.createRelationshipTo(_, WithSubtitle))
+    setVersion(n, dc)
     n
   }
 
@@ -79,6 +80,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
     setDuration(n, MovieLength, m.length)
     setLocalDate(n, MovieReleaseDate, m.releaseDate)
+    setVersion(n, m)
     n
   }
 
@@ -87,6 +89,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     setString(n, PersonGender, p.gender.toString);
     setLocalDate(n, PersonDateOfBirth, p.dateOfBirth)
     setString(n, PersonPlaceOfBirth, p.placeOfBirth)
+    setVersion(n, p)
     n
   }
 
@@ -97,6 +100,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     setString(n, SoundtrackFormatCode, s.formatCode)
     if (s.languageName != None) addOrReplaceLocalizedText(n, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageNames, l)
     if (s.formatName != None) addOrReplaceLocalizedText(n, SoundtrackFormatNames, s.formatName.get) else deleteLocalizedText(n, SoundtrackFormatNames, l)
+    setVersion(n, s)
     n
   }
 
@@ -104,21 +108,22 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale " + s.languageName.get.locale + " does not match the current locale " + l)
     setString(n, SubtitleLanguageCode, s.languageCode)
     if (s.languageName != None) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
+    setVersion(n, s)
     n
   }
 
-  private def connectNodeToSubreferenceNode[A <: LongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)), IsA); n }
+  private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)), IsA); n }
 
-  private def createNode(e: LongIdEntity): Node = if (e.id == None) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e.getClass.getName, e.id.get))
+  private def createNode(e: VersionedLongIdEntity): Node = if (e.id == None) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e.getClass.getName, e.id.get))
 
-  private def getNode(e: LongIdEntity) = try {
+  private def getNode(e: VersionedLongIdEntity) = try {
     val node = if (e.id != None) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
     if (SubrefNodeSupp.isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))
   } catch {
     case _: NotFoundException => throw new IllegalStateException("%s is not in the database".format(e))
   }
 
-  private def setVersion(n: Node, e: LongIdEntity with VersionSupport) {
+  private def setVersion(n: Node, e: VersionedLongIdEntity) {
     if (hasLong(n, Version) && getLong(n, Version) != e.version) throw new IllegalStateException("%s [id: %d] is out of date".format(e.getClass.getName, e.id.get))
     setLong(n, Version, if (e.id == None) e.version else e.version + 1)
   }

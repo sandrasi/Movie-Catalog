@@ -4,7 +4,7 @@ import scala.collection.mutable.{Map => MutableMap}
 import org.neo4j.graphdb.Direction.OUTGOING
 import org.neo4j.graphdb.{GraphDatabaseService, Node}
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType
@@ -20,13 +20,13 @@ private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) 
 
   def isSubreferenceNode(n: Node): Boolean = SubreferenceRelationshipType.values.exists(v => getSubreferenceNodeIdOfRelationship(v.asInstanceOf[SubreferenceRelationshipType]) == n.getId)
 
-  def getSubrefNodeIdFor[A <: LongIdEntity](c: Class[A]): Long = try {
+  def getSubrefNodeIdFor[A <: VersionedLongIdEntity](c: Class[A]): Long = try {
     getSubreferenceNodeIdOfRelationship(SubreferenceRelationshipType.forClass(mapClassToSubreferenceRelationshipTypeClass(c)))
   } catch {
     case e: NoSuchElementException => throw new IllegalArgumentException("Unsupported entity type %s".format(c.getName))
   }
 
-  private def mapClassToSubreferenceRelationshipTypeClass[A <: LongIdEntity](c: Class[A]) = c match {
+  private def mapClassToSubreferenceRelationshipTypeClass[A <: VersionedLongIdEntity](c: Class[A]) = c match {
     case ClassActor | ClassActress => classOf[AbstractCast]
     case _ => c
   }
@@ -44,7 +44,7 @@ private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) 
     srn
   }
 
-  def isNodeOfType[A <: LongIdEntity](n: Node, entityType: Class[A]) = {
+  def isNodeOfType[A <: VersionedLongIdEntity](n: Node, entityType: Class[A]) = {
     val rel = n.getSingleRelationship(IsA, OUTGOING)
     (rel != null) && (rel.getEndNode.getId == getSubrefNodeIdFor(entityType))
   }

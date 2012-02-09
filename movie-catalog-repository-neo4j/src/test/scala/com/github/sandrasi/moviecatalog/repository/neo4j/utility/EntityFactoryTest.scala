@@ -4,7 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
@@ -81,6 +81,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     digitalContainer.motionPicture should be(movie)
     digitalContainer.soundtracks should be(Set(englishSoundtrack, hungarianSoundtrack))
     digitalContainer.subtitles should be(Set(englishSubtitle, hungarianSubtitle))
+    digitalContainer.version should be(0)
     digitalContainer.id should be(Some(digitalContainerNode.getId))
   }
   
@@ -91,6 +92,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     movie.localizedTitles should be(TestMovie.localizedTitles)
     movie.length should be(TestMovie.length)
     movie.releaseDate should be(TestMovie.releaseDate)
+    movie.version should be(TestMovie.version)
     movie.id should be(Some(movieNode.getId))
   }
 
@@ -101,6 +103,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     person.gender should be(JohnDoe.gender)
     person.dateOfBirth should be(JohnDoe.dateOfBirth)
     person.placeOfBirth should be(JohnDoe.placeOfBirth)
+    person.version should be(JohnDoe.version)
     person.id should be(Some(personNode.getId))
   }
   
@@ -111,12 +114,13 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     soundtrack.formatCode should be(EnglishSoundtrack.formatCode)
     soundtrack.languageName should be(EnglishSoundtrack.languageName)
     soundtrack.formatName should be(EnglishSoundtrack.formatName)
+    soundtrack.version should be(EnglishSoundtrack.version)
     soundtrack.id should be(Some(soundtrackNode.getId))
   }
   
   test("should create soundtrack entity from node with language and format names of which locale matches the given locale") {
-    val nodeId = insertEntity(EnglishSoundtrack).id.get
-    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), nodeId)
+    val sn = insertEntity(EnglishSoundtrack)
+    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), sn.version, sn.id.get)
     val soundtrackNode = transaction(db) { updateNodeOf(soundtrackWithDifferentLocale, HungarianLocale) }
     val soundtrack = subject.createEntityFrom(soundtrackNode, classOf[Soundtrack])(AmericanLocale)
     soundtrack.languageName should be(EnglishSoundtrack.languageName)
@@ -135,12 +139,13 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val subtitle = subject.createEntityFrom(subtitleNode, classOf[Subtitle])
     subtitle.languageCode should be(EnglishSubtitle.languageCode)
     subtitle.languageName should be(EnglishSubtitle.languageName)
+    subtitle.version should be(EnglishSubtitle.version)
     subtitle.id should be(Some(subtitleNode.getId))
   }
 
   test("should create subtitle entity from node with language name of which locale matches the given locale") {
-    val nodeId = insertEntity(EnglishSubtitle).id.get
-    val subtitleWithDifferentLocale = Subtitle(EnglishSubtitle.languageCode, LocalizedText("Angol")(HungarianLocale), nodeId)
+    val sn = insertEntity(EnglishSubtitle)
+    val subtitleWithDifferentLocale = Subtitle(EnglishSubtitle.languageCode, LocalizedText("Angol")(HungarianLocale), sn.version, sn.id.get)
     val subtitleNode = transaction(db) { updateNodeOf(subtitleWithDifferentLocale, HungarianLocale) }
     val subtitle = subject.createEntityFrom(subtitleNode, classOf[Subtitle])(AmericanLocale)
     subtitle.languageName should be(EnglishSubtitle.languageName)
@@ -168,7 +173,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val node = createNode()
     transaction(db) { node.createRelationshipTo(db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer])), EntityRelationshipType.IsA) }
     intercept[IllegalArgumentException] {
-      subject.createEntityFrom(node, classOf[LongIdEntity])
+      subject.createEntityFrom(node, classOf[VersionedLongIdEntity])
     }
   }
 }

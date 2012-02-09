@@ -11,7 +11,7 @@ import org.joda.time.{Duration, LocalDate}
 import org.neo4j.graphdb.{Node, Relationship, RelationshipType}
 import org.neo4j.kernel.EmbeddedGraphDatabase
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll}
-import com.github.sandrasi.moviecatalog.domain.entities.base.LongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
@@ -90,13 +90,13 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogGraphPropertyN
 
   protected def createNode(): Node = transaction(db) { db.createNode() }
 
-  protected def createNodeFrom(e: LongIdEntity): Node = transaction(db) { NodeManager(db).createNodeFrom(e) }
+  protected def createNodeFrom(e: VersionedLongIdEntity): Node = transaction(db) { NodeManager(db).createNodeFrom(e) }
   
-  protected def updateNodeOf(e: LongIdEntity, l: Locale = AmericanLocale): Node = transaction(db) { NodeManager(db).updateNodeOf(e)(l) }
+  protected def updateNodeOf(e: VersionedLongIdEntity, l: Locale = AmericanLocale): Node = transaction(db) { NodeManager(db).updateNodeOf(e)(l) }
 
   protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { db.createNode().createRelationshipTo(db.createNode(), relType) }
 
-  protected def insertEntity[A <: LongIdEntity](entity: A): A = entity match {
+  protected def insertEntity[A <: VersionedLongIdEntity](entity: A): A = entity match {
     case a: Actor => createActorFrom(createNodeFrom(a)).asInstanceOf[A]
     case a: Actress => createActressFrom(createNodeFrom(a)).asInstanceOf[A]
     case c: Character => createCharacterFrom(createNodeFrom(c)).asInstanceOf[A]
