@@ -24,5 +24,5 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
 
   override def search(text: String)(implicit locale: Locale = US): Set[VersionedLongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")
 
-  override def delete[A <: VersionedLongIdEntity](id: Long, entityType: Class[A]) { throw new UnsupportedOperationException("Not yet implemented") }
+  override def delete(entity: VersionedLongIdEntity) { throw new UnsupportedOperationException("Not yet implemented") }
 }

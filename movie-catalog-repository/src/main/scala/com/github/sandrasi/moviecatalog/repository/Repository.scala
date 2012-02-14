@@ -9,7 +9,7 @@ trait Repository {
 
   def save[A <: VersionedLongIdEntity](entity: A)(implicit locale: Locale): A
   
-  def delete[A <: VersionedLongIdEntity](id: Long, entityType: Class[A])
+  def delete(entity: VersionedLongIdEntity)
 
   def search(text: String)(implicit locale: Locale): Set[VersionedLongIdEntity]
 }

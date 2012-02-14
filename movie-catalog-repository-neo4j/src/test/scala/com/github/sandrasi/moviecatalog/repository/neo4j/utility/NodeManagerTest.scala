@@ -50,7 +50,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movieNode = createNodeFrom(TestMovie)
     val actorNode = transaction(db) { subject.createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode))) }
     actorNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(personNode)
-    actorNode.getSingleRelationship(PlayedBy, OUTGOING).getEndNode should be(characterNode)
+    actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
     getLong(actorNode, Version) should be(0)
     actorNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
@@ -146,7 +146,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val englishSubtitleNode = createNodeFrom(EnglishSubtitle)
     val hungarianSubtitleNode = createNodeFrom(HungarianSubtitle)
     val digitalContainerNode = transaction(db) { subject.createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(englishSoundtrackNode), createSoundtrackFrom(hungarianSoundtrackNode)), Set(createSubtitleFrom(englishSubtitleNode), createSubtitleFrom(hungarianSubtitleNode)))) }
-    digitalContainerNode.getSingleRelationship(StoredIn, INCOMING).getStartNode should be(movieNode)
+    digitalContainerNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(movieNode)
     digitalContainerNode.getRelationships(WithSoundtrack, OUTGOING).map(_.getEndNode).toSet should be(Set(englishSoundtrackNode, hungarianSoundtrackNode))
     digitalContainerNode.getRelationships(WithSubtitle, OUTGOING).map(_.getEndNode).toSet should be(Set(englishSubtitleNode, hungarianSubtitleNode))
     getLong(digitalContainerNode, Version) should be(0)
@@ -337,7 +337,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.version, actor.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedActor) }
     updatedNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
-    updatedNode.getSingleRelationship(PlayedBy, OUTGOING).getEndNode should be(anotherCharacterNode)
+    updatedNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(anotherCharacterNode)
     updatedNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(anotherMovieNode)
     getLong(updatedNode, Version) should be (actor.version + 1)
     updatedNode.getId should be(actor.id.get)
@@ -493,7 +493,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val italianSubtitleNode = createNodeFrom(Subtitle("it"))
     val modifiedDigitalContainer = DigitalContainer(createMovieFrom(anotherMovieNode), Set(createSoundtrackFrom(italianSoundtrackNode)), Set(createSubtitleFrom(italianSubtitleNode)), digitalContainer.version, digitalContainer.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedDigitalContainer) }
-    updatedNode.getSingleRelationship(StoredIn, INCOMING).getStartNode should be(anotherMovieNode)
+    updatedNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(anotherMovieNode)
     updatedNode.getRelationships(WithSoundtrack, OUTGOING).map(_.getEndNode).toSet should be(Set(italianSoundtrackNode))
     updatedNode.getRelationships(WithSubtitle, OUTGOING).map(_.getEndNode).toSet should be(Set(italianSubtitleNode))
     getLong(updatedNode, Version) should be(modifiedDigitalContainer.version + 1)
@@ -817,6 +817,137 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should not update unsupported entity") {
     intercept[IllegalArgumentException] {
       subject.updateNodeOf(new VersionedLongIdEntity(0, 1) {})
+    }
+  }
+
+  test("should delete actor node") {
+    val personNode = createNodeFrom(JohnDoe)
+    val characterNode = createNodeFrom(Johnny)
+    val movieNode = createNodeFrom(TestMovie)
+    val actorNode = createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode)))
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createActorFrom(actorNode)) }
+    personNode.hasRelationship(INCOMING) should be(false)
+    characterNode.hasRelationship(INCOMING) should be(false)
+    movieNode.hasRelationship(INCOMING) should be(false)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(actorNode.getId)
+    }
+  }
+
+  test("should delete character node") {
+    val characterNode = createNodeFrom(Johnny)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createCharacterFrom(characterNode)) }
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(characterNode.getId)
+    }
+  }
+
+  test("should delete digital container node") {
+    val movieNode = createNodeFrom(TestMovie)
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
+    val digitalContainerNode = createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(soundtrackNode)), Set(createSubtitleFrom(subtitleNode))))
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createDigitalContainerFrom(digitalContainerNode)) }
+    movieNode.hasRelationship(INCOMING) should be(false)
+    soundtrackNode.hasRelationship(INCOMING) should be(false)
+    subtitleNode.hasRelationship(INCOMING) should be(false)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(digitalContainerNode.getId)
+    }
+  }
+
+  test("should delete movie node") {
+    val movieNode = createNodeFrom(TestMovie)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createMovieFrom(movieNode)) }
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(movieNode.getId)
+    }
+  }
+
+  test("should delete person node") {
+    val personNode = createNodeFrom(JohnDoe)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createPersonFrom(personNode)) }
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(personNode.getId)
+    }
+  }
+
+  test("should delete soundtrack node") {
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createSoundtrackFrom(soundtrackNode)) }
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(soundtrackNode.getId)
+    }
+  }
+
+  test("should delete subtitle node") {
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle])).hasRelationship(INCOMING, IsA) should be(true)
+    transaction(db) { subject.deleteNodeOf(createSubtitleFrom(subtitleNode)) }
+    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle])).hasRelationship(INCOMING, IsA) should be(false)
+    intercept[NotFoundException] {
+      db.getNodeById(subtitleNode.getId)
+    }
+  }
+
+  test("should not delete node if the version of the entity does not match the version of the node") {
+    val person = insertEntity(JohnDoe)
+    val character = insertEntity(Johnny)
+    val movie = insertEntity(TestMovie)
+    val actor = insertEntity(Actor(person, character, movie))
+    intercept[IllegalStateException] {
+      subject.deleteNodeOf(Actor(person, character, movie, actor.version + 1, actor.id.get))
+    }
+  }
+
+  test("should not delete node if the entity has an id referring to a node which does not exist in the database") {
+    intercept[IllegalStateException] {
+      subject.deleteNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = getNodeCount + 1))
+    }
+  }
+
+  test("should not delete node if the entity has an id referring to node which represents an entity of another type") {
+    val node = createNode()
+    intercept[ClassCastException] {
+      subject.deleteNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = node.getId))
+    }
+  }
+
+  test("should not delete node if the entity does not have an id") {
+    intercept[IllegalStateException] {
+      subject.deleteNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    }
+  }
+
+  test("should not delete node if at least one node references it") {
+    val person = insertEntity(JohnDoe)
+    val character = insertEntity(Johnny)
+    val movie = insertEntity(TestMovie)
+    val actorNode = createNodeFrom(Actor(person, character, movie))
+    val node = createNode()
+    transaction(db) {
+      node.createRelationshipTo(actorNode, new TestRelationshipType("test"))
+      intercept[IllegalStateException] {
+        subject.deleteNodeOf(createActorFrom(actorNode))
+      }
+    }
+  }
+
+  test("should not delete unsupported entity") {
+    intercept[IllegalArgumentException] {
+      subject.deleteNodeOf(new VersionedLongIdEntity(0, 1) {})
     }
   }
 }

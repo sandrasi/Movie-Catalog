@@ -5,7 +5,7 @@ import scala.collection.mutable.{Map => MutableMap}
 import java.util.Locale
 import java.util.Locale.US
 import org.neo4j.graphdb._
-import org.neo4j.graphdb.Direction._
+import org.neo4j.graphdb.Direction.OUTGOING
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.container._
@@ -15,7 +15,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Chara
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 
 private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
 
@@ -48,13 +48,13 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   
   private def withTypeCheck[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(op: => VersionedLongIdEntity) = if (SubrefNodeSupp.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
 
-  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
+  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
-  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(PlayedBy, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
+  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
   private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterDiscriminator), getLong(n, Version), n.getId)
 
-  private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(StoredIn, INCOMING).getStartNode), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), n.getId)
+  private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), n.getId)
   
   private def getSoundtracks(n: Node, l: Locale) = n.getRelationships(WithSoundtrack, OUTGOING).map(r => createSoundtrackFrom(r.getEndNode, l)).toSet
 

@@ -4,7 +4,7 @@ object DigitalContainerRelationshipType extends AbstractRelationshipType {
 
   type DigitalContainerRelationshipType = RelationshipTypeValue
 
-  final val StoredIn = relationshipTypeValue("storedIn")
+  final val WithContent = relationshipTypeValue("withContent")
   final val WithSoundtrack = relationshipTypeValue("withSoundtrack")
   final val WithSubtitle = relationshipTypeValue("withSubtitle")
 }
