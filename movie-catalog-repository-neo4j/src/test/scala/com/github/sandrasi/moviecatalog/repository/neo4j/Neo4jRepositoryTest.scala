@@ -228,4 +228,66 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
       subject.save(new VersionedLongIdEntity(0, 1) {})
     }
   }
+
+  test("should delete actor from the database") {
+    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    subject.delete(actor)
+    intercept[NotFoundException] {
+      db.getNodeById(actor.id.get)
+    }
+  }
+
+  test("should delete character from the database") {
+    val character = insertEntity(Johnny)
+    subject.delete(character)
+    intercept[NotFoundException] {
+      db.getNodeById(character.id.get)
+    }
+  }
+  
+  test("should delete digital container from the database") {
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    subject.delete(digitalContainer)
+    intercept[NotFoundException] {
+      db.getNodeById(digitalContainer.id.get)
+    }
+  }
+
+  test("should delete movie from the database") {
+    val movie = insertEntity(TestMovie)
+    subject.delete(movie)
+    intercept[NotFoundException] {
+      db.getNodeById(movie.id.get)
+    }
+  }
+  
+  test("should delete person from the database") {
+    val person = insertEntity(JohnDoe)
+    subject.delete(person)
+    intercept[NotFoundException] {
+      db.getNodeById(person.id.get)
+    }
+  }
+  
+  test("should delete soundtrack from the database") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    subject.delete(soundtrack)
+    intercept[NotFoundException] {
+      db.getNodeById(soundtrack.id.get)
+    }
+  }
+
+  test("should delete subtitle from the database") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    subject.delete(subtitle)
+    intercept[NotFoundException] {
+      db.getNodeById(subtitle.id.get)
+    }
+  }
+
+  test("should not delete unsupported entity from the database") {
+    intercept[IllegalArgumentException] {
+      subject.delete(new VersionedLongIdEntity(0, 1) {})
+    }
+  }
 }

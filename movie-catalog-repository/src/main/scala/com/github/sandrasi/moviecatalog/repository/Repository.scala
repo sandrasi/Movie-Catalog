@@ -11,5 +11,7 @@ trait Repository {
   
   def delete(entity: VersionedLongIdEntity)
 
-  def search(text: String)(implicit locale: Locale): Set[VersionedLongIdEntity]
+  def query[A <: VersionedLongIdEntity](entityType: Class[A])(predicate: A => Boolean = (entity: A) => true): Traversable[A]
+
+  def search(text: String)(implicit locale: Locale): Traversable[VersionedLongIdEntity]
 }
