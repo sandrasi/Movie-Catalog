@@ -22,6 +22,8 @@ class Soundtrack(val languageCode: String,
     case _ => false
   }
 
+  override protected def canEqual(o: Any) = o.isInstanceOf[Soundtrack]
+
   override def hashCode: Int = {
     var result = 3
     result = 5 * result + languageCode.hashCode

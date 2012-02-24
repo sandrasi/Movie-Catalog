@@ -14,6 +14,8 @@ class Subtitle(val languageCode: String, val languageName: Option[LocalizedText]
     case _ => false
   }
 
+  override protected def canEqual(o: Any) = o.isInstanceOf[Subtitle]
+
   override def hashCode: Int = {
     var result = 3
     result = 5 * result + languageCode.hashCode

@@ -19,6 +19,8 @@ class DigitalContainer(val motionPicture: MotionPicture,
     case _ => false
   }
 
+  override protected def canEqual(o: Any) = o.isInstanceOf[DigitalContainer]
+
   override def hashCode: Int = {
     var result = 3
     result = 5 * result + motionPicture.hashCode

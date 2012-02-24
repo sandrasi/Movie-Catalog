@@ -11,8 +11,13 @@ class Actress(person: Person,
               id: Long) extends AbstractCast(person, character, motionPicture, version, id) {
 
   Validate.isTrue(person.gender == Female)
+  
+  override def equals(o: Any) = o match {
+    case other: Actress => super.equals(other)
+    case _ => false
+  }
 
-  override def equals(o: Any): Boolean = o.isInstanceOf[Actress] && super.equals(o)
+  override protected def canEqual(o: Any) = o.isInstanceOf[Actress]
 }
 
 object Actress {

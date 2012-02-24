@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-private[neo4j] trait MovieCatalogGraphPropertyNames {
+private[neo4j] trait MovieCatalogDbConstants {
 
   final val AppearedInRelationshipCastRelationshipId = "castRelationshipId"
   final val CharacterDiscriminator = "discriminator"

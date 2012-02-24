@@ -10,7 +10,12 @@ class Movie(originalTitle: LocalizedText,
             version: Long,
             id: Long) extends MotionPicture(originalTitle, localizedTitles, length, releaseDate, version, id) {
 
-  override def equals(o: Any): Boolean = o.isInstanceOf[Movie] && super.equals(o)
+  override def equals(o: Any): Boolean = o match {
+    case other: Movie => super.equals(o)
+    case _ => false
+  }
+
+  override protected def canEqual(o: Any) = o.isInstanceOf[Movie]
 }
 
 object Movie {

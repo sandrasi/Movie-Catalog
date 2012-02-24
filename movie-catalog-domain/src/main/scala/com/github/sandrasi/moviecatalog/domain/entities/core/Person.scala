@@ -22,6 +22,8 @@ class Person(val name: String,
     case _ => false
   }
 
+  override protected def canEqual(o: Any) = o.isInstanceOf[Person]
+
   override def hashCode: Int = {
     var result = 3
     result = 5 * result + name.hashCode

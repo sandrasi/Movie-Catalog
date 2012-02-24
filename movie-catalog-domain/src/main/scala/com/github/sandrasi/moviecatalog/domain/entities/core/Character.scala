@@ -14,6 +14,8 @@ class Character(val name: String, val discriminator: String, version: Long, id: 
     case _ => false
   }
 
+  override protected def canEqual(o: Any) = o.isInstanceOf[Character]
+
   override def hashCode: Int = {
     var result = 3
     result = 5 * result + name.hashCode

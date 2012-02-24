@@ -17,7 +17,7 @@ class BaseEntityTest extends FunSuite with ShouldMatchers {
       new BaseEntity[Long](null) {}
     }
   }
-
+  
   test("should compare two objects for equality") {
     val baseEntity = TestBaseEntity(1)
     val otherTestBaseEntity = TestBaseEntity(1)

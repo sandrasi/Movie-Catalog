@@ -12,7 +12,12 @@ class Actor(person: Person,
 
   Validate.isTrue(person.gender == Male)
 
-  override def equals(o: Any): Boolean = o.isInstanceOf[Actor] && super.equals(o)
+  override def equals(o: Any) = o match {
+    case other: Actor => super.equals(other)
+    case _ => false
+  }
+
+  override protected def canEqual(o: Any) = o.isInstanceOf[Actor]
 }
 
 object Actor {

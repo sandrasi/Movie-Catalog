@@ -7,9 +7,11 @@ abstract class BaseEntity[A](val id: Option[A]) {
   Validate.notNull(id)
 
   override def equals(o: Any): Boolean = o match {
-    case other: BaseEntity[_] => id == other.id
+    case other: BaseEntity[_] => other.canEqual(this) && id == other.id
     case _ => false
   }
+
+  protected def canEqual(o: Any): Boolean = o.isInstanceOf[BaseEntity[_]]
 
   override def hashCode: Int = {
     var result = 3

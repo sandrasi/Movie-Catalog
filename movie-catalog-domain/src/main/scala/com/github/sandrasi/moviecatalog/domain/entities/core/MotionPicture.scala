@@ -20,6 +20,8 @@ abstract class MotionPicture(val originalTitle: LocalizedText,
     case other: MotionPicture => (originalTitle == other.originalTitle) && (releaseDate == other.releaseDate)
     case _ => false
   }
+  
+  override protected def canEqual(o: Any) = o.isInstanceOf[MotionPicture]
 
   override def hashCode: Int = {
     var result = 3

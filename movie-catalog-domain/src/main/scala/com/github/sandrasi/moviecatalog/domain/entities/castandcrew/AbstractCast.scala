@@ -10,9 +10,11 @@ abstract class AbstractCast(override val person: Person,
                             id: Long) extends VersionedLongIdEntity(version, id) with Cast {
 
   override def equals(o: Any): Boolean = o match {
-    case other: AbstractCast => (person == other.person) && (character == other.character) && (motionPicture == other.motionPicture)
+    case other: AbstractCast => other.canEqual(this) && (person == other.person) && (character == other.character) && (motionPicture == other.motionPicture)
     case _ => false
   }
+
+  override protected def canEqual(o: Any) = o.isInstanceOf[AbstractCast]
 
   override def hashCode: Int = {
     var result = 3

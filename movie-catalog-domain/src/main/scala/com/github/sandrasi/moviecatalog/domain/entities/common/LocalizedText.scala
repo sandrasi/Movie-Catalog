@@ -10,9 +10,11 @@ class LocalizedText(val text: String)(implicit val locale: Locale = US) {
   Validate.notNull(locale)
 
   override def equals(o: Any): Boolean = o match {
-    case other: LocalizedText => (text == other.text) && (locale == other.locale)
+    case other: LocalizedText => other.canEqual(this) && (text == other.text) && (locale == other.locale)
     case _ => false
   }
+  
+  protected def canEqual(o: Any): Boolean = o.isInstanceOf[LocalizedText]
 
   override def hashCode: Int = {
     var result = 3
