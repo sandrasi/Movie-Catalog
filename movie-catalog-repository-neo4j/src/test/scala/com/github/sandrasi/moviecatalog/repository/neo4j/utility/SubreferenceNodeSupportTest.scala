@@ -39,18 +39,22 @@ class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with B
     iterableAsScalaIterable(db.getAllNodes) should have size(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
     iterableAsScalaIterable(db.getAllNodes) should have size(2)
-    subject.getSubrefNodeIdFor(classOf[Character])
+    subject.getSubrefNodeIdFor(classOf[Actor])
     iterableAsScalaIterable(db.getAllNodes) should have size(3)
-    subject.getSubrefNodeIdFor(classOf[DigitalContainer])
+    subject.getSubrefNodeIdFor(classOf[Actress])
     iterableAsScalaIterable(db.getAllNodes) should have size(4)
-    subject.getSubrefNodeIdFor(classOf[Movie])
+    subject.getSubrefNodeIdFor(classOf[Character])
     iterableAsScalaIterable(db.getAllNodes) should have size(5)
-    subject.getSubrefNodeIdFor(classOf[Person])
+    subject.getSubrefNodeIdFor(classOf[DigitalContainer])
     iterableAsScalaIterable(db.getAllNodes) should have size(6)
-    subject.getSubrefNodeIdFor(classOf[Soundtrack])
+    subject.getSubrefNodeIdFor(classOf[Movie])
     iterableAsScalaIterable(db.getAllNodes) should have size(7)
-    subject.getSubrefNodeIdFor(classOf[Subtitle])
+    subject.getSubrefNodeIdFor(classOf[Person])
     iterableAsScalaIterable(db.getAllNodes) should have size(8)
+    subject.getSubrefNodeIdFor(classOf[Soundtrack])
+    iterableAsScalaIterable(db.getAllNodes) should have size(9)
+    subject.getSubrefNodeIdFor(classOf[Subtitle])
+    iterableAsScalaIterable(db.getAllNodes) should have size(10)
   }
 
   test("should reuse subreference nodes if they already exist") {
@@ -61,10 +65,16 @@ class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with B
     iterableAsScalaIterable(db.getAllNodes) should have size(2)
   }
 
+  test("should not return a subreference node id for unsupported types") {
+    intercept[IllegalArgumentException] {
+      subject.getSubrefNodeIdFor(classOf[VersionedLongIdEntity])
+    }
+  }
+
   test("should return true for subreference nodes") {
+    val abstractCastSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast]))
     val actorSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[Actor]))
     val actressSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[Actress]))
-    val abstractCastSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast]))
     val characterSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[Character]))
     val digitalContainerSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[DigitalContainer]))
     val movieSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[Movie]))
@@ -88,19 +98,19 @@ class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with B
 
   test("should return true if the node is connected to the expected subreference node") {
     val n = createNode()
-    transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[Character])), IsA) }
-    subject.isNodeOfType(n, classOf[Character]) should be(true)
+    transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
+    subject.isNodeOfType(n, classOf[AbstractCast]) should be(true)
   }
 
   test("should return false if the node is not connected to the expected subreference node") {
     val n = createNode()
-    transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[DigitalContainer])), IsA) }
-    subject.isNodeOfType(n, classOf[Character]) should be(false)
+    transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
+    subject.isNodeOfType(n, classOf[Actor]) should be(false)
   }
 
   test("should not check if the node is connected to the expected subreference node for unsupported types") {
     val n = createNode()
-    transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[Character])), IsA) }
+    transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
     intercept[IllegalArgumentException] {
       subject.isNodeOfType(n, classOf[VersionedLongIdEntity])
     }

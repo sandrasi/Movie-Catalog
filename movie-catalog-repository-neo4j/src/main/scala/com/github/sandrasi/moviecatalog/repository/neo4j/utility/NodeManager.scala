@@ -18,14 +18,14 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Chara
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
 import org.neo4j.graphdb.{NotFoundException, GraphDatabaseService, Node}
 
-private[neo4j] class NodeManager private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
+private[neo4j] class NodeManager private (db: GraphDatabaseService) extends MovieCatalogDbConstants {
 
   Validate.notNull(db)
   
   private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
 
   def createNodeFrom(e: VersionedLongIdEntity)(implicit l: Locale = US): Node = e match {
-    case ac: AbstractCast => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(ac), ac), e.getClass)
+    case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(ac), ac), e.getClass), classOf[AbstractCast])
     case c: Character => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(c), c), e.getClass)
     case dc: DigitalContainer => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(dc), dc), e.getClass)
     case m: Movie => connectNodeToSubreferenceNode(setNodePropertiesFrom(createNode(m), m), e.getClass)
@@ -144,6 +144,8 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) extends Movi
     n.getRelationships(OUTGOING).foreach(_.delete())
     n.delete()
   }
+
+  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Traversable[Node] = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)).getRelationships(IsA, INCOMING).iterator().map(_.getStartNode).toTraversable
 }
 
 private[neo4j] object NodeManager {

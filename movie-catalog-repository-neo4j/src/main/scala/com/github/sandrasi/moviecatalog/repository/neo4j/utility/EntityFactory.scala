@@ -17,23 +17,15 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmC
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 
-private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends MovieCatalogGraphPropertyNames {
+private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends MovieCatalogDbConstants {
 
   Validate.notNull(db)
 
   private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
 
-  private final val ClassActor = classOf[Actor]
-  private final val ClassActress = classOf[Actress]
-  private final val ClassCharacter = classOf[Character]
-  private final val ClassDigitalContainer = classOf[DigitalContainer]
-  private final val ClassMovie = classOf[Movie]
-  private final val ClassPerson = classOf[Person]
-  private final val ClassSoundtrack = classOf[Soundtrack]
-  private final val ClassSubtitle = classOf[Subtitle]
-
-  def createEntityFrom[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(implicit locale: Locale = US): A = withTypeCheck(n, entityType ) {
+  def createEntityFrom[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(implicit locale: Locale = US): A = withTypeCheck(n, entityType) {
     entityType match {
+      case ClassAbstractCast => createAbstractCastFrom(n)
       case ClassActor => createActorFrom(n)
       case ClassActress => createActressFrom(n)
       case ClassCharacter => createCharacterFrom(n)
@@ -47,6 +39,10 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) extends Mo
   }
   
   private def withTypeCheck[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(op: => VersionedLongIdEntity) = if (SubrefNodeSupp.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
+  
+  private def createAbstractCastFrom(n: Node) = if (SubrefNodeSupp.isNodeOfType(n, classOf[Actor])) createActorFrom(n)
+    else if (SubrefNodeSupp.isNodeOfType(n, classOf[Actress])) createActressFrom(n)
+    else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassAbstractCast.getName, n.getId))
 
   private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 

@@ -5,7 +5,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import org.joda.time.{Duration, LocalDate, ReadableDuration}
 import org.neo4j.graphdb.PropertyContainer
 
-private[utility] object PropertyManager extends MovieCatalogGraphPropertyNames {
+private[utility] object PropertyManager extends MovieCatalogDbConstants {
   
   def getString(propCntnr: PropertyContainer, key: String): String = propCntnr.getProperty(key).asInstanceOf[String]
   

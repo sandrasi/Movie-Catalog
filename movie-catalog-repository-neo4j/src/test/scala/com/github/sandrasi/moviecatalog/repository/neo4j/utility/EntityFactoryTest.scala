@@ -5,12 +5,13 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 
 @RunWith(classOf[JUnitRunner])
 class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -34,6 +35,34 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
       EntityFactory(null)
     }
   }
+  
+  test("should create abstract cast entity from actor node") {
+    val person = insertEntity(JohnDoe)
+    val character = insertEntity(Johnny)
+    val movie = insertEntity(TestMovie)
+    val actorNode = createNodeFrom(Actor(person, character, movie))
+    val abstractCast = subject.createEntityFrom(actorNode, classOf[AbstractCast])
+    abstractCast.person should be(JohnDoe)
+    abstractCast.character should be(Johnny)
+    abstractCast.motionPicture should be(TestMovie)
+    abstractCast.version should be(0)
+    abstractCast.id should be(Some(actorNode.getId))
+    abstractCast.isInstanceOf[Actor] should be(true)
+  }
+
+  test("should create abstract cast entity from actress node") {
+    val person = insertEntity(JaneDoe)
+    val character = insertEntity(Jenny)
+    val movie = insertEntity(TestMovie)
+    val actressNode = createNodeFrom(Actress(person, character, movie))
+    val abstractCast = subject.createEntityFrom(actressNode, classOf[AbstractCast])
+    abstractCast.person should be(JaneDoe)
+    abstractCast.character should be(Jenny)
+    abstractCast.motionPicture should be(TestMovie)
+    abstractCast.version should be(0)
+    abstractCast.id should be(Some(actressNode.getId))
+    abstractCast.isInstanceOf[Actress] should be(true)
+  }
 
   test("should create actor entity from node") {
     val person = insertEntity(JohnDoe)
@@ -46,6 +75,14 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     actor.motionPicture should be(TestMovie)
     actor.version should be(0)
     actor.id should be(Some(actorNode.getId))
+  }
+
+  test("should not create abstract cast from node of unspecified abstract cast node") {
+    val node = createNode()
+    transaction(db) { node.createRelationshipTo(db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
+    intercept[IllegalArgumentException] {
+      subject.createEntityFrom(node, classOf[AbstractCast])
+    }
   }
 
   test("should create actress entity from node") {

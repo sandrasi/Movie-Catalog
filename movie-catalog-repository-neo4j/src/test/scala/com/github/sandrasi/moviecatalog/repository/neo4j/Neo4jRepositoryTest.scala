@@ -7,12 +7,12 @@ import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.utility.Gender.Male
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.domain.utility.Gender.Male
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
 class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -289,5 +289,71 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     intercept[IllegalArgumentException] {
       subject.delete(new VersionedLongIdEntity(0, 1) {})
     }
+  }
+
+  test("should return all abstract cast from the database") {
+    val actress = insertEntity(Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie)))
+    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val cast = subject.query(classOf[AbstractCast])
+    cast should have size(2)
+    cast should contain(actor.asInstanceOf[AbstractCast])
+    cast should contain(actress.asInstanceOf[AbstractCast])
+  }
+  
+  test("should return all actors from the database") {
+    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val actors = subject.query(classOf[Actor])
+    actors should have size(1)
+    actors should contain(actor)
+  }
+  
+  test("should return all characters from the database") {
+    val character = insertEntity(Johnny)
+    val characters = subject.query(classOf[Character])
+    characters should have size(1)
+    characters should contain(character)
+  }
+
+  test("should return all digital containers from the database") {
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie)))
+    val digitalContainers = subject.query(classOf[DigitalContainer])
+    digitalContainers should have size(1)
+    digitalContainers should contain(digitalContainer)
+  }
+
+  test("should return all movies from the database") {
+    val movie = insertEntity(TestMovie)
+    val movies = subject.query(classOf[Movie])
+    movies should have size(1)
+    movies should contain(movie)
+  }
+
+  test("should return all persons from the database") {
+    val person = insertEntity(JohnDoe)
+    val persons = subject.query(classOf[Person])
+    persons should have size(1)
+    persons should contain(person)
+  }
+
+  test("should return all soundtracks from the database") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    val soundtracks = subject.query(classOf[Soundtrack])
+    soundtracks should have size(1)
+    soundtracks should contain(soundtrack)
+  }
+
+  test("should return all subtitles from the database") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    val subtitles = subject.query(classOf[Subtitle])
+    subtitles should have size(1)
+    subtitles should contain(subtitle)
+  }
+  
+  test("should return entities matching the criterion from the database") {
+    insertEntity(Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie)))
+    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val maleCast = subject.query(classOf[AbstractCast], (ac: AbstractCast) => ac.isInstanceOf[Actor])
+    maleCast should have size(1)
+    maleCast should contain(actor.asInstanceOf[AbstractCast])
   }
 }
