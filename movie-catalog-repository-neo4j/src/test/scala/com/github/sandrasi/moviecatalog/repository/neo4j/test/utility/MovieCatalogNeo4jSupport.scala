@@ -94,7 +94,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogDbConstants wi
   
   protected def updateNodeOf(e: VersionedLongIdEntity, l: Locale = AmericanLocale): Node = transaction(db) { NodeManager(db).updateNodeOf(e)(l) }
 
-  protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { db.createNode().createRelationshipTo(db.createNode(), relType) }
+  protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { from.createRelationshipTo(to, relType) }
 
   protected def insertEntity[A <: VersionedLongIdEntity](entity: A): A = entity match {
     case a: Actor => createActorFrom(createNodeFrom(a)).asInstanceOf[A]
