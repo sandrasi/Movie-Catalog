@@ -10,8 +10,9 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Entit
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 
-private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) extends MovieCatalogDbConstants with TransactionSupport {
+private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) extends TransactionSupport {
 
   Validate.notNull(db)
   

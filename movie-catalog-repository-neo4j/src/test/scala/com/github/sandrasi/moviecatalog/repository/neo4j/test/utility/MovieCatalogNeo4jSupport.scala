@@ -20,7 +20,7 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility._
 
-private[neo4j] trait MovieCatalogNeo4jSupport extends MovieCatalogDbConstants with TransactionSupport {
+private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 
   self: BeforeAndAfterAll with BeforeAndAfterEach =>
 

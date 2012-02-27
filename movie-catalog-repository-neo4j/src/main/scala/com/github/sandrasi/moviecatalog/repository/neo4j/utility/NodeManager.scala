@@ -6,19 +6,20 @@ import java.lang.IllegalStateException
 import java.util.Locale
 import java.util.Locale.US
 import org.neo4j.graphdb.Direction._
+import org.neo4j.graphdb.{GraphDatabaseService, Node, NotFoundException}
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
-import org.neo4j.graphdb.{NotFoundException, GraphDatabaseService, Node}
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 
-private[neo4j] class NodeManager private (db: GraphDatabaseService) extends MovieCatalogDbConstants {
+private[neo4j] class NodeManager private (db: GraphDatabaseService) {
 
   Validate.notNull(db)
   
