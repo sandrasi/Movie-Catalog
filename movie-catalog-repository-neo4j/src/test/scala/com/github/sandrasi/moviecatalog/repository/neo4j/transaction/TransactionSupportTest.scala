@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.transaction
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.NotInTransactionException
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
@@ -22,14 +22,14 @@ class TransactionSupportTest extends FunSuite with BeforeAndAfterAll with Before
   
   test("should abort transaction if an exception occurs") {
     try {
-      db.getAllNodes.size should be(1)
+      db.getAllNodes.asScala.size should be(1)
       transaction(db) {
         db.createNode()
         throw new Exception("test exception")
       }
       fail("transaction(GraphDatabaseService) should have thrown an exception")
     } catch {
-      case _: Exception => db.getAllNodes.size should be(1)
+      case _: Exception => db.getAllNodes.asScala.size should be(1)
     }
   }
 }

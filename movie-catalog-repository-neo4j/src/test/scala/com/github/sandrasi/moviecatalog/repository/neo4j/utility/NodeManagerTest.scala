@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.Direction._
@@ -54,8 +54,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
     getLong(actorNode, Version) should be(0)
-    actorNode.getRelationships(IsA, OUTGOING).iterator().map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
-    actorNode.getRelationships(IsA, OUTGOING).iterator().map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor]))
   }
 
   test("should not create node from the actor if the person does not exist in the database") {
@@ -149,8 +149,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val hungarianSubtitleNode = createNodeFrom(HungarianSubtitle)
     val digitalContainerNode = transaction(db) { subject.createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(englishSoundtrackNode), createSoundtrackFrom(hungarianSoundtrackNode)), Set(createSubtitleFrom(englishSubtitleNode), createSubtitleFrom(hungarianSubtitleNode)))) }
     digitalContainerNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(movieNode)
-    digitalContainerNode.getRelationships(WithSoundtrack, OUTGOING).map(_.getEndNode).toSet should be(Set(englishSoundtrackNode, hungarianSoundtrackNode))
-    digitalContainerNode.getRelationships(WithSubtitle, OUTGOING).map(_.getEndNode).toSet should be(Set(englishSubtitleNode, hungarianSubtitleNode))
+    digitalContainerNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSoundtrackNode, hungarianSoundtrackNode))
+    digitalContainerNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSubtitleNode, hungarianSubtitleNode))
     getLong(digitalContainerNode, Version) should be(0)
     digitalContainerNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer]))
   }
@@ -496,8 +496,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedDigitalContainer = DigitalContainer(createMovieFrom(anotherMovieNode), Set(createSoundtrackFrom(italianSoundtrackNode)), Set(createSubtitleFrom(italianSubtitleNode)), digitalContainer.version, digitalContainer.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedDigitalContainer) }
     updatedNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(anotherMovieNode)
-    updatedNode.getRelationships(WithSoundtrack, OUTGOING).map(_.getEndNode).toSet should be(Set(italianSoundtrackNode))
-    updatedNode.getRelationships(WithSubtitle, OUTGOING).map(_.getEndNode).toSet should be(Set(italianSubtitleNode))
+    updatedNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(italianSoundtrackNode))
+    updatedNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(italianSubtitleNode))
     getLong(updatedNode, Version) should be(modifiedDigitalContainer.version + 1)
     updatedNode.getId should be(digitalContainer.id.get)
   }

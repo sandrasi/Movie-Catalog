@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
@@ -36,33 +36,33 @@ class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with B
   }
 
   test("should create subreference nodes if they don't exist") {
-    iterableAsScalaIterable(db.getAllNodes) should have size(1)
+    db.getAllNodes.asScala should have size(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
-    iterableAsScalaIterable(db.getAllNodes) should have size(2)
+    db.getAllNodes.asScala should have size(2)
     subject.getSubrefNodeIdFor(classOf[Actor])
-    iterableAsScalaIterable(db.getAllNodes) should have size(3)
+    db.getAllNodes.asScala should have size(3)
     subject.getSubrefNodeIdFor(classOf[Actress])
-    iterableAsScalaIterable(db.getAllNodes) should have size(4)
+    db.getAllNodes.asScala should have size(4)
     subject.getSubrefNodeIdFor(classOf[Character])
-    iterableAsScalaIterable(db.getAllNodes) should have size(5)
+    db.getAllNodes.asScala should have size(5)
     subject.getSubrefNodeIdFor(classOf[DigitalContainer])
-    iterableAsScalaIterable(db.getAllNodes) should have size(6)
+    db.getAllNodes.asScala should have size(6)
     subject.getSubrefNodeIdFor(classOf[Movie])
-    iterableAsScalaIterable(db.getAllNodes) should have size(7)
+    db.getAllNodes.asScala should have size(7)
     subject.getSubrefNodeIdFor(classOf[Person])
-    iterableAsScalaIterable(db.getAllNodes) should have size(8)
+    db.getAllNodes.asScala should have size(8)
     subject.getSubrefNodeIdFor(classOf[Soundtrack])
-    iterableAsScalaIterable(db.getAllNodes) should have size(9)
+    db.getAllNodes.asScala should have size(9)
     subject.getSubrefNodeIdFor(classOf[Subtitle])
-    iterableAsScalaIterable(db.getAllNodes) should have size(10)
+    db.getAllNodes.asScala should have size(10)
   }
 
   test("should reuse subreference nodes if they already exist") {
-    iterableAsScalaIterable(db.getAllNodes) should have size(1)
+    db.getAllNodes.asScala should have size(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
-    iterableAsScalaIterable(db.getAllNodes) should have size(2)
+    db.getAllNodes.asScala should have size(2)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
-    iterableAsScalaIterable(db.getAllNodes) should have size(2)
+    db.getAllNodes.asScala should have size(2)
   }
 
   test("should not return a subreference node id for unsupported types") {

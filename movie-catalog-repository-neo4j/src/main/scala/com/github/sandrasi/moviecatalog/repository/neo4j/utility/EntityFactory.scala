@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import java.util.Locale
 import java.util.Locale.US
@@ -53,9 +53,9 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), n.getId)
   
-  private def getSoundtracks(n: Node, l: Locale) = n.getRelationships(WithSoundtrack, OUTGOING).map(r => createSoundtrackFrom(r.getEndNode, l)).toSet
+  private def getSoundtracks(n: Node, l: Locale) = n.getRelationships(WithSoundtrack, OUTGOING).asScala.map(r => createSoundtrackFrom(r.getEndNode, l)).toSet
 
-  private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).map(r => createSubtitleFrom(r.getEndNode, l)).toSet
+  private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).asScala.map(r => createSubtitleFrom(r.getEndNode, l)).toSet
 
   private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDuration(n, MovieLength), getLocalDate(n, MovieReleaseDate), getLong(n, Version), n.getId)
 

@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.test.utility
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import java.io.IOException
 import java.nio.file.FileVisitResult._
@@ -72,13 +72,13 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   }
 
   private def truncateDb(db: EmbeddedGraphDatabase) {
-    transaction(db) { db.getAllNodes.view.filter(isDeletable(_, db)).foreach(deleteNode(_)) }
+    transaction(db) { db.getAllNodes.asScala.view.filter(isDeletable(_, db)).foreach(deleteNode(_)) }
   }
 
   private def isDeletable(n: Node, db: EmbeddedGraphDatabase) = n != db.getReferenceNode
 
   protected def deleteNode(n: Node) {
-    n.getRelationships.foreach(_.delete())
+    n.getRelationships.asScala.foreach(_.delete())
     n.delete()
   }
 
@@ -124,7 +124,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 
   protected def createSubtitleFrom(n: Node): Subtitle = EntityFactory(db).createEntityFrom(n, classOf[Subtitle])
 
-  protected def getNodeCount: Int = db.getAllNodes.iterator().size
+  protected def getNodeCount: Int = db.getAllNodes.iterator().asScala.size
 
   protected final class TestRelationshipType(override val name: String) extends RelationshipType
 }

@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import java.lang.IllegalStateException
 import java.util.Locale
@@ -59,9 +59,9 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
   }
 
   private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = {
-    n.getRelationships(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING).foreach(_.delete())
-    n.getRelationships(Played, OUTGOING).foreach(_.delete())
-    n.getRelationships(AppearedIn, OUTGOING).foreach(_.delete())
+    n.getRelationships(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
+    n.getRelationships(Played, OUTGOING).asScala.foreach(_.delete())
+    n.getRelationships(AppearedIn, OUTGOING).asScala.foreach(_.delete())
     n.createRelationshipTo(getNode(ac.person), FilmCrewRelationshipType.forClass(ac.getClass))
     n.createRelationshipTo(getNode(ac.character), Played)
     n.createRelationshipTo(getNode(ac.motionPicture), AppearedIn)
@@ -77,9 +77,9 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
   }
 
   private def setNodePropertiesFrom(n: Node, dc: DigitalContainer): Node = {
-    n.getRelationships(WithContent, OUTGOING).foreach(_.delete())
-    n.getRelationships(WithSoundtrack, OUTGOING).foreach(_.delete())
-    n.getRelationships(WithSubtitle, OUTGOING).foreach(_.delete())
+    n.getRelationships(WithContent, OUTGOING).asScala.foreach(_.delete())
+    n.getRelationships(WithSoundtrack, OUTGOING).asScala.foreach(_.delete())
+    n.getRelationships(WithSubtitle, OUTGOING).asScala.foreach(_.delete())
     n.createRelationshipTo(getNode(dc.motionPicture), WithContent)
     dc.soundtracks.map(getNode(_)).foreach(n.createRelationshipTo(_, WithSoundtrack))
     dc.subtitles.map(getNode(_)).foreach(n.createRelationshipTo(_, WithSubtitle))
@@ -142,11 +142,11 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
     val n = getNode(e)
     if (n.hasRelationship(INCOMING)) throw new IllegalStateException("%s is referenced by other entities".format(e))
     if (!hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
-    n.getRelationships(OUTGOING).foreach(_.delete())
+    n.getRelationships(OUTGOING).asScala.foreach(_.delete())
     n.delete()
   }
 
-  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Traversable[Node] = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)).getRelationships(IsA, INCOMING).iterator().map(_.getStartNode).toTraversable
+  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Traversable[Node] = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)).getRelationships(IsA, INCOMING).iterator().asScala.map(_.getStartNode).toTraversable
 }
 
 private[neo4j] object NodeManager {

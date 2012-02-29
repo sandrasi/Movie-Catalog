@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import org.neo4j.graphdb.Direction.OUTGOING
 import org.neo4j.graphdb.{GraphDatabaseService, Node}
@@ -37,7 +37,7 @@ private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) 
     srn
   }
 
-  def isNodeOfType[A <: VersionedLongIdEntity](n: Node, entityType: Class[A]) = n.getRelationships(IsA, OUTGOING).view.map(_.getEndNode.getId).exists(_ == getSubrefNodeIdFor(entityType))
+  def isNodeOfType[A <: VersionedLongIdEntity](n: Node, entityType: Class[A]) = n.getRelationships(IsA, OUTGOING).asScala.view.map(_.getEndNode.getId).exists(_ == getSubrefNodeIdFor(entityType))
 }
 
 private[neo4j] object SubreferenceNodeSupport {
