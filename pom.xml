@@ -22,6 +22,7 @@
         <module>movie-catalog-repository</module>
         <module>movie-catalog-repository-jdbc</module>
         <module>movie-catalog-repository-neo4j</module>
+        <module>movie-catalog-service</module>
     </modules>
 
     <dependencyManagement>
