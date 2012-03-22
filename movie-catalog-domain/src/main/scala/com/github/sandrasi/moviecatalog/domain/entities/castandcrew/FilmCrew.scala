@@ -5,8 +5,8 @@ import com.github.sandrasi.moviecatalog.domain.entities.core._
 
 trait FilmCrew {
 
-  val person: Person;
-  val motionPicture: MotionPicture;
+  val person: Person
+  val motionPicture: MotionPicture
 
   Validate.notNull(person)
   Validate.notNull(motionPicture)
