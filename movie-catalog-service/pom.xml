@@ -17,6 +17,22 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.scalatra</groupId>
+            <artifactId>scalatra_${scala.version}</artifactId>
+            <version>2.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-convert</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.sandrasi</groupId>
             <artifactId>movie-catalog-domain</artifactId>
             <version>${project.version}</version>
