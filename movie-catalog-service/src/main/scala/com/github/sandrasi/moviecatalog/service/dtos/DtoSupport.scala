@@ -1,13 +1,14 @@
 package com.github.sandrasi.moviecatalog.service.dtos
 
 import java.util.Locale
+import java.util.Locale.US
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, MotionPicture, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Subtitle, Soundtrack}
 
 sealed trait BaseEntityDto {
 
-  val id: Long
+  val id: Option[Long]
 }
 
 sealed trait CastDto extends FilmCrewDto {
@@ -29,44 +30,40 @@ sealed trait MotionPictureDto extends BaseEntityDto {
   val releaseDate: String
 }
 
-case class ActorDto(id: Long, person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
+case class ActorDto(id: Option[Long], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
 
-case class ActressDto(id: Long, person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
+case class ActressDto(id: Option[Long], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
 
-case class CharacterDto(id: Long, name: String, discriminator: String) extends BaseEntityDto
+case class CharacterDto(id: Option[Long], name: String, discriminator: String) extends BaseEntityDto
 
-case class DigitalContainerDto(id: Long, motionPicture: MotionPictureDto, soundtracks: Set[SoundtrackDto], subtitles: Set[SubtitleDto]) extends BaseEntityDto
+case class DigitalContainerDto(id: Option[Long], motionPicture: MotionPictureDto, soundtracks: Set[SoundtrackDto], subtitles: Set[SubtitleDto]) extends BaseEntityDto
 
-case class MovieDto(id: Long, originalTitle: String, localizedTitle: Option[String] = None, length: Long, releaseDate: String) extends MotionPictureDto
+case class MovieDto(id: Option[Long], originalTitle: String, localizedTitle: Option[String], length: Long, releaseDate: String) extends MotionPictureDto
 
-case class PersonDto(id: Long, name: String, gender: String, dateOfBirth: String, placeOfBirth: String) extends BaseEntityDto
+case class PersonDto(id: Option[Long], name: String, gender: String, dateOfBirth: String, placeOfBirth: String) extends BaseEntityDto
 
-case class SoundtrackDto(id: Long, languageCode: String, formatCode: String, languageName: Option[String], formatName: Option[String]) extends BaseEntityDto
+case class SoundtrackDto(id: Option[Long], languageCode: String, formatCode: String, languageName: Option[String], formatName: Option[String]) extends BaseEntityDto
 
-case class SubtitleDto(id: Long, languageCode: String, languageName: Option[String]) extends BaseEntityDto
+case class SubtitleDto(id: Option[Long], languageCode: String, languageName: Option[String]) extends BaseEntityDto
 
 object DtoSupport {
 
-  implicit def toCharacterDto(c: Character): CharacterDto = CharacterDto(c.id.get, c.name, c.discriminator)
+  implicit def toCharacterDto(c: Character): CharacterDto = CharacterDto(c.id, c.name, c.discriminator)
 
-  implicit def toMotionPictureDto(m: MotionPicture)(implicit l: Locale): MotionPictureDto = m match {
-    case movie: Movie => MovieDto(m.id.get, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None, m.length.getMillis, m.releaseDate.toString)
+  implicit def toMotionPictureDto(m: MotionPicture)(implicit l: Locale = US): MotionPictureDto = m match {
+    case movie: Movie => MovieDto(m.id, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None, m.length.getMillis, m.releaseDate.toString)
     case _ => throw new IllegalArgumentException("Unsupported motion picture type: %s".format(m.getClass.getName))
   }
 
-  implicit def toPersonDto(p: Person): PersonDto = PersonDto(p.id.get, p.name, p.gender.toString, p.dateOfBirth.toString, p.placeOfBirth)
+  implicit def toPersonDto(p: Person): PersonDto = PersonDto(p.id, p.name, p.gender.toString, p.dateOfBirth.toString, p.placeOfBirth)
 
-  implicit def toActorDto(a: Actor)(implicit l: Locale): ActorDto = ActorDto(a.id.get, a.person, a.character, a.motionPicture)
+  implicit def toActorDto(a: Actor)(implicit l: Locale = US): ActorDto = ActorDto(a.id, a.person, a.character, a.motionPicture)
 
-  implicit def toActressDto(a: Actress)(implicit l: Locale): ActressDto = ActressDto(a.id.get, a.person, a.character, a.motionPicture)
+  implicit def toActressDto(a: Actress)(implicit l: Locale = US): ActressDto = ActressDto(a.id, a.person, a.character, a.motionPicture)
 
-  private implicit def toSoundtrackDtoSet(ss: Set[Soundtrack])(implicit l: Locale) = ss.map(toSoundtrackDto(_))
+  implicit def toSoundtrackDto(s: Soundtrack): SoundtrackDto = SoundtrackDto(s.id, s.languageCode, s.formatCode, if (s.languageName.isDefined) Some(s.languageName.get.text) else None, if (s.formatName.isDefined) Some(s.formatName.get.text) else None)
 
-  private implicit def toSubtitleDtoSet(ss: Set[Subtitle])(implicit l: Locale) = ss.map(toSubtitleDto(_))
-
-  implicit def toDigitalContainerDto(dc: DigitalContainer)(implicit l: Locale): DigitalContainerDto = DigitalContainerDto(dc.id.get, dc.motionPicture, dc.soundtracks, dc.subtitles)
-
-  implicit def toSoundtrackDto(s: Soundtrack)(implicit l: Locale): SoundtrackDto = SoundtrackDto(s.id.get, s.languageCode, s.formatCode, if (s.languageName.isDefined) Some(s.languageName.get.text) else None, if (s.formatName.isDefined) Some(s.formatName.get.text) else None)
-
-  implicit def toSubtitleDto(s: Subtitle)(implicit l: Locale): SubtitleDto = SubtitleDto(s.id.get, s.languageCode, if (s.languageName.isDefined) Some(s.languageName.get.text) else None)
+  implicit def toSubtitleDto(s: Subtitle): SubtitleDto = SubtitleDto(s.id, s.languageCode, if (s.languageName.isDefined) Some(s.languageName.get.text) else None)
+  
+  implicit def toDigitalContainerDto(dc: DigitalContainer): DigitalContainerDto = DigitalContainerDto(dc.id, dc.motionPicture, dc.soundtracks.map(toSoundtrackDto(_)), dc.subtitles.map(toSubtitleDto(_)))
 }
