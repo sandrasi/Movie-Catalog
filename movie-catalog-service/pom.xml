@@ -16,6 +16,10 @@
 
     <name>Movie catalog service</name>
 
+    <properties>
+        <scalatra.version>2.0.4</scalatra.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.sandrasi</groupId>
@@ -36,6 +40,16 @@
             <groupId>org.scalatra</groupId>
             <artifactId>scalatra_${scala.version}</artifactId>
             <version>2.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatra</groupId>
+            <artifactId>scalatra-scalate_${scala.version}</artifactId>
+            <version>${scalatra.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.liftweb</groupId>
+            <artifactId>lift-json_${scala.version}</artifactId>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
