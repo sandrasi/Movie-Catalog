@@ -5,7 +5,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.core._
 
 trait Cast extends FilmCrew {
 
-  val character: Character
+  def character: Character
 
   Validate.notNull(character)
 }

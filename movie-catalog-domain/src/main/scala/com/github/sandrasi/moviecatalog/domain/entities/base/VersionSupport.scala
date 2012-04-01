@@ -6,7 +6,7 @@ trait VersionSupport {
 
   self: BaseEntity[_] =>
 
-  val version: Long
+  def version: Long
 
   Validate.isTrue(version >= 0)
 }
