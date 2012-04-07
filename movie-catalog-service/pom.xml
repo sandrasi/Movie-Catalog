@@ -17,6 +17,7 @@
     <name>Movie catalog service</name>
 
     <properties>
+        <jetty.version>8.1.2.v20120308</jetty.version>
         <scalatra.version>2.0.4</scalatra.version>
     </properties>
 
@@ -53,8 +54,8 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -68,6 +69,12 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.9.1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
