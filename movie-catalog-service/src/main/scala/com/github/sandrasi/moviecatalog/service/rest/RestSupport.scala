@@ -7,8 +7,6 @@ import org.fusesource.scalate.Template
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport
 
-case class Link(rel: String, href: String)
-
 case class RestResponse[+A](resource: RestSupport#RestResource[A], result: Result[A])
 
 case class JsonResponse[+A](response: Result[A])
@@ -35,6 +33,7 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
   private def write(jsonResponse: JsonResponse[_]) = Serialization.write(jsonResponse)
 
   private def write(xmlResponse: XmlResponse[_]) = toXml(decompose(xmlResponse))
+
 
   trait RestResource[+A] {
 
