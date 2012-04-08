@@ -13,6 +13,10 @@ case class JsonResponse[+A](response: Result[A])
 
 case class XmlResponse[+A](response: Result[A])
 
+class BadRequestException(message: String) extends RuntimeException(message)
+
+case class ParameterException(name: String, errorMessage: String) extends BadRequestException(name + ": " + errorMessage)
+
 trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer =>
 
   private implicit val serializationFormat = Serialization.formats(NoTypeHints)
@@ -34,6 +38,35 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
 
   private def write(xmlResponse: XmlResponse[_]) = toXml(decompose(xmlResponse))
 
+  protected[this] type ParameterConversionResult[A] = Either[Exception, A]
+
+  protected[this] type ParameterConverter[A] = Seq[String] => ParameterConversionResult[A]
+
+  trait Parameter[+A] { outer =>
+
+    def name: String
+    def description: Template
+    def isRequired: Boolean
+
+    protected def parse: A
+  }
+
+  case class RequiredParameter[A](name: String, description: Template)(implicit parameterConverter: ParameterConverter[A]) extends Parameter[A] {
+
+    override val isRequired = true
+
+    override protected def parse: A = {
+      val parameterValues = multiParams.get(name)
+      if (parameterValues.isDefined) {
+        parameterConverter(parameterValues.get).fold(
+          error => throw ParameterException(name, error.getMessage),
+          value => value
+        )
+      } else {
+        throw ParameterException(name, "Required parameter is missing")
+      }
+    }
+  }
 
   trait RestResource[+A] {
 
@@ -47,7 +80,12 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
     protected[this] final def template(uri: String) = templateEngine.load(findTemplate(uri).getOrElse(uri))
 
     private[this] final val route = outer.get(path) {
-      val result = try { get } catch { case e => ErrorResult(InternalServerError(message = e.getMessage)) }
+      val result = try {
+        get
+      } catch {
+        case e: ParameterException => ErrorResult(BadRequest(message = e.getMessage))
+        case e => ErrorResult(InternalServerError(message = e.getMessage))
+      }
       RestResponse(this, result)
     }
   }

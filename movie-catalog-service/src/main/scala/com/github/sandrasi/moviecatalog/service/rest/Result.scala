@@ -8,6 +8,8 @@ sealed trait HttpStatus {
 
 case class Ok(code: Int = 200, message: String = "OK") extends HttpStatus
 
+case class BadRequest(code: Int = 400, message: String = "Bad request") extends HttpStatus
+
 case class InternalServerError(code: Int = 500, message: String = "Internal server error") extends HttpStatus
 
 case class Link(rel: String, href: String)
