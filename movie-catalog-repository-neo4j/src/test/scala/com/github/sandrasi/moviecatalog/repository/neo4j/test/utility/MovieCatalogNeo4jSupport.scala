@@ -43,7 +43,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   private var dbs: ArrayBuffer[Database] = _
 
   override protected def beforeAll() {
-    dbs = ArrayBuffer(Database.createTemporary("movie-catalog-repository-neo4j-test"))
+    dbs = ArrayBuffer(Database("movie-catalog-repository-neo4j-test"))
     db = dbs(0).gDb
     subrefNodeSupp = SubreferenceNodeSupport(db)
   }
@@ -83,7 +83,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   }
 
   protected def createTempDb(): EmbeddedGraphDatabase = {
-    val db = Database.createTemporary()
+    val db = Database()
     dbs += db
     db.gDb
   }
@@ -133,9 +133,9 @@ private final class Database private (val gDb: EmbeddedGraphDatabase, val perman
 
 private object Database {
 
-  def createTemporary(): Database = createTemporary(UUID.randomUUID().toString)
+  def apply(): Database = apply(UUID.randomUUID().toString)
 
-  def createTemporary(tempStoreDirPrefix: String): Database = {
+  def apply(tempStoreDirPrefix: String): Database = {
     val storeDir = Files.createTempDirectory(tempStoreDirPrefix)
     new Database(new EmbeddedGraphDatabase(storeDir.toString), false)
   }
