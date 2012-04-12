@@ -3,9 +3,10 @@ package com.github.sandrasi.moviecatalog.repository.neo4j
 import java.util.Locale
 import java.util.Locale.US
 import org.neo4j.graphdb.{GraphDatabaseService, NotFoundException}
+import org.neo4j.kernel.EmbeddedGraphDatabase
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.repository.Repository
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
+import com.github.sandrasi.moviecatalog.repository.{Repository, RepositoryFactory}
 
 class Neo4jRepository(db: GraphDatabaseService) extends Repository with TransactionSupport {
 
@@ -27,4 +28,24 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
   override def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Traversable[A] = NodeManager.getNodesOfType(entityType).view.map(EntityFactory.createEntityFrom(_, entityType)).filter(predicate(_))
 
   override def search(text: String)(implicit locale: Locale = US): Traversable[VersionedLongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")
+
+  def shutdown() {
+    db.shutdown()
+  }
+}
+
+object Neo4jRepository extends RepositoryFactory {
+
+  def apply(repositoryConfiguration: RepositoryConfiguration) = new Neo4jRepository(new EmbeddedGraphDatabase(repositoryConfiguration.get("storeDir", classOf[String])))
+
+  val configurationMetaData = ConfigurationMetaData(
+    ConfigurationParameterMetaData(
+      name = "storeDir",
+      description = "The directory where Neo4j stores the database",
+      valueType = classOf[String],
+      parameterConverter = convertStringsToString
+    )
+  )
+
+  private def convertStringsToString(strs: Seq[String]): ParameterConversionResult[String] = if (strs.nonEmpty) Right(strs.head) else Left(new IllegalArgumentException("Cannot convert strings to string"))
 }

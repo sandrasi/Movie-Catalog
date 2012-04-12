@@ -22,5 +22,13 @@
             <artifactId>movie-catalog-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.9.1</artifactId>
+        </dependency>
     </dependencies>
 </project>

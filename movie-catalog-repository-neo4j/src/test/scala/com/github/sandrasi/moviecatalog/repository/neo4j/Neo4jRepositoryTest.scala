@@ -1,5 +1,10 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 
+import java.io.IOException
+import java.nio.file.{Files, Path, Paths, SimpleFileVisitor}
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.FileVisitResult._
+import java.util.UUID
 import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.NotFoundException
@@ -21,6 +26,31 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   override protected def beforeEach() {
     subject = new Neo4jRepository(db)
+  }
+
+  test("should return configuration meta data") {
+    val configurationMetaData = Neo4jRepository.configurationMetaData
+    configurationMetaData.configurationParameters.size should be(1)
+    configurationMetaData.get("storeDir").get.name should be("storeDir")
+    configurationMetaData.get("storeDir").get.description should be("The directory where Neo4j stores the database")
+    configurationMetaData.get("storeDir").get.valueType should be(classOf[String])
+    configurationMetaData.get("storeDir").get.parameterConverter.isInstanceOf[Function1[Seq[String], String]] should be(true)
+  }
+
+  test("should instantiate Neo4jRepository from configuration") {
+    val configuration = new Neo4jRepository.RepositoryConfiguration
+    val storeDir = Files.createTempDirectory(UUID.randomUUID().toString).toString
+    configuration.setFromString("storeDir", storeDir)(Neo4jRepository.configurationMetaData.get("storeDir").get.parameterConverter)
+    val subject = Neo4jRepository(configuration)
+    subject should not be(null)
+    subject.shutdown()
+    Files.walkFileTree(Paths.get(storeDir),
+      new SimpleFileVisitor[Path] {
+
+        override def visitFile(file: Path, attrs: BasicFileAttributes) = { Files.delete(file); CONTINUE }
+
+        override def postVisitDirectory(dir: Path, e: IOException) = if (e == null) { Files.delete(dir); CONTINUE } else throw e
+      })
   }
 
   test("should fetch actor from the database by id") {
@@ -355,5 +385,12 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val maleCast = subject.query(classOf[AbstractCast], (ac: AbstractCast) => ac.isInstanceOf[Actor])
     maleCast should have size(1)
     maleCast should contain(actor.asInstanceOf[AbstractCast])
+  }
+
+  test("should shut down the repository") {
+    subject.shutdown()
+    intercept[IllegalStateException] {
+      subject.save(Johnny)
+    }
   }
 }
