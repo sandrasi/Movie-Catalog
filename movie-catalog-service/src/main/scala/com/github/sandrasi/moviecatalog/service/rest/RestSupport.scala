@@ -22,12 +22,12 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
   private implicit val serializationFormat = Serialization.formats(NoTypeHints)
 
   override def renderPipeline: RenderPipeline = {
-    case RestResponse(resource, result) =>
+    case response @ RestResponse(resource, result) =>
       status(result.status.code)
       format match {
         case "json" => JsonResponse(result)
         case "xml" => XmlResponse(result)
-        case _ => templateEngine.layout(resource.description.source.uri, resource.description)
+        case _ => layoutTemplate(loadTemplate("resource"), Map("restResponse" -> response))
       }
     case json @ JsonResponse(_) => write(json)
     case xml @ XmlResponse(_) => write(xml)
@@ -37,6 +37,10 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
   private def write(jsonResponse: JsonResponse[_]) = Serialization.write(jsonResponse)
 
   private def write(xmlResponse: XmlResponse[_]) = toXml(decompose(xmlResponse))
+
+  private def loadTemplate(template: String) = templateEngine.load(findTemplate(template).getOrElse(template))
+
+  private def layoutTemplate(template: Template, attributes: Map[String, Any] = Map()) = templateEngine.layout(template.source.uri, template, attributes)
 
   protected[this] type ParameterConversionResult[A] = Either[Exception, A]
 
@@ -77,7 +81,7 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
 
     final def url(params: (String, String)*): String = UrlGenerator.url(route, params: _*)
 
-    protected[this] final def template(uri: String) = templateEngine.load(findTemplate(uri).getOrElse(uri))
+    protected[this] final def template(uri: String) = loadTemplate(uri)
 
     private[this] final val route = outer.get(path) {
       val result = try {
