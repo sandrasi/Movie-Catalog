@@ -1,0 +1,15 @@
+<% import com.github.sandrasi.moviecatalog.service.rest.RestResponse %>
+<%@ val restResponse: RestResponse[_] %>
+
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <% render(restResponse.resource.description.source.uri) %>
+        <h1>Path</h1>
+        <%= restResponse.resource.path %>
+        <h1>Parameters</h1>
+        <h1>Related links</h1>
+        <h1>Results</h1>
+    </body>
+</html>
