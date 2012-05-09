@@ -1,5 +1,6 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
+import scala.collection.mutable.ArrayBuffer
 import net.liftweb.json.Extraction.decompose
 import net.liftweb.json.Xml.toXml
 import net.liftweb.json.{NoTypeHints, Serialization}
@@ -46,36 +47,76 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
 
   protected[this] type ParameterConverter[A] = Seq[String] => ParameterConversionResult[A]
 
-  trait Parameter[+A] { outer =>
+  trait Parameter[A] { outer =>
 
     def name: String
     def description: Template
     def isRequired: Boolean
 
-    protected def parse: A
+    def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = {
+      val parameterValues = multiParams.get(name)
+      if (parameterValues.isDefined) {
+        parameterConverter(parameterValues.get).fold(
+          error => throw ParameterException(name, error.getMessage),
+          value => Some(value)
+        )
+      } else {
+        None
+      }
+    }
+
+    def oneOf(values: A*): Parameter[A] = new Parameter[A] {
+      override val name = outer.name
+      override val description = outer.description // Use a new template here that adds the possible values to the parameter description
+      override val isRequired = outer.isRequired
+      override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = outer.parse match {
+        case validResult @ Some(_) if values.contains(validResult.get) => validResult
+        case None => None
+        case invalidResult @ Some(_) => throw new ParameterException(name, "'%s' is not one of %s".format(invalidResult.get, values.mkString(", ")))
+      }
+    }
+
+    def withDefault(default: A): Parameter[A] = new Parameter[A] {
+      override val name = outer.name
+      override val description = outer.description // Use a new template here that adds the default value to the parameter description
+      override val isRequired = outer.isRequired
+      override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = Some(outer.parse.getOrElse(default))
+    }
   }
 
   case class RequiredParameter[A](name: String, description: Template)(implicit parameterConverter: ParameterConverter[A]) extends Parameter[A] {
 
     override val isRequired = true
 
-    override protected def parse: A = {
-      val parameterValues = multiParams.get(name)
-      if (parameterValues.isDefined) {
-        parameterConverter(parameterValues.get).fold(
-          error => throw ParameterException(name, error.getMessage),
-          value => value
-        )
-      } else {
-        throw ParameterException(name, "Required parameter is missing")
-      }
+    override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = super.parse match {
+      case parsedParameter @ Some(_) => parsedParameter
+      case _ => throw ParameterException(name, "Required parameter is missing")
     }
+  }
+
+  case class OptionalParameter[A](name: String, description: Template)(implicit parameterConverter: ParameterConverter[A]) extends Parameter[A] { outer =>
+
+    override val isRequired = false
   }
 
   trait RestResource[+A] {
 
+    protected implicit def stringParameterConverter(values: Seq[String]): ParameterConversionResult[String] = Right(values.head)
+    protected implicit def intParameterConverter(values: Seq[String]): ParameterConversionResult[Int] = try {
+      Right(values.head.trim.toInt)
+    } catch {
+      case e: NumberFormatException => Left(e)
+    }
+
+    parameter(new OptionalParameter[String]("format", loadTemplate("parameter-format")).withDefault("json").oneOf("json", "xml", "html"))
+
     def path: String
     def description: Template
+
+    final def parameters: Map[String, Parameter[_]] = params.view.map(p => p.name -> p).toMap
+    private[this] val params = ArrayBuffer[Parameter[_]]()
+
+    protected def parameter(p: Parameter[_]) = params += p
 
     protected def get: Result[A]
 
