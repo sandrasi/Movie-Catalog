@@ -72,6 +72,11 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.clapper</groupId>
+            <artifactId>grizzled-slf4j_${scala.version}</artifactId>
+            <version>0.6.9</version>
+        </dependency>
     </dependencies>
 
     <build>
