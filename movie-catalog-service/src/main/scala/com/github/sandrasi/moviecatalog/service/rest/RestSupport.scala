@@ -18,13 +18,13 @@ class BadRequestException(message: String) extends RuntimeException(message)
 
 case class ParameterException(name: String, errorMessage: String) extends BadRequestException(name + ": " + errorMessage)
 
-trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer =>
+trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
   private implicit val serializationFormat = Serialization.formats(NoTypeHints)
 
   override def renderPipeline: RenderPipeline = {
     case response @ RestResponse(resource, result) =>
-      status(result.status.code)
+      status = result.actionResult.status.code
       format match {
         case "json" => JsonResponse(result)
         case "xml" => XmlResponse(result)
@@ -50,8 +50,8 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
   trait Parameter[A] { outer =>
 
     def name: String
-    def description: Template
     def isRequired: Boolean
+    def description: Template
 
     def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = {
       val parameterValues = multiParams.get(name)
@@ -67,8 +67,8 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
 
     def oneOf(values: A*): Parameter[A] = new Parameter[A] {
       override val name = outer.name
-      override val description = outer.description // Use a new template here that adds the possible values to the parameter description
       override val isRequired = outer.isRequired
+      override def description = outer.description // Use a new template here that adds the possible values to the parameter description
       override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = outer.parse match {
         case validResult @ Some(_) if values.contains(validResult.get) => validResult
         case None => None
@@ -78,15 +78,20 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
 
     def withDefault(default: A): Parameter[A] = new Parameter[A] {
       override val name = outer.name
-      override val description = outer.description // Use a new template here that adds the default value to the parameter description
       override val isRequired = outer.isRequired
+      override def description = outer.description // Use a new template here that adds the default value to the parameter description
       override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = Some(outer.parse.getOrElse(default))
     }
   }
 
-  case class RequiredParameter[A](name: String, description: Template)(implicit parameterConverter: ParameterConverter[A]) extends Parameter[A] {
+  abstract class DescribedParameter[A](descriptionTemplate: String) extends Parameter[A] {
 
-    override val isRequired = true
+    override def description: Template = loadTemplate(descriptionTemplate)
+  }
+
+  case class RequiredParameter[A](name: String, descriptionTemplate: String)(implicit parameterConverter: ParameterConverter[A]) extends DescribedParameter[A](descriptionTemplate) {
+
+    override val isRequired: Boolean = true
 
     override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = super.parse match {
       case parsedParameter @ Some(_) => parsedParameter
@@ -94,9 +99,9 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
     }
   }
 
-  case class OptionalParameter[A](name: String, description: Template)(implicit parameterConverter: ParameterConverter[A]) extends Parameter[A] { outer =>
+  case class OptionalParameter[A](name: String, descriptionTemplate: String)(implicit parameterConverter: ParameterConverter[A]) extends DescribedParameter[A](descriptionTemplate) { outer =>
 
-    override val isRequired = false
+    override val isRequired: Boolean = false
   }
 
   trait RestResource[+A] {
@@ -108,7 +113,6 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
       case e: NumberFormatException => Left(e)
     }
 
-    parameter(new OptionalParameter[String]("format", loadTemplate("parameter-format")).withDefault("json").oneOf("json", "xml", "html"))
 
     def path: String
     def description: Template
@@ -128,10 +132,12 @@ trait RestSupport extends ScalateSupport with UrlSupport with ApiFormats { outer
       val result = try {
         get
       } catch {
-        case e: ParameterException => ErrorResult(BadRequest(message = e.getMessage))
-        case e => ErrorResult(InternalServerError(message = e.getMessage))
+        case e: ParameterException => ErrorResult(BadRequest(reason = e.getMessage))
+        case e => ErrorResult(InternalServerError(reason = e.getMessage))
       }
       RestResponse(this, result)
     }
+
+    parameter(OptionalParameter[String]("format", "parameter-format").withDefault("json").oneOf("json", "xml", "html"))
   }
 }

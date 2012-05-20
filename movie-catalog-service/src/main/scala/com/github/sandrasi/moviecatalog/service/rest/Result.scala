@@ -1,22 +1,12 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
-sealed trait HttpStatus {
-
-  def code: Int
-  def message: String
-}
-
-case class Ok(code: Int = 200, message: String = "OK") extends HttpStatus
-
-case class BadRequest(code: Int = 400, message: String = "Bad request") extends HttpStatus
-
-case class InternalServerError(code: Int = 500, message: String = "Internal server error") extends HttpStatus
+import org.scalatra.{Ok, ActionResult}
 
 case class Link(rel: String, href: String)
 
 sealed trait Result[+A] {
 
-  def status: HttpStatus
+  def actionResult: ActionResult
 }
 
 object Result {
@@ -25,13 +15,13 @@ object Result {
 }
 
 case class ContentResult[+A](
-  status: HttpStatus = Ok(),
+  actionResult: ActionResult = Ok(),
   links: Seq[Link],
   content: Option[A]
 ) extends Result[A]
 
 case class QueryResult[+A](
-  status: HttpStatus = Ok(),
+  actionResult: ActionResult = Ok(),
   pageNumber: Int,
   pageSize: Int,
   pageCount: Int,
@@ -40,4 +30,4 @@ case class QueryResult[+A](
   links: Seq[Link],
   results: Seq[A]) extends Result[A]
 
-case class ErrorResult(status: HttpStatus) extends Result[Nothing]
+case class ErrorResult(actionResult: ActionResult) extends Result[Nothing]
