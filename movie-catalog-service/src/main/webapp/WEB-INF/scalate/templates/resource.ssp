@@ -9,6 +9,7 @@
         <h1>Path</h1>
         <%= restResponse.resource.path %>
         <h1>Parameters</h1>
+        <% for ((name, parameter) <- restResponse.resource.parameters) parameter.renderDescription %>
         <h1>Related links</h1>
         <h1>Results</h1>
     </body>

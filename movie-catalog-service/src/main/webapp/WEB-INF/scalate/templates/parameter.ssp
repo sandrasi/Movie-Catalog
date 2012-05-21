@@ -1,0 +1,5 @@
+<% import com.github.sandrasi.moviecatalog.service.rest.RestSupport %>
+<%@ val parameter: RestSupport#Parameter[_] %>
+
+<h2><%= parameter.name %></h2>
+<%= parameter.renderDescription %>

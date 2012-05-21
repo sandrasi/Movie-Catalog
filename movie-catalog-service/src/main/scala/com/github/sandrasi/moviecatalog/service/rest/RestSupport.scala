@@ -52,6 +52,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
     def name: String
     def isRequired: Boolean
     def description: Template
+    def renderDescription: String = layoutTemplate(description)
 
     def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = {
       val parameterValues = multiParams.get(name)
@@ -68,7 +69,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
     def oneOf(values: A*): Parameter[A] = new Parameter[A] {
       override val name = outer.name
       override val isRequired = outer.isRequired
-      override def description = outer.description // Use a new template here that adds the possible values to the parameter description
+      override def description = outer.description
       override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = outer.parse match {
         case validResult @ Some(_) if values.contains(validResult.get) => validResult
         case None => None
@@ -79,7 +80,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
     def withDefault(default: A): Parameter[A] = new Parameter[A] {
       override val name = outer.name
       override val isRequired = outer.isRequired
-      override def description = outer.description // Use a new template here that adds the default value to the parameter description
+      override def description = outer.description
       override def parse(implicit parameterConverter: ParameterConverter[A]): Option[A] = Some(outer.parse.getOrElse(default))
     }
   }
@@ -138,6 +139,6 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
       RestResponse(this, result)
     }
 
-    parameter(OptionalParameter[String]("format", "parameter-format").withDefault("json").oneOf("json", "xml", "html"))
+    parameter(OptionalParameter[String]("format", "parameter-format").oneOf("json", "xml", "html").withDefault("json"))
   }
 }
