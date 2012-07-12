@@ -9,6 +9,7 @@ object JettyRunner {
 
   def main(args: Array[String]) {
     startJetty()
+    stopJettyOnShutdown()
   }
 
   private def startJetty() {
@@ -18,5 +19,11 @@ object JettyRunner {
     Server.setHandler(webAppContext)
     Server.setStopAtShutdown(true)
     Server.start()
+  }
+
+  private def stopJettyOnShutdown() {
+    sys.addShutdownHook {
+      Server.stop()
+    }
   }
 }
