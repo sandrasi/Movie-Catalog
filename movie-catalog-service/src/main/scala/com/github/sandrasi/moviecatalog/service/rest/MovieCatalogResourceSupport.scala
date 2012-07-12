@@ -22,7 +22,7 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
     override def path = "/movies"
     override def description = template("movies-resource")
 
-    protected def get = QueryResult(
+    override protected def get = QueryResult(
       pageNumber = 1,
       pageSize = 0,
       pageCount = 1,
