@@ -28,7 +28,6 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
       pageCount = 1,
       startIndex = 1,
       totalSize = 0,
-      links = Seq.empty,
       results = movieCatalogRepository.query(classOf[Movie]).map(toMotionPictureDto(_)).toSeq
     )
   }
