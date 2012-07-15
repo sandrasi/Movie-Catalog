@@ -1,0 +1,7 @@
+<% import org.fusesource.scalate.Template %>
+<%@ val childDescriptionOfDefaultValue: Template %>
+<%@ val default: Any %>
+
+<% render(childDescriptionOfDefaultValue.source.uri) %>
+<br />
+Default value: <%= default %>

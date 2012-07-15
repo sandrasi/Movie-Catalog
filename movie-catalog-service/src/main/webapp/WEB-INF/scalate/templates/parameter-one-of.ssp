@@ -1,0 +1,7 @@
+<% import org.fusesource.scalate.Template %>
+<%@ val childDescriptionOfOneOfValues: Template %>
+<%@ val values: Seq[_] %>
+
+<% render(childDescriptionOfOneOfValues.source.uri) %>
+<br />
+Allowed values: <%= values.mkString(", ") %>

@@ -2,4 +2,4 @@
 <%@ val parameter: RestSupport#Parameter[_] %>
 
 <h2><%= parameter.name %></h2>
-<%= parameter.renderDescription %>
+<% render(parameter.description.source.uri) %> %>
