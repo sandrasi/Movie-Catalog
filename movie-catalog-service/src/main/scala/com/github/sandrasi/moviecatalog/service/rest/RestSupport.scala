@@ -144,7 +144,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
     }
 
     def path: String
-    protected def description: Template
+    def description: Template
     protected def get: Result[A]
 
     final def url(params: (String, String)*): String = UrlGenerator.url(route, params: _*)

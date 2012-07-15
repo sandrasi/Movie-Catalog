@@ -107,7 +107,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
   final val OptionalTestStringParameterResource = new RestResource[String] {
 
     override def path = "/optional-test-string-parameter-resource"
-    override protected def description = "test-resource-description"
+    override def description = "test-resource-description"
     override protected def get: Result[String] = {
       val parameterValue = optionalStringParameter.parse
       ContentResult(content = if (parameterValue.isDefined) Some(optionalStringParameter.parse.get) else None)
@@ -119,7 +119,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
   final val RequiredTestIntParameterResource = new RestResource[Int] {
 
     override def path = "/required-test-int-parameter-resource"
-    override protected def description = "test-resource-description"
+    override def description = "test-resource-description"
     override protected def get: Result[Int] = ContentResult(content = Some(requiredIntParameter.parse.get))
 
     private val requiredIntParameter = parameter(RequiredParameter[Int]("requiredTestIntParameter", "test-parameter-description"))
@@ -128,7 +128,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
   final val OptionalTestStringParameterWithDefaultValueResource = new RestResource[String] {
 
     override def path = "/optional-test-string-parameter-with-default-value-resource"
-    override protected def description = "test-resource-description"
+    override def description = "test-resource-description"
     override protected def get: Result[String] = ContentResult(content = Some(optionalStringParameterWithDefaultValue.parse.get))
 
     private val optionalStringParameterWithDefaultValue = parameter(OptionalParameter[String]("optionalTestStringParameter", "test-parameter-description").withDefault("testValue"))
@@ -137,7 +137,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
   final val MultiValueTestStringParameterResource = new RestResource[String] {
 
     override def path = "/multi-value-test-string-parameter-resource"
-    override protected def description = "test-resource-description"
+    override def description = "test-resource-description"
     override protected def get: Result[String] = ContentResult(content = Some(multiValueStringParameter.parse.get))
 
     private val multiValueStringParameter = parameter(OptionalParameter[String]("multiValueTestStringParameter", "test-parameter-description").oneOf("testValue1", "testValue2"))
@@ -146,14 +146,14 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
   final val InternalServerErrorResource = new RestResource[Nothing] {
 
     override def path = "/internal-server-error-resource"
-    override protected def description = "test-resource-description"
+    override def description = "test-resource-description"
     override protected def get: Result[Nothing] = throw new RuntimeException("Test exception")
   }
 
   final val TestResource  = new RestResource[String] {
 
     override def path = "/test-resource"
-    override protected def description = "test-resource-description"
+    override def description = "test-resource-description"
     override protected def get: Result[String] = ContentResult[String](content = Some("test content"))
   }
 }

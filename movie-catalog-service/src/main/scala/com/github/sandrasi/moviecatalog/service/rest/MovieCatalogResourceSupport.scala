@@ -13,14 +13,14 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
   private final val IndexResource = new RestResource[Nothing] {
 
     override def path: String = "/"
-    override protected def description: Template = "index-resource"
+    override def description: Template = "index-resource"
     override protected def get: Result[Nothing] = Result.empty(Link(rel = "movies", href = MoviesResource.url()))
   }
 
   private final val MoviesResource = new RestResource[MotionPictureDto] {
 
     override def path: String = "/movies"
-    override protected def description: Template = "movies-resource"
+    override def description: Template = "movies-resource"
     override protected def get = QueryResult(
       pageNumber = 1,
       pageSize = 0,
