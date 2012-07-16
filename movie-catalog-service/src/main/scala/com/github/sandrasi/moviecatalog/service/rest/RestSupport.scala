@@ -23,7 +23,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
   private implicit val serializationFormat = Serialization.formats(NoTypeHints)
 
   override def renderPipeline: RenderPipeline = {
-    case response @ RestResponse(resource, result) =>
+    case _ @ RestResponse(resource, result) =>
       status = result.actionResult.status.code
       format match {
         case "json" => JsonResponse(result)
