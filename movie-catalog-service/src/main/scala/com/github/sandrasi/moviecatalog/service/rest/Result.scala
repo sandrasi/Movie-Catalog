@@ -1,6 +1,6 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
-import org.scalatra.{Ok, ActionResult}
+import org.scalatra.{ActionResult, Ok}
 
 case class Link(rel: String, href: String)
 

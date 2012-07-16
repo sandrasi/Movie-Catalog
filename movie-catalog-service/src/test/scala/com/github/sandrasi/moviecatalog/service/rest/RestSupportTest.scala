@@ -1,13 +1,13 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
-import org.scalatra._
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
-import com.github.sandrasi.moviecatalog.service.testutils.MovieCatalogServletTester
+import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR, SC_OK}
 import org.eclipse.jetty.util.resource.{Resource, ResourceCollection}
-import javax.servlet.http.HttpServletResponse._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatra._
+import org.scalatra.test.scalatest.ScalatraFunSuite
+import com.github.sandrasi.moviecatalog.service.testutils.MovieCatalogServletTester
 
 @RunWith(classOf[JUnitRunner])
 class RestSupportTest extends ScalatraFunSuite with ShouldMatchers {

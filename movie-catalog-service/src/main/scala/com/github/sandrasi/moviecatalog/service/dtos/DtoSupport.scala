@@ -2,32 +2,32 @@ package com.github.sandrasi.moviecatalog.service.dtos
 
 import java.util.Locale
 import java.util.Locale.US
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, MotionPicture, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Subtitle, Soundtrack}
+import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
+import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, MotionPicture, Movie, Person}
 
 sealed trait BaseEntityDto {
 
-  val id: Option[Long]
+  def id: Option[Long]
 }
 
 sealed trait CastDto extends FilmCrewDto {
 
-  val character: CharacterDto
+  def character: CharacterDto
 }
 
 sealed trait FilmCrewDto extends BaseEntityDto {
 
-  val person: PersonDto
-  val motionPicture: MotionPictureDto
+  def person: PersonDto
+  def motionPicture: MotionPictureDto
 }
 
 sealed trait MotionPictureDto extends BaseEntityDto {
 
-  val originalTitle: String
-  val localizedTitle: Option[String]
-  val length: Long
-  val releaseDate: String
+  def originalTitle: String
+  def localizedTitle: Option[String]
+  def length: Long
+  def releaseDate: String
 }
 
 case class ActorDto(id: Option[Long], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto

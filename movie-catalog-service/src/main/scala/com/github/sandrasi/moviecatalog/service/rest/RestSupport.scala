@@ -2,8 +2,8 @@ package com.github.sandrasi.moviecatalog.service.rest
 
 import scala.collection.mutable.ArrayBuffer
 import net.liftweb.json.Extraction.decompose
-import net.liftweb.json.Xml.toXml
 import net.liftweb.json.{NoTypeHints, Serialization}
+import net.liftweb.json.Xml.toXml
 import org.fusesource.scalate.Template
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport

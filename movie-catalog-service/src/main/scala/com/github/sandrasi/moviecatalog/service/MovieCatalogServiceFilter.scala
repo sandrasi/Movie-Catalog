@@ -1,7 +1,7 @@
 package com.github.sandrasi.moviecatalog.service
 
-import org.scalatra.ScalatraFilter
 import org.neo4j.kernel.EmbeddedGraphDatabase
+import org.scalatra.ScalatraFilter
 import com.github.sandrasi.moviecatalog.repository.neo4j.Neo4jRepository
 import com.github.sandrasi.moviecatalog.service.rest.MovieCatalogResourceSupport
 
