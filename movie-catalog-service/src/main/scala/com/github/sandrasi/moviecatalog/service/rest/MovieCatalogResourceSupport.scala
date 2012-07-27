@@ -1,5 +1,6 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
+import scala.collection.mutable.{Map => MutableMap}
 import org.fusesource.scalate.Template
 import com.github.sandrasi.moviecatalog.domain.entities.core.Movie
 import com.github.sandrasi.moviecatalog.repository.Repository
@@ -10,18 +11,14 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
 
   protected def movieCatalogRepository: Repository
 
-  private final val IndexResource = new RestResource[Nothing] {
+  private final val Resources = MutableMap[String, RestResource[_] with GetSupport[_]()
 
-    override def path: String = "/"
-    override def description: Template = "index-resource"
-    override protected def get: Result[Nothing] = Result.empty(Link(rel = "movies", href = MoviesResource.url()))
+  private final val IndexResource = get[Nothing]("/", "index-resource") {
+    Result.empty(Link(rel = "movies", href = MoviesResource.getUrl()))
   }
 
-  private final val MoviesResource = new RestResource[MotionPictureDto] {
-
-    override def path: String = "/movies"
-    override def description: Template = "movies-resource"
-    override protected def get = QueryResult(
+  private final val MoviesResource = get[MotionPictureDto]("/movies", "movies-resource") {
+    QueryResult(
       pageNumber = 1,
       pageSize = 0,
       pageCount = 1,
@@ -31,14 +28,23 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
     )
   }
 
+  private def get[A](rscPath: String, rscDesc: String)(rscGet: => Result[A]): RestResource[A] with GetSupport[A] = {
+    val resource = new RestResource[A] with GetSupport[A] {
+      override def path: String = rscPath
+      override def description: Template = rscDesc
+      override protected def get = rscGet
+    }
+
+    Resources += rscPath -> resource
+    resource
+  }
+
   get("/explorer") {
     redirect("/explorer/")
   }
 
   get("/explorer/*") {
     val path = "/" + params("splat")
-    if (path == IndexResource.path) describeResource(IndexResource)
-    else if (path == MoviesResource.path) describeResource(MoviesResource)
-    else renderResponse(doNotFound())
+    if (Resources.contains(path)) describeResource(Resources(path)) else renderResponse(doNotFound())
   }
 }

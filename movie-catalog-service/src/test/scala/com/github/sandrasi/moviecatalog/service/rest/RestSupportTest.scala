@@ -77,7 +77,7 @@ class RestSupportTest extends ScalatraFunSuite with ShouldMatchers {
   }
 
   test("should return parameterized url for the resource") {
-    TestRestSupport.TestResource.url(("test-parameter", "test-value")) should be("/test-resource?test-parameter=test-value")
+    TestRestSupport.TestResource.getUrl(("test-parameter", "test-value")) should be("/test-resource?test-parameter=test-value")
   }
 
   test("should return result and set ok status code") {
@@ -104,7 +104,7 @@ class RestSupportTest extends ScalatraFunSuite with ShouldMatchers {
 
 object TestRestSupport extends ScalatraFilter with RestSupport {
 
-  final val OptionalTestStringParameterResource = new RestResource[String] {
+  final val OptionalTestStringParameterResource = new RestResource[String] with GetSupport[String] {
 
     override def path = "/optional-test-string-parameter-resource"
     override def description = "test-resource-description"
@@ -116,7 +116,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
     private val optionalStringParameter = parameter(OptionalParameter[String]("optionalTestStringParameter", "test-parameter-description"))
   }
 
-  final val RequiredTestIntParameterResource = new RestResource[Int] {
+  final val RequiredTestIntParameterResource = new RestResource[Int] with GetSupport[Int] {
 
     override def path = "/required-test-int-parameter-resource"
     override def description = "test-resource-description"
@@ -125,7 +125,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
     private val requiredIntParameter = parameter(RequiredParameter[Int]("requiredTestIntParameter", "test-parameter-description"))
   }
 
-  final val OptionalTestStringParameterWithDefaultValueResource = new RestResource[String] {
+  final val OptionalTestStringParameterWithDefaultValueResource = new RestResource[String] with GetSupport[String] {
 
     override def path = "/optional-test-string-parameter-with-default-value-resource"
     override def description = "test-resource-description"
@@ -134,7 +134,7 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
     private val optionalStringParameterWithDefaultValue = parameter(OptionalParameter[String]("optionalTestStringParameter", "test-parameter-description").withDefault("testValue"))
   }
 
-  final val MultiValueTestStringParameterResource = new RestResource[String] {
+  final val MultiValueTestStringParameterResource = new RestResource[String] with GetSupport[String] {
 
     override def path = "/multi-value-test-string-parameter-resource"
     override def description = "test-resource-description"
@@ -143,14 +143,14 @@ object TestRestSupport extends ScalatraFilter with RestSupport {
     private val multiValueStringParameter = parameter(OptionalParameter[String]("multiValueTestStringParameter", "test-parameter-description").oneOf("testValue1", "testValue2"))
   }
 
-  final val InternalServerErrorResource = new RestResource[Nothing] {
+  final val InternalServerErrorResource = new RestResource[Nothing] with GetSupport[String] {
 
     override def path = "/internal-server-error-resource"
     override def description = "test-resource-description"
     override protected def get: Result[Nothing] = throw new RuntimeException("Test exception")
   }
 
-  final val TestResource  = new RestResource[String] {
+  final val TestResource  = new RestResource[String] with GetSupport[String] {
 
     override def path = "/test-resource"
     override def description = "test-resource-description"

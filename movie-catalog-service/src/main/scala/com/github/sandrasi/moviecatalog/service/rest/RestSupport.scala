@@ -43,7 +43,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
   private def loadTemplate(template: String) = templateEngine.load(findTemplate(template).getOrElse(template))
 
-  protected[this] final def describeResource(resource: RestResource[_]) = layoutTemplate(loadTemplate("resource"), Map("restResponse" -> resource.getRestResponse))
+  protected[this] final def describeResource(resource: RestResource[_] with GetSupport[_]) = layoutTemplate(loadTemplate("resource"), Map("restResponse" -> resource.getRestResponse))
 
   override protected def isScalateErrorPageEnabled = false
 
@@ -124,14 +124,6 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
   trait RestResource[+A] {
 
-    private[this] final val route = outer.get(path) {
-      try {
-        outer.format = format.parse.get
-        getRestResponse
-      } catch {
-        case e: ParameterException => RestResponse(this, ErrorResult(BadRequest(reason = e.getMessage)))
-      }
-    }
     private[this] val params = ArrayBuffer[Parameter[_]]()
     protected[this] final val format: Parameter[String] = parameter(OptionalParameter[String]("format", "parameter-format").oneOf("json", "xml").withDefault("json"))
 
@@ -145,11 +137,26 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
     def path: String
     def description: Template
-    protected def get: Result[A]
 
-    final def url(params: (String, String)*): String = UrlGenerator.url(route, params: _*)
     final def parameters: Map[String, Parameter[_]] = params.view.map(p => p.name -> p).toMap
     protected final def parameter[B <: Parameter[_]](p: B): B = { params += p; p }
+  }
+
+  trait GetSupport[+A] { self: RestResource[A] =>
+
+    private[this] final val getRoute = outer.get(path) {
+      try {
+        outer.format = format.parse.get
+        getRestResponse
+      } catch {
+        case e: ParameterException => RestResponse(this, ErrorResult(BadRequest(reason = e.getMessage)))
+      }
+    }
+
+    protected def get: Result[A]
+
+    final def getUrl(params: (String, String)*): String = UrlGenerator.url(getRoute, params: _*)
+
     protected[RestSupport] final def getRestResponse: RestResponse[A] = {
       val result = try {
         get
