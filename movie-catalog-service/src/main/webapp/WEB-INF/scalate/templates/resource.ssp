@@ -1,5 +1,9 @@
+<% import net.liftweb.json.{NoTypeHints, Serialization} %>
+<% import com.github.sandrasi.moviecatalog.service.rest.JsonResponse %>
 <% import com.github.sandrasi.moviecatalog.service.rest.RestResponse %>
+
 <%@ val restResponse: RestResponse[_] %>
+<% implicit val serializationFormat = Serialization.formats(NoTypeHints) %>
 
 <!DOCTYPE html>
 
@@ -12,5 +16,6 @@
         <% for ((name, parameter) <- restResponse.resource.parameters) render(parameter.description.source.uri) %>
         <h1>Related links</h1>
         <h1>Results</h1>
+        <pre><%= Serialization.writePretty(JsonResponse(restResponse.result)) %></pre>
     </body>
 </html>
