@@ -11,7 +11,7 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
 
   protected def movieCatalogRepository: Repository
 
-  private final val Resources = MutableMap[String, RestResource[_] with GetSupport[_]()
+  private final val Resources = MutableMap[String, RestResource[_] with GetSupport[_]]()
 
   private final val IndexResource = get[Nothing]("/", "index-resource") {
     Result.empty(Link(rel = "movies", href = MoviesResource.getUrl()))
