@@ -28,21 +28,21 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
   private final val CharacterIndex = IdxMgr.forNodes("Characters")
   
   def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = e match {
-    case ac: AbstractCast => lock(tx, getLockNode(ac)) { setNodePropertiesFrom(createNode(ac), ac) }
-    case c: Character => lock(tx, getLockNode(c)) { setNodePropertiesFrom(createNode(c), c) }
+    case ac: AbstractCast => lock(ac) { setNodePropertiesFrom(createNode(ac), ac) }
+    case c: Character => lock(c) { setNodePropertiesFrom(createNode(c), c) }
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 
-  private def lock(tx: Transaction, lockNode: Node)(dbOp: => Node): Node = {
-    tx.acquireWriteLock(lockNode)
+  private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
+    tx.acquireWriteLock(lockNodeFor(e))
     dbOp
   }
 
-  private def getLockNode(e: VersionedLongIdEntity) = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(e.getClass))
+  private def lockNodeFor(e: VersionedLongIdEntity) = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(e.getClass))
 
   private def createNode(e: VersionedLongIdEntity): Node = if (e.id == None) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e, e.id.get))
 
-  private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = withExistanceCheck(ac) {
+  private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = withExistenceCheck(ac) {
     n.getRelationships(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(Played, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(AppearedIn, OUTGOING).asScala.foreach(_.delete())
@@ -54,7 +54,7 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, c: Character): Node = withExistanceCheck(c) {
+  private def setNodePropertiesFrom(n: Node, c: Character): Node = withExistenceCheck(c) {
     setString(n, CharacterName, c.name)
     setString(n, CharacterDiscriminator, c.discriminator)
     setVersion(n, c)
@@ -84,7 +84,7 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     CharacterIndex.add(n, CharacterDiscriminator, c.discriminator)
   }
 
-  private def withExistanceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists in the repository".format(e))
+  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists in the repository".format(e))
 
   private def exists(e: VersionedLongIdEntity): Boolean = e match {
     case ac: AbstractCast => exists(ac)
@@ -108,7 +108,7 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
   }
 
     //case l: Long => NumericRangeQuery.newLongRange(k, l, l, true, true)
-
+  // TODO (sandrasi): acquire a read lock on the node
   private def getNode(e: VersionedLongIdEntity) = try {
     val node = if (e.id != None) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
     if (SubrefNodeSupp.isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))
