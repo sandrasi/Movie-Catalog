@@ -9,8 +9,8 @@ import org.scalatest.matchers.ShouldMatchers
 class CharacterTest extends FunSuite with ShouldMatchers {
 
   test("should create character with given name and generated discriminator") {
-    val subject = Character("Johnny")
-    subject.name should be("Johnny")
+    val subject = Character("Vincent Vega")
+    subject.name should be("Vincent Vega")
     subject.discriminator.length should be(36)
     subject.version should be(0)
     subject.id should be(None)
@@ -24,15 +24,15 @@ class CharacterTest extends FunSuite with ShouldMatchers {
 
   test("should not create character with null discriminator") {
     intercept[IllegalArgumentException] {
-      Character("Johnny", null)
+      Character("Vincent Vega", null)
     }
   }
 
   test("should compare two objects for equality") {
-    val character = Character("Johnny", "discriminator")
-    val otherCharacter = Character("Johnny", "discriminator")
-    val otherCharacterWithDifferentName = Character("Jenny", "discriminator")
-    val otherCharacterWithDifferentDiscriminator = Character("Johnny", "other discriminator")
+    val character = Character("Vincent Vega", "discriminator")
+    val otherCharacter = Character("Vincent Vega", "discriminator")
+    val otherCharacterWithDifferentName = Character("Mia Wallace", "discriminator")
+    val otherCharacterWithDifferentDiscriminator = Character("Vincent Vega", "other discriminator")
 
     character should not equal(null)
     character should not equal(new AnyRef)
@@ -43,8 +43,8 @@ class CharacterTest extends FunSuite with ShouldMatchers {
   }
 
   test("should calculate hash code") {
-    val character = Character("Johnny", "discriminator")
-    val otherCharacter = Character("Johnny", "discriminator")
+    val character = Character("Vincent Vega", "discriminator")
+    val otherCharacter = Character("Vincent Vega", "discriminator")
 
     character.hashCode should equal(otherCharacter.hashCode)
   }

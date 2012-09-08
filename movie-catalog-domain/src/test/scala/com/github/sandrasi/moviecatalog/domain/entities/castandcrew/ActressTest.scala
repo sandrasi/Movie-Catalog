@@ -12,29 +12,22 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 class ActressTest extends FunSuite with ShouldMatchers {
 
   test("should create actress with default version") {
-    val janeDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
-    val jenny = Character("Jenny")
-    val testMovie = Movie("Test movie")
-    val subject = Actress(janeDoe, jenny, testMovie)
+    val subject = Actress(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S."), Character("Mia Wallace"), Movie("Pulp fiction"))
     subject.version should be(0)
   }
 
   test("should not create male actress") {
-    val johnDoe = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    val johnny = Character("Johnny")
-    val testMovie = Movie("Test movie")
-
     intercept[IllegalArgumentException] {
-      Actress(johnDoe, johnny, testMovie)
+      Actress(Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S."), Character("Vincent Vega"), Movie("Pulp fiction"))
     }
   }
 
   test("should compare two objects for equality") {
-    val janeDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
-    val jenny = Character("Jenny")
-    val testMovie = Movie("Test movie")
-    val actress = Actress(janeDoe, jenny, testMovie)
-    val cast = new AbstractCast(janeDoe, jenny, testMovie, 0, 0) {}
+    val person = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
+    val character = Character("Mia Wallace")
+    val movie = Movie("Pulp fiction")
+    val actress = Actress(person, character, movie)
+    val cast = new AbstractCast(person, character, movie, 0, 0) {}
     actress should not equal(cast)
   }
 }

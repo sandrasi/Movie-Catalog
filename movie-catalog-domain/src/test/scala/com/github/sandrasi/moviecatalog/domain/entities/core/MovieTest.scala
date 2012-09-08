@@ -11,15 +11,13 @@ import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 @RunWith(classOf[JUnitRunner])
 class MovieTest extends FunSuite with ShouldMatchers {
 
-  private final val Hu = new Locale("hu", "HU")
-  private final val It = Locale.ITALY
-  private final val MovieTitleUs = LocalizedText("Test movie title")
-  private final val MovieTitleHu = LocalizedText("Teszt film cím")(Hu)
-  private final val MovieTitleIt = LocalizedText("Prova film titolo")(It)
+  private final val EnglishMovieTitle = LocalizedText("Pulp fiction")
+  private final val HungarianMovieTitle = LocalizedText("Ponyvaregény")(new Locale("hu", "HU"))
+  private final val ItalianMovieTitle = LocalizedText("Pulp fiction")(Locale.ITALY)
 
   test("should create movie with given original title and default attributes") {
-    val subject = Movie(MovieTitleUs)
-    subject.originalTitle should be(MovieTitleUs)
+    val subject = Movie(EnglishMovieTitle)
+    subject.originalTitle should be(EnglishMovieTitle)
     subject.localizedTitles should be('empty)
     subject.length should be(Duration.ZERO)
     subject.releaseDate should be(new LocalDate(0))
@@ -28,23 +26,23 @@ class MovieTest extends FunSuite with ShouldMatchers {
   }
 
   test("should create movie with specified localized titles") {
-    val subject = Movie(MovieTitleUs, localizedTitles = Set(MovieTitleHu, MovieTitleIt))
-    subject.localizedTitles should be(Set(MovieTitleHu, MovieTitleIt))
+    val subject = Movie(EnglishMovieTitle, localizedTitles = Set(HungarianMovieTitle, ItalianMovieTitle))
+    subject.localizedTitles should be(Set(HungarianMovieTitle, ItalianMovieTitle))
   }
 
   test("should create movie with specified length") {
-    val subject = Movie(MovieTitleUs, length = Duration.standardMinutes(90))
-    subject.length should be(Duration.standardMinutes(90))
+    val subject = Movie(EnglishMovieTitle, length = Duration.standardMinutes(154))
+    subject.length should be(Duration.standardMinutes(154))
   }
 
   test("should create movie with specified release date") {
-    val subject = Movie(MovieTitleUs, releaseDate = new LocalDate(2011, 1, 1))
-    subject.releaseDate should be(new LocalDate(2011, 1, 1))
+    val subject = Movie(EnglishMovieTitle, releaseDate = new LocalDate(1994, 10, 14))
+    subject.releaseDate should be(new LocalDate(1994, 10, 14))
   }
 
   test("should compare two objects for equality") {
-    val movie = Movie(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val motionPicture = new MotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1), 0, 0) {}
+    val movie = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val motionPicture = new MotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14), 0, 0) {}
     movie should not equal(motionPicture)
   }
 }

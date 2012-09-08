@@ -27,11 +27,11 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val AmericanLocale = Locale.US
   protected final val HungarianLocale = new Locale("hu", "HU")
   protected final val ItalianLocale = Locale.ITALY
-  protected final val Johnny = Character("Johnny")
-  protected final val Jenny = Character("Jenny")
-  protected final val TestMovie = Movie("Test movie title", Set(LocalizedText("Teszt film cím")(HungarianLocale), LocalizedText("Prova film titolo")(ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-  protected final val JohnDoe = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-  protected final val JaneDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
+  protected final val VincentVega = Character("Vincent Vega")
+  protected final val MiaWallace = Character("Mia Wallace")
+  protected final val PulpFiction = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+  protected final val JohnTravolta = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+  protected final val UmaThurman = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
   protected final val EnglishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
   protected final val HungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
   protected final val ItalianSoundtrack = Soundtrack("it", "dts", "Italian", "DTS")

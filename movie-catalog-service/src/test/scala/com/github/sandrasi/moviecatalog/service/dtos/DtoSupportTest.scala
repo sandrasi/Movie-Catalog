@@ -17,38 +17,38 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   private final val ItalianLocale = Locale.ITALY
 
   test("should convert charater to character dto") {
-    val character = Character("Johnny")
+    val character = Character("Vincent Vega")
     toCharacterDto(character) should be(CharacterDto(character.id, character.name, character.discriminator))
   }
   
   test("should convert movie to movie dto") {
-    val movie = Movie("Test movie title", Set(LocalizedText("Teszt film cím")(HungarianLocale), LocalizedText("Prova film titolo")(ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+    val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, Some(movie.localizedTitles.filter(_.locale == HungarianLocale).head.text), movie.length.getMillis, movie.releaseDate.toString))
   }
   
   test("should convert movie to movie dto if no localized title matches the current locale") {
-    val movie = Movie("Test movie title", Set(LocalizedText("Prova film titolo")(ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+    val movie = Movie("Pulp fiction", Set(LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, None, movie.length.getMillis, movie.releaseDate.toString))
   }
   
   test("should convert person to person dto") {
-    val person = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
+    val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     toPersonDto(person) should be(PersonDto(person.id, person.name, person.gender.toString, person.dateOfBirth.toString, person.placeOfBirth))
   }
   
   test("should convert actor to actor dto") {
-    val person = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    val character = Character("Johnny")
-    val movie = Movie("Test movie title", length = Duration.standardMinutes(90), releaseDate = new LocalDate(2011, 1, 1))
+    val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    val character = Character("Vincent Vega")
+    val movie = Movie("Pulp fiction", length = Duration.standardMinutes(154), releaseDate = new LocalDate(1994, 10, 14))
     val actor = Actor(person, character, movie)
     implicit val locale = HungarianLocale
     toActorDto(actor) should be(ActorDto(actor.id, toPersonDto(person), toCharacterDto(character), toMotionPictureDto(movie)))
   }
 
   test("should convert actress to actress dto") {
-    val person = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
-    val character = Character("Jenny")
-    val movie = Movie("Test movie title", length = Duration.standardMinutes(90), releaseDate = new LocalDate(2011, 1, 1))
+    val person = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
+    val character = Character("Mia Wallace")
+    val movie = Movie("Pulp fiction", length = Duration.standardMinutes(154), releaseDate = new LocalDate(1994, 10, 14))
     val actress = Actress(person, character, movie)
     implicit val locale = HungarianLocale
     toActressDto(actress) should be(ActressDto(actress.id, toPersonDto(person), toCharacterDto(character), toMotionPictureDto(movie)))
@@ -75,7 +75,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   }
   
   test("should convert digital container to digital container dto") {
-    val movie = Movie("Test movie title", Set(LocalizedText("Teszt film cím")(HungarianLocale), LocalizedText("Prova film titolo")(ItalianLocale)), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+    val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val englishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
     val hungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
     val englishSubtitle = Subtitle("en", "English")

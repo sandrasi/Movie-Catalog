@@ -46,9 +46,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from actor") {
-    val personNode = createNodeFrom(JohnDoe)
-    val characterNode = createNodeFrom(Johnny)
-    val movieNode = createNodeFrom(TestMovie)
+    val personNode = createNodeFrom(JohnTravolta)
+    val characterNode = createNodeFrom(VincentVega)
+    val movieNode = createNodeFrom(PulpFiction)
     val actorNode = transaction(db) { subject.createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode))) }
     actorNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(personNode)
     actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
@@ -60,89 +60,89 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from the actor if the person does not exist in the database") {
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(Actor(JohnDoe, insertEntity(Johnny), insertEntity(TestMovie))) }
+      transaction(db) { subject.createNodeFrom(Actor(JohnTravolta, insertEntity(VincentVega), insertEntity(PulpFiction))) }
     }
   }
 
   test("should not create node from the actor if the character does not exist in the database") {
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnDoe), Johnny, insertEntity(TestMovie))) }
+      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnTravolta), VincentVega, insertEntity(PulpFiction))) }
     }
   }
 
   test("should not create node from the actor if the motion picture does not exist in the database") {
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), TestMovie)) }
+      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), PulpFiction)) }
     }
   }
 
   test("should not create node from the actor if the person has an id referring to a node which does not exist in the database") {
-    val person = Person(JohnDoe.name, JohnDoe.gender, JohnDoe.dateOfBirth, JohnDoe.placeOfBirth, id = getNodeCount + 1)
+    val person = Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth, id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(Actor(person, insertEntity(Johnny), insertEntity(TestMovie))) }
+      transaction(db) { subject.createNodeFrom(Actor(person, insertEntity(VincentVega), insertEntity(PulpFiction))) }
     }
   }
 
   test("should not create node from the actor if the character has an id referring to a node which does not exist in the database") {
-    val character = Character(Johnny.name, id = getNodeCount + 1)
+    val character = Character(VincentVega.name, id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie))) }
+      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnTravolta), character, insertEntity(PulpFiction))) }
     }
   }
 
   test("should not create node from the actor if the motion picture has an id referring to a node which does not exist in the database") {
-    val movie = Movie(TestMovie.originalTitle, id = getNodeCount + 1)
+    val movie = Movie(PulpFiction.originalTitle, id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie)) }
+      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie)) }
     }
   }
 
   test("should not create node from the actor if the person has an id referring to a non person node") {
     val node = createNode()
-    val person = Person(JohnDoe.name, JohnDoe.gender, JohnDoe.dateOfBirth, JohnDoe.placeOfBirth, id = node.getId)
+    val person = Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth, id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.createNodeFrom(Actor(person, insertEntity(Johnny), insertEntity(TestMovie))) }
+      transaction(db) { subject.createNodeFrom(Actor(person, insertEntity(VincentVega), insertEntity(PulpFiction))) }
     }
   }
 
   test("should not create node from the actor if the character has an id referring to a non character node") {
     val node = createNode()
-    val character = Character(Johnny.name, id = node.getId)
+    val character = Character(VincentVega.name, id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie))) }
+      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnTravolta), character, insertEntity(PulpFiction))) }
     }
   }
 
   test("should not create node from the actor if the motion picture has an id referring to a non motion picture node") {
     val node = createNode()
-    val movie = Movie(TestMovie.originalTitle, id = node.getId)
+    val movie = Movie(PulpFiction.originalTitle, id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie)) }
+      transaction(db) { subject.createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie)) }
     }
   }
 
   test("should not create node from the actor if the actor already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = 1))
+      subject.createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction), id = 1))
     }
   }
 
   test("should create node from character") {
-    val characterNode = transaction(db) { subject.createNodeFrom(Johnny) }
-    getString(characterNode, CharacterName) should be(Johnny.name)
-    getString(characterNode, CharacterDiscriminator) should be(Johnny.discriminator)
-    getLong(characterNode, Version) should be(Johnny.version)
+    val characterNode = transaction(db) { subject.createNodeFrom(VincentVega) }
+    getString(characterNode, CharacterName) should be(VincentVega.name)
+    getString(characterNode, CharacterDiscriminator) should be(VincentVega.discriminator)
+    getLong(characterNode, Version) should be(VincentVega.version)
     characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character]))
   }
 
   test("should not create node from character if the character already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Character("Character with id", "", id = 1))
+      subject.createNodeFrom(Character("Jules Winnfield", id = 1))
     }
   }
 
   test("should create node from digital container") {
-    val movieNode = createNodeFrom(TestMovie)
+    val movieNode = createNodeFrom(PulpFiction)
     val englishSoundtrackNode = createNodeFrom(EnglishSoundtrack)
     val hungarianSoundtrackNode = createNodeFrom(HungarianSoundtrack)
     val englishSubtitleNode = createNodeFrom(EnglishSubtitle)
@@ -157,24 +157,24 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   
   test("should not create node from the digital container if the motion picture does not exist in the database") {
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(TestMovie)) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(PulpFiction)) }
     }
   }
 
   test("should not create node from the digital container if any of the soundtracks does not exist in the database") {
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(EnglishSoundtrack))) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), Set(EnglishSoundtrack))) }
     }
   }
 
   test("should not create node from the digital container if any of the subtitles does not exist in the database") {
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), subtitles = Set(EnglishSubtitle))) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), subtitles = Set(EnglishSubtitle))) }
     }
   }
 
   test("should not create node from the digital container if the motion picture has an id referring to a node which does not exist in the database") {
-    val movie = Movie(TestMovie.originalTitle, id = getNodeCount + 1)
+    val movie = Movie(PulpFiction.originalTitle, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.createNodeFrom(DigitalContainer(movie)) }
     }
@@ -183,20 +183,20 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should not create node from the digital container if any of the soundtracks has an id referring to a node which does not exist in the database") {
     val soundtrack = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(soundtrack))) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), Set(soundtrack))) }
     }
   }
 
   test("should not create node from the digital container if any of the subtitles has an id referring to a node which does not exist in the database") {
     val subtitle = Subtitle(EnglishSubtitle.languageCode, id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), subtitles = Set(subtitle))) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), subtitles = Set(subtitle))) }
     }
   }
 
   test("should not create node from the digital container if the motion picture has an id referring to a non motion picture node") {
     val node = createNode()
-    val movie = Movie(TestMovie.originalTitle, id = node.getId)
+    val movie = Movie(PulpFiction.originalTitle, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.createNodeFrom(DigitalContainer(movie)) }
     }
@@ -206,7 +206,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val node = createNode()
     val soundtrack = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), Set(soundtrack))) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), Set(soundtrack))) }
     }
   }
 
@@ -214,45 +214,45 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val node = createNode()
     val subtitle = Subtitle(EnglishSubtitle.languageCode, id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), subtitles = Set(subtitle))) }
+      transaction(db) { subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), subtitles = Set(subtitle))) }
     }
   }
   
   test("should not create node from the digital container if the digital container already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(DigitalContainer(insertEntity(TestMovie), id = 1))
+      subject.createNodeFrom(DigitalContainer(insertEntity(PulpFiction), id = 1))
     }
   }
 
   test("should create node from movie") {
-    val movieNode = transaction(db) { subject.createNodeFrom(TestMovie) }
-    getDuration(movieNode, MovieLength) should be(TestMovie.length)
-    getLocalDate(movieNode, MovieReleaseDate) should be(TestMovie.releaseDate)
-    getLocalizedText(movieNode, MovieOriginalTitle) should be(TestMovie.originalTitle)
-    getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(TestMovie.localizedTitles)
-    getLong(movieNode, Version) should be(TestMovie.version)
+    val movieNode = transaction(db) { subject.createNodeFrom(PulpFiction) }
+    getDuration(movieNode, MovieLength) should be(PulpFiction.length)
+    getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
+    getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
+    getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
+    getLong(movieNode, Version) should be(PulpFiction.version)
     movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie]))
   }
   
   test("should not create node from movie if the movie already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Movie("Movie with id", id = 1))
+      subject.createNodeFrom(Movie("Die hard: With a vengeance", id = 1))
     }
   }
 
   test("should create node from person") {
-    val personNode = transaction(db) { subject.createNodeFrom(JohnDoe) }
-    getString(personNode, PersonName) should be(JohnDoe.name)
-    getString(personNode, PersonGender) should be(JohnDoe.gender.toString)
-    getLocalDate(personNode, PersonDateOfBirth) should be(JohnDoe.dateOfBirth)
-    getString(personNode, PersonPlaceOfBirth) should be(JohnDoe.placeOfBirth)
-    getLong(personNode, Version) should be(JohnDoe.version)
+    val personNode = transaction(db) { subject.createNodeFrom(JohnTravolta) }
+    getString(personNode, PersonName) should be(JohnTravolta.name)
+    getString(personNode, PersonGender) should be(JohnTravolta.gender.toString)
+    getLocalDate(personNode, PersonDateOfBirth) should be(JohnTravolta.dateOfBirth)
+    getString(personNode, PersonPlaceOfBirth) should be(JohnTravolta.placeOfBirth)
+    getLong(personNode, Version) should be(JohnTravolta.version)
     personNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person]))
   }
 
   test("should not create node from person if the person already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Person(JohnDoe.name, JohnDoe.gender, JohnDoe.dateOfBirth, JohnDoe.placeOfBirth, id = 1))
+      subject.createNodeFrom(Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth, id = 1))
     }
   }
 
@@ -294,7 +294,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from soundtrack if the soundtrack already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Soundtrack("soundtrack with id", "dts", null, null, id = 1))
+      subject.createNodeFrom(Soundtrack("en", "dts", id = 1))
     }
   }
   
@@ -321,7 +321,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not create node from subtitle if the subtitle already has an id") {
     intercept[IllegalStateException] {
-      subject.createNodeFrom(Subtitle("subtitle with id", null, id = 1))
+      subject.createNodeFrom(Subtitle("en", id = 1))
     }
   }
 
@@ -332,10 +332,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should update actor node") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val anotherPersonNode = createNodeFrom(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown"))
-    val anotherCharacterNode = createNodeFrom(Character("Jamie"))
-    val anotherMovieNode = createNodeFrom(Movie("Foo movie title"))
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val anotherPersonNode = createNodeFrom(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."))
+    val anotherCharacterNode = createNodeFrom(Character("Zeus Carver"))
+    val anotherMovieNode = createNodeFrom(Movie("Die hard: With a vengeance"))
     val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.version, actor.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedActor) }
     updatedNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
@@ -346,15 +346,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
   
   test("should not update actor node if the version of the actor does not match the version of the node") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val modifiedActor = Actor(insertEntity(Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")), insertEntity(Character("Jamie")), insertEntity(Movie("Foo movie title")), actor.version + 1, actor.id.get)
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val modifiedActor = Actor(insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), insertEntity(Character("Zeus Carver")), insertEntity(Movie("Die hard: With a vengeance")), actor.version + 1, actor.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedActor) }
     }
   }
 
   test("should not update actor node if the actor has an id referring to a node which does not exist in the database") {
-    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = getNodeCount + 1)
+    val actor = Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction), id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(actor) }
     }
@@ -362,113 +362,113 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update actor node if the actor has an id referring to a non actor node") {
     val node = createNode()
-    val actor = Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = node.getId)
+    val actor = Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction), id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(actor) }
     }
   }
 
   test("should not update actor node if the person does not exist in the database") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val person = Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown")
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val person = Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(VincentVega), insertEntity(PulpFiction), actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the character does not exist in the database") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val character = Character("Jamie")
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val character = Character("Zeus Carver")
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnTravolta), character, insertEntity(PulpFiction), actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the motion picture does not exist in the database") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val movie = Movie("Foo movie title")
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val movie = Movie("Die hard: With a vengeance")
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie, actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the person has an id referring to a node which does not exist in the database") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val person = Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown", id = getNodeCount + 1)
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val person = Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(VincentVega), insertEntity(PulpFiction), actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the character has an id referring to a node which does not exist in the database") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val character = Character("Jamie", id = getNodeCount + 1)
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val character = Character("Zeus Carver", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnTravolta), character, insertEntity(PulpFiction), actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the motion picture has an id referring to a node which does not exist in the database") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val movie = Movie("Foo movie title", id = getNodeCount + 1)
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val movie = Movie("Die hard: With a vengeance", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie, actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the person has an id referring to a non person node") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     val node = createNode()
-    val person = Person("James Doe", Male, new LocalDate(1970, 7, 7), "Anytown", id = node.getId)
+    val person = Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(Johnny), insertEntity(TestMovie), actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(person, insertEntity(VincentVega), insertEntity(PulpFiction), actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the character has an id referring to a non character node") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     val node = createNode()
-    val character = Character("Jamie", id = node.getId)
+    val character = Character("Zeus Carver", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), character, insertEntity(TestMovie), actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnTravolta), character, insertEntity(PulpFiction), actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the motion picture has an id referring to a non motion picture node") {
-    val actor = insertEntity(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     val node = createNode()
-    val movie = Movie("Foo movie title", id = node.getId)
+    val movie = Movie("Die hard: With a vengeance", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), movie, actor.version, actor.id.get)) }
+      transaction(db) { subject.updateNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie, actor.version, actor.id.get)) }
     }
   }
 
   test("should not update actor node if the actor does not have an id") {
     intercept[IllegalStateException] {
-      subject.updateNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+      subject.updateNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     }
   }
 
   test("should update character node") {
-    val character = insertEntity(Johnny)
-    val modifiedCharacter = Character("Jenny", "foo", character.version, character.id.get)
+    val character = insertEntity(VincentVega)
+    val modifiedCharacter = Character("Jules Winnfield", "discriminator", character.version, character.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedCharacter) }
-    getString(updatedNode, CharacterName) should be("Jenny")
-    getString(updatedNode, CharacterDiscriminator) should be("foo")
+    getString(updatedNode, CharacterName) should be("Jules Winnfield")
+    getString(updatedNode, CharacterDiscriminator) should be("discriminator")
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getId should be(character.id.get)
   }
   
   test("should not update character node if the version of the character does not match the version of the node") {
-    val character = insertEntity(Johnny)
-    val modifiedCharacter = Character("Jenny", "foo", character.version + 1, character.id.get)
+    val character = insertEntity(VincentVega)
+    val modifiedCharacter = Character("Jules Winnfield", "discriminator", character.version + 1, character.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedCharacter) }
     }
   }
 
   test("should not update character node if the character has an id referring to a node which does not exist in the database") {
-    val character = Character(Johnny.name, Johnny.discriminator, id = getNodeCount + 1)
+    val character = Character(VincentVega.name, VincentVega.discriminator, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(character) }
     }
@@ -476,7 +476,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update character node if the character has an id referring to a non character node") {
     val node = createNode()
-    val character = Character(Johnny.name, Johnny.discriminator, id = node.getId)
+    val character = Character(VincentVega.name, VincentVega.discriminator, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(character) }
     }
@@ -484,15 +484,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update character node if the character does not have an id") {
     intercept[IllegalStateException] {
-      subject.updateNodeOf(Johnny)
+      subject.updateNodeOf(VincentVega)
     }
   }
   
   test("should update digital container node") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
-    val anotherMovieNode = createNodeFrom(Movie("Foo movie title"))
-    val italianSoundtrackNode = createNodeFrom(Soundtrack("it", "dts"))
-    val italianSubtitleNode = createNodeFrom(Subtitle("it"))
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
+    val anotherMovieNode = createNodeFrom(Movie("Die hard: With a vengeance"))
+    val italianSoundtrackNode = createNodeFrom(ItalianSoundtrack)
+    val italianSubtitleNode = createNodeFrom(ItalianSubtitle)
     val modifiedDigitalContainer = DigitalContainer(createMovieFrom(anotherMovieNode), Set(createSoundtrackFrom(italianSoundtrackNode)), Set(createSubtitleFrom(italianSubtitleNode)), digitalContainer.version, digitalContainer.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedDigitalContainer) }
     updatedNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(anotherMovieNode)
@@ -503,15 +503,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not update digital container node if the version of the digital container does not match the version of the node") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
-    val modifiedDigitalContainer = DigitalContainer(insertEntity(Movie("Foo movie title")), version = digitalContainer.version + 1, id = digitalContainer.id.get)
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
+    val modifiedDigitalContainer = DigitalContainer(insertEntity(Movie("Die hard: With a vengeance")), version = digitalContainer.version + 1, id = digitalContainer.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedDigitalContainer) }
     }
   }
 
   test("should not update digital container node if the digital container has an id referring to a node which does not exist in the database") {
-    val digitalContainer = DigitalContainer(insertEntity(TestMovie), id = getNodeCount + 1)
+    val digitalContainer = DigitalContainer(insertEntity(PulpFiction), id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(digitalContainer) }
     }
@@ -519,115 +519,113 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update digital container node if the digital container has an id referring to a non digital container node") {
     val node = createNode()
-    val digitalContainer = DigitalContainer(insertEntity(TestMovie), id = node.getId)
+    val digitalContainer = DigitalContainer(insertEntity(PulpFiction), id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(digitalContainer) }
     }
   }
 
   test("should not update digital container node if the motion picture does not exist in the database") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
-    val movie = Movie("Foo movie title")
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val movie = Movie("Die hard: With a vengeance")
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(DigitalContainer(movie, id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if any of the soundtracks does not exist in the database") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
-    val soundtrack = Soundtrack("it", "dts")
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie), Set(soundtrack), id = digitalContainer.id.get)) }
+      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction), Set(ItalianSoundtrack), id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if any of the subtitles does not exist in the database") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
-    val subtitle = Subtitle("it")
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie), subtitles = Set(subtitle), id = digitalContainer.id.get)) }
+      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction), subtitles = Set(ItalianSubtitle), id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if the motion picture has an id referring to a node which does not exist in the database") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
-    val movie = Movie("Foo movie title", id = getNodeCount + 1)
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val movie = Movie("Die hard: With a vengeance", id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(DigitalContainer(movie, id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if any of the soundtracks has an id referring to a node which does not exist in the database") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     val soundtrack = Soundtrack("it", "dts", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie), Set(soundtrack), id = digitalContainer.id.get)) }
+      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction), Set(soundtrack), id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if any of the subtitles has an id referring to a node which does not exist in the database") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     val subtitle = Subtitle("it", id = getNodeCount + 1)
     intercept[IllegalStateException] {
-      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie), subtitles = Set(subtitle), id = digitalContainer.id.get)) }
+      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction), subtitles = Set(subtitle), id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if the motion picture has an id referring to a non motion picture node") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     val node = createNode()
-    val movie = Movie("Foo movie title", id = node.getId)
+    val movie = Movie("Die hard: With a vengeance", id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(DigitalContainer(movie, id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if any of the soundtracks has an id referring to a non soundtrack node") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     val node = createNode()
     val soundtrack = Soundtrack("it", "dts", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie), Set(soundtrack), id = digitalContainer.id.get)) }
+      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction), Set(soundtrack), id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if any of the subtitles has an id referring to a non subtitle node") {
-    val digitalContainer = insertEntity(DigitalContainer(insertEntity(TestMovie), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     val node = createNode()
     val subtitle = Subtitle("it", id = node.getId)
     intercept[ClassCastException] {
-      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie), subtitles = Set(subtitle), id = digitalContainer.id.get)) }
+      transaction(db) { subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction), subtitles = Set(subtitle), id = digitalContainer.id.get)) }
     }
   }
 
   test("should not update digital container node if the digital container does not have an id") {
     intercept[IllegalStateException] {
-      subject.updateNodeOf(DigitalContainer(insertEntity(TestMovie)))
+      subject.updateNodeOf(DigitalContainer(insertEntity(PulpFiction)))
     }
   }
 
   test("should update movie node") {
-    val movie = insertEntity(TestMovie)
-    val modifiedMovie = Movie("Foo movie title", Set(LocalizedText("Foo film cím")(HungarianLocale), LocalizedText("Foo film titolo")(ItalianLocale)), Duration.standardMinutes(100), new LocalDate(2012, 1, 30), movie.version, movie.id.get)
+    val movie = insertEntity(PulpFiction)
+    val modifiedMovie = Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedMovie) }
-    getLocalizedText(updatedNode, MovieOriginalTitle) should be(LocalizedText("Foo movie title"))
-    getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Foo film cím")(HungarianLocale), LocalizedText("Foo film titolo")(ItalianLocale)))
-    getDuration(updatedNode, MovieLength) should be(Duration.standardMinutes(100))
-    getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(2012, 1, 30))
+    getLocalizedText(updatedNode, MovieOriginalTitle) should be(LocalizedText("Die hard: With a vengeance"))
+    getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)))
+    getDuration(updatedNode, MovieLength) should be(Duration.standardMinutes(131))
+    getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
     updatedNode.getId should be(movie.id.get)
   }
 
   test("should not update movie node if the version of the movie does not match the version of the node") {
-    val movie = insertEntity(TestMovie)
-    val modifiedMovie = Movie("Foo movie title", version = movie.version + 1, id = movie.id.get)
+    val movie = insertEntity(PulpFiction)
+    val modifiedMovie = Movie("Die hard: With a vengeance", version = movie.version + 1, id = movie.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedMovie) }
     }
   }
 
   test("should not update movie node if the movie has an id referring to a node which does not exist in the database") {
-    val movie = Movie(TestMovie.originalTitle, TestMovie.localizedTitles, TestMovie.length, TestMovie.releaseDate, id = getNodeCount + 1)
+    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.length, PulpFiction.releaseDate, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(movie) }
     }
@@ -635,7 +633,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update movie node if the movie has an id referring to a non movie node") {
     val node = createNode()
-    val movie = Movie(TestMovie.originalTitle, TestMovie.localizedTitles, TestMovie.length, TestMovie.releaseDate, id = node.getId)
+    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.length, PulpFiction.releaseDate, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(movie) }
     }
@@ -643,32 +641,32 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update movie node if the movie does not have an id") {
     intercept[IllegalStateException] {
-      subject.updateNodeOf(TestMovie)
+      subject.updateNodeOf(PulpFiction)
     }
   }
 
   test("should update person node") {
-    val person = insertEntity(JohnDoe)
-    val modifiedPerson = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville", person.version, person.id.get)
+    val person = insertEntity(JohnTravolta)
+    val modifiedPerson = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version, person.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedPerson) }
-    getString(updatedNode, PersonName) should be("Jane Doe")
+    getString(updatedNode, PersonName) should be("Uma Karuna Thurman")
     getString(updatedNode, PersonGender) should be(Female.toString)
-    getLocalDate(updatedNode, PersonDateOfBirth) should be(new LocalDate(1990, 9, 9))
-    getString(updatedNode, PersonPlaceOfBirth) should be("Anyville")
+    getLocalDate(updatedNode, PersonDateOfBirth) should be(new LocalDate(1970, 4, 29))
+    getString(updatedNode, PersonPlaceOfBirth) should be("Boston, Massachusetts, U.S.")
     getLong(updatedNode, Version) should be(modifiedPerson.version + 1)
     updatedNode.getId should be(person.id.get)
   }
 
   test("should not update person node if the version of the person does not match the version of the node") {
-    val person = insertEntity(JohnDoe)
-    val modifiedPerson = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville", person.version + 1, person.id.get)
+    val person = insertEntity(JohnTravolta)
+    val modifiedPerson = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version + 1, person.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedPerson) }
     }
   }
 
   test("should not update person node if the person has an id referring to a node which does not exist in the database") {
-    val person = Person(JohnDoe.name, JohnDoe.gender, JohnDoe.dateOfBirth, JohnDoe.placeOfBirth, id = getNodeCount + 1)
+    val person = Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(person) }
     }
@@ -676,7 +674,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update person node if the person has an id referring to a non person node") {
     val node = createNode()
-    val person = Person(JohnDoe.name, JohnDoe.gender, JohnDoe.dateOfBirth, JohnDoe.placeOfBirth, id = node.getId)
+    val person = Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(person) }
     }
@@ -684,25 +682,25 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update person node if the person does not have an id") {
     intercept[IllegalStateException] {
-      subject.updateNodeOf(JohnDoe)
+      subject.updateNodeOf(JohnTravolta)
     }
   }
 
   test("should update soundtrack node") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("foo", "bar", "foo language", "bar format", soundtrack.version, soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version, soundtrack.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
-    getString(updatedNode, SoundtrackLanguageCode) should be("foo")
-    getString(updatedNode, SoundtrackFormatCode) should be("bar")
-    getLocalizedText(updatedNode, SoundtrackLanguageNames) should be(LocalizedText("foo language"))
-    getLocalizedText(updatedNode, SoundtrackFormatNames) should be(LocalizedText("bar format"))
+    getString(updatedNode, SoundtrackLanguageCode) should be("it")
+    getString(updatedNode, SoundtrackFormatCode) should be("dd5.1")
+    getLocalizedText(updatedNode, SoundtrackLanguageNames) should be(LocalizedText("Italian"))
+    getLocalizedText(updatedNode, SoundtrackFormatNames) should be(LocalizedText("Dolby Digital 5.1"))
     getLong(updatedNode, Version) should be(modifiedSoundtrack.version + 1)
     updatedNode.getId should be(soundtrack.id.get)
   }
   
   test("should add the soundtrack language and format names to the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrack.version, soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrack.version, soundtrack.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack)(HungarianLocale) }
     getLocalizedTextSet(updatedNode, SoundtrackLanguageNames) should be(Set(LocalizedText("English"), LocalizedText("Angol")(HungarianLocale)))
     getLocalizedTextSet(updatedNode, SoundtrackFormatNames) should be(Set(LocalizedText("DTS"), LocalizedText("DTS")(HungarianLocale)))
@@ -710,7 +708,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should remove the soundtrack language and format names from the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("en", "dts", null, null, soundtrack.version, soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, null, null, soundtrack.version, soundtrack.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
     hasLocalizedText(updatedNode, SoundtrackLanguageNames) should be(false)
     hasLocalizedText(updatedNode, SoundtrackFormatNames) should be(false)
@@ -718,7 +716,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update soundtrack node if the version of the soundtrack does not match the version of the node") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("foo", "bar", version = soundtrack.version + 1, id = soundtrack.id.get)
+    val modifiedSoundtrack = Soundtrack("it", "dd5.1", version = soundtrack.version + 1, id = soundtrack.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedSoundtrack) }
     }
@@ -759,31 +757,31 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update subtitle node") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle("foo", "foo language", subtitle.version, subtitle.id.get)
+    val modifiedSubtitle = Subtitle("it", "Italian", subtitle.version, subtitle.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSubtitle) }
-    getString(updatedNode, SubtitleLanguageCode) should be("foo")
-    getLocalizedText(updatedNode, SubtitleLanguageNames) should be(LocalizedText("foo language"))
+    getString(updatedNode, SubtitleLanguageCode) should be("it")
+    getLocalizedText(updatedNode, SubtitleLanguageNames) should be(LocalizedText("Italian"))
     getLong(updatedNode, Version) should be(modifiedSubtitle.version + 1)
     updatedNode.getId should be(subtitle.id.get)
   }
 
   test("should add the subtitle language name to the node properties") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle("en", LocalizedText("Angol")(HungarianLocale), subtitle.version, subtitle.id.get)
+    val modifiedSubtitle = Subtitle(subtitle.languageCode, LocalizedText("Angol")(HungarianLocale), subtitle.version, subtitle.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSubtitle)(HungarianLocale) }
     getLocalizedTextSet(updatedNode, SubtitleLanguageNames) should be(Set(LocalizedText("English"), LocalizedText("Angol")(HungarianLocale)))
   }
 
   test("should remove the subtitle language name from the node properties") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle("en", null, subtitle.version, subtitle.id.get)
+    val modifiedSubtitle = Subtitle(subtitle.languageCode, null, subtitle.version, subtitle.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedSubtitle) }
     hasLocalizedText(updatedNode, SubtitleLanguageNames) should be(false)
   }
 
   test("should not update subtitle node if the version of the subtitle does not match the version of the node") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle("foo", version = subtitle.version + 1, id = subtitle.id.get)
+    val modifiedSubtitle = Subtitle("it", version = subtitle.version + 1, id = subtitle.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedSubtitle) }
     }
@@ -823,9 +821,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should delete actor node") {
-    val personNode = createNodeFrom(JohnDoe)
-    val characterNode = createNodeFrom(Johnny)
-    val movieNode = createNodeFrom(TestMovie)
+    val personNode = createNodeFrom(JohnTravolta)
+    val characterNode = createNodeFrom(VincentVega)
+    val movieNode = createNodeFrom(PulpFiction)
     val actorNode = createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode)))
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast])).hasRelationship(INCOMING, IsA) should be(true)
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor])).hasRelationship(INCOMING, IsA) should be(true)
@@ -841,7 +839,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should delete character node") {
-    val characterNode = createNodeFrom(Johnny)
+    val characterNode = createNodeFrom(VincentVega)
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character])).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createCharacterFrom(characterNode)) }
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character])).hasRelationship(INCOMING, IsA) should be(false)
@@ -851,7 +849,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should delete digital container node") {
-    val movieNode = createNodeFrom(TestMovie)
+    val movieNode = createNodeFrom(PulpFiction)
     val soundtrackNode = createNodeFrom(EnglishSoundtrack)
     val subtitleNode = createNodeFrom(EnglishSubtitle)
     val digitalContainerNode = createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(soundtrackNode)), Set(createSubtitleFrom(subtitleNode))))
@@ -867,7 +865,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should delete movie node") {
-    val movieNode = createNodeFrom(TestMovie)
+    val movieNode = createNodeFrom(PulpFiction)
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie])).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createMovieFrom(movieNode)) }
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie])).hasRelationship(INCOMING, IsA) should be(false)
@@ -877,7 +875,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should delete person node") {
-    val personNode = createNodeFrom(JohnDoe)
+    val personNode = createNodeFrom(JohnTravolta)
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person])).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createPersonFrom(personNode)) }
     db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person])).hasRelationship(INCOMING, IsA) should be(false)
@@ -907,9 +905,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not delete node if the version of the entity does not match the version of the node") {
-    val person = insertEntity(JohnDoe)
-    val character = insertEntity(Johnny)
-    val movie = insertEntity(TestMovie)
+    val person = insertEntity(JohnTravolta)
+    val character = insertEntity(VincentVega)
+    val movie = insertEntity(PulpFiction)
     val actor = insertEntity(Actor(person, character, movie))
     intercept[IllegalStateException] {
       subject.deleteNodeOf(Actor(person, character, movie, actor.version + 1, actor.id.get))
@@ -918,27 +916,27 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not delete node if the entity has an id referring to a node which does not exist in the database") {
     intercept[IllegalStateException] {
-      subject.deleteNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = getNodeCount + 1))
+      subject.deleteNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction), id = getNodeCount + 1))
     }
   }
 
   test("should not delete node if the entity has an id referring to node which represents an entity of another type") {
     val node = createNode()
     intercept[ClassCastException] {
-      subject.deleteNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie), id = node.getId))
+      subject.deleteNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction), id = node.getId))
     }
   }
 
   test("should not delete node if the entity does not have an id") {
     intercept[IllegalStateException] {
-      subject.deleteNodeOf(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+      subject.deleteNodeOf(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     }
   }
 
   test("should not delete node if at least one node references it") {
-    val person = insertEntity(JohnDoe)
-    val character = insertEntity(Johnny)
-    val movie = insertEntity(TestMovie)
+    val person = insertEntity(JohnTravolta)
+    val character = insertEntity(VincentVega)
+    val movie = insertEntity(PulpFiction)
     val actorNode = createNodeFrom(Actor(person, character, movie))
     val node = createNode()
     transaction(db) {
@@ -956,8 +954,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should find all abstract cast nodes") {
-    val actorNode = createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
-    val actressNode = createNodeFrom(Actress(insertEntity(JaneDoe), insertEntity(Jenny), insertEntity(TestMovie)))
+    val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), insertEntity(PulpFiction)))
     val abstractCastNodes = subject.getNodesOfType(classOf[AbstractCast])
     abstractCastNodes should have size(2)
     abstractCastNodes should contain(actorNode)
@@ -965,35 +963,35 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should find all actor nodes") {
-    val actorNode = createNodeFrom(Actor(insertEntity(JohnDoe), insertEntity(Johnny), insertEntity(TestMovie)))
+    val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     val actorNodes = subject.getNodesOfType(classOf[Actor])
     actorNodes should have size(1)
     actorNodes should contain(actorNode)
   }
 
   test("should find all character nodes") {
-    val characterNode = createNodeFrom(Johnny)
+    val characterNode = createNodeFrom(VincentVega)
     val characterNodes = subject.getNodesOfType(classOf[Character])
     characterNodes should have size(1)
     characterNodes should contain(characterNode)
   }
 
   test("should find all digital container nodes") {
-    val digitalContainerNode = createNodeFrom(DigitalContainer(insertEntity(TestMovie)))
+    val digitalContainerNode = createNodeFrom(DigitalContainer(insertEntity(PulpFiction)))
     val digitalContainerNodes = subject.getNodesOfType(classOf[DigitalContainer])
     digitalContainerNodes should have size(1)
     digitalContainerNodes should contain(digitalContainerNode)
   }
 
   test("should find all movie nodes") {
-    val movieNode = createNodeFrom(TestMovie)
+    val movieNode = createNodeFrom(PulpFiction)
     val movieNodes = subject.getNodesOfType(classOf[Movie])
     movieNodes should have size(1)
     movieNodes should contain(movieNode)
   }
 
   test("should find all person nodes") {
-    val personNode = createNodeFrom(JohnDoe)
+    val personNode = createNodeFrom(JohnTravolta)
     val personNodes = subject.getNodesOfType(classOf[Person])
     personNodes should have size(1)
     personNodes should contain(personNode)

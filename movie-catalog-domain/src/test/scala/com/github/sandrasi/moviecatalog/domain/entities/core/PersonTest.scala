@@ -11,46 +11,46 @@ import org.joda.time.LocalDate
 class PersonTest extends FunSuite with ShouldMatchers {
 
   test("should create person with given name and attributes") {
-    val subject = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    subject.name should be("John Doe")
+    val subject = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    subject.name should be("John Joseph Travolta")
     subject.gender should be(Male)
-    subject.dateOfBirth should  be(new LocalDate(1980, 8, 8))
-    subject.placeOfBirth should be("Anytown")
+    subject.dateOfBirth should  be(new LocalDate(1954, 2, 18))
+    subject.placeOfBirth should be("Englewood, New Jersey, U.S.")
     subject.version should be(0)
     subject.id should be(None)
   }
   
   test("should not create person with null name") {
     intercept[IllegalArgumentException] {
-      Person(null, Male, new LocalDate(1980, 8, 8), "Anytown")
+      Person(null, Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     }
   }
 
   test("should not create person with null gender") {
     intercept[IllegalArgumentException] {
-      Person("John Doe", null, new LocalDate(1980, 8, 8), "Anytown")
+      Person("John Joseph Travolta", null, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     }
   }
 
   test("should not create person with null date of birth") {
     intercept[IllegalArgumentException] {
-      Person("John Doe", Male, null, "Anytown")
+      Person("John Joseph Travolta", Male, null, "Englewood, New Jersey, U.S.")
     }
   }
 
   test("should not create person with null place of birth") {
     intercept[IllegalArgumentException] {
-      Person("John Doe", Male, new LocalDate(1980, 8, 8), null)
+      Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), null)
     }
   }
 
   test("should compare two objects for equality") {
-    val person = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    val otherPerson = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    val otherPersonWithDifferentName = Person("Jane Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    val otherPersonWithDifferentGender = Person("John Doe", Female, new LocalDate(1980, 8, 8), "Anytown")
-    val otherPersonWithDifferentDateOfBirth = Person("John Doe", Male, new LocalDate(1990, 9, 9), "Anytown")
-    val otherPersonWithDifferentPlaceOfBirth = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anyville")
+    val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    val otherPerson = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    val otherPersonWithDifferentName = Person("Samuel Leroy Jackson", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    val otherPersonWithDifferentGender = Person("John Joseph Travolta", Female, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    val otherPersonWithDifferentDateOfBirth = Person("John Joseph Travolta", Male, new LocalDate(1948, 12, 21), "Englewood, New Jersey, U.S.")
+    val otherPersonWithDifferentPlaceOfBirth = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Washington, D.C., U.S.")
 
     person should not equal(null)
     person should not equal(new AnyRef)
@@ -63,8 +63,8 @@ class PersonTest extends FunSuite with ShouldMatchers {
   }
 
   test("should calculate hash code") {
-    val person = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
-    val otherPerson = Person("John Doe", Male, new LocalDate(1980, 8, 8), "Anytown")
+    val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    val otherPerson = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
 
     person.hashCode should equal(otherPerson.hashCode)
   }

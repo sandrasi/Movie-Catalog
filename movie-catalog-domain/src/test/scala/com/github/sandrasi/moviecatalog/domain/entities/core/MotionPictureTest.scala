@@ -11,52 +11,50 @@ import org.joda.time.{LocalDate, Duration, ReadableDuration}
 @RunWith(classOf[JUnitRunner])
 class MotionPictureTest extends FunSuite with ShouldMatchers {
 
-  private final val Hu = new Locale("hu", "HU")
-  private final val It = Locale.ITALY
-  private final val MovieTitleUs = LocalizedText("Test movie title")
-  private final val MovieTitleHu = LocalizedText("Teszt film cím")(Hu)
-  private final val MovieTitleIt = LocalizedText("Prova film titolo")(It)
+  private final val EnglishMovieTitle = LocalizedText("Pulp fiction")
+  private final val HungarianMovieTitle = LocalizedText("Ponyvaregény")(new Locale("hu", "HU"))
+  private final val ItalianMovieTitle = LocalizedText("Pulp fiction")(Locale.ITALY)
 
   test("should create motion picture with given attributes") {
-    val subject = TestMotionPicture(MovieTitleUs, Set(MovieTitleHu, MovieTitleIt), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    subject.originalTitle should be(MovieTitleUs)
-    subject.localizedTitles should be(Set(MovieTitleHu, MovieTitleIt))
-    subject.length should be(Duration.standardMinutes(90))
-    subject.releaseDate should be(new LocalDate(2011, 1, 1))
+    val subject = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle, ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    subject.originalTitle should be(EnglishMovieTitle)
+    subject.localizedTitles should be(Set(HungarianMovieTitle, ItalianMovieTitle))
+    subject.length should be(Duration.standardMinutes(154))
+    subject.releaseDate should be(new LocalDate(1994, 10, 14))
     subject.id should be(None)
   }
 
   test("should not create motion picture with null original title") {
     intercept[IllegalArgumentException] {
-      TestMotionPicture(null, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+      TestMotionPicture(null, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     }
   }
 
   test("should not create motion picture with null localized titles") {
     intercept[IllegalArgumentException] {
-      TestMotionPicture(MovieTitleUs, null, Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+      TestMotionPicture(EnglishMovieTitle, null, Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     }
   }
 
   test("should not create motion picture with null localized title") {
     intercept[IllegalArgumentException] {
-      TestMotionPicture(MovieTitleUs, Set(null), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
+      TestMotionPicture(EnglishMovieTitle, Set(null), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     }
   }
 
   test("should not create motion picture with null length") {
     intercept[IllegalArgumentException] {
-      TestMotionPicture(MovieTitleUs, Set(MovieTitleHu), null, new LocalDate(2011, 1, 1))
+      TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), null, new LocalDate(1994, 10, 14))
     }
   }
 
   test("should compare two objects for equality") {
-    val motionPicture = TestMotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val otherMotionPicture = TestMotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val otherMotionPictureWithDifferentOriginalTitle = TestMotionPicture(MovieTitleIt, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val otherMotionPictureWithDifferentLocalizedTitles = TestMotionPicture(MovieTitleUs, Set(MovieTitleIt), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val otherMotionPictureWithDifferentLength = TestMotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(120), new LocalDate(2011, 1, 1))
-    val otherMotionPictureWithDifferentReleaseDate = TestMotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2010, 1, 1))
+    val motionPicture = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val otherMotionPicture = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val otherMotionPictureWithDifferentOriginalTitle = TestMotionPicture("Die hard: With a vengeance", Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val otherMotionPictureWithDifferentLocalizedTitles = TestMotionPicture(EnglishMovieTitle, Set(ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val otherMotionPictureWithDifferentLength = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(1), new LocalDate(1994, 10, 14))
+    val otherMotionPictureWithDifferentReleaseDate = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(2000, 1, 1))
 
     motionPicture should not equal(null)
     motionPicture should not equal(new AnyRef)
@@ -69,8 +67,8 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
   }
 
   test("should calculate hash code") {
-    val motionPicture = TestMotionPicture(MovieTitleUs, Set(MovieTitleHu), Duration.standardMinutes(90), new LocalDate(2011, 1, 1))
-    val otherMotionPicture = TestMotionPicture(MovieTitleUs, Set(MovieTitleIt), Duration.standardMinutes(120), new LocalDate(2011, 1, 1))
+    val motionPicture = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val otherMotionPicture = TestMotionPicture(EnglishMovieTitle, Set(ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
 
     motionPicture.hashCode should equal(otherMotionPicture.hashCode)
   }
