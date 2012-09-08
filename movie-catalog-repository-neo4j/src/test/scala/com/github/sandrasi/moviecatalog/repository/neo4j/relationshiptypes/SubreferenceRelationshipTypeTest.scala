@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.entities.container.{Soundtrack, Subtitle}
+import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 
 @RunWith(classOf[JUnitRunner])
@@ -30,6 +30,11 @@ class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
   test("should return subreference relationship type for the class Character") {
     val relType = SubreferenceRelationshipType.forClass(classOf[Character])
     relType.name should be (classOf[Character].getName)
+  }
+
+  test("should return subreference relationship type for the class DigitalContainer") {
+    val relType = SubreferenceRelationshipType.forClass(classOf[DigitalContainer])
+    relType.name should be (classOf[DigitalContainer].getName)
   }
 
   test("should return subreference relationship type for the class Movie") {
