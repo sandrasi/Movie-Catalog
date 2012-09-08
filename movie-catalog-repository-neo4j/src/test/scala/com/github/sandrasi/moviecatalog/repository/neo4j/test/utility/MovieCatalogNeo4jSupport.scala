@@ -34,8 +34,10 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val JaneDoe = Person("Jane Doe", Female, new LocalDate(1990, 9, 9), "Anyville")
   protected final val EnglishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
   protected final val HungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
+  protected final val ItalianSoundtrack = Soundtrack("it", "dts", "Italian", "DTS")
   protected final val EnglishSubtitle = Subtitle("en", "English")
   protected final val HungarianSubtitle = Subtitle("hu", "Hungarian")
+  protected final val ItalianSubtitle = Subtitle("it", "Italian")
 
   protected var db: EmbeddedGraphDatabase = _
   protected var subrefNodeSupp: SubreferenceNodeSupport = _
