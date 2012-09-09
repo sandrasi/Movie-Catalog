@@ -57,7 +57,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).asScala.map(r => createSubtitleFrom(r.getEndNode, l)).toSet
 
-  private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDuration(n, MovieLength), getLocalDate(n, MovieReleaseDate), getLong(n, Version), n.getId)
+  private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate), getLong(n, Version), n.getId)
 
   private def createPersonFrom(n: Node) = Person(getString(n, PersonName), Gender.withName(getString(n, PersonGender)), getLocalDate(n, PersonDateOfBirth), getString(n, PersonPlaceOfBirth), getLong(n, Version), n.getId)
 

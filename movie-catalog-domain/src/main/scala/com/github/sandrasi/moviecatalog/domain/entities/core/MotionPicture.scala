@@ -7,14 +7,14 @@ import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
 abstract class MotionPicture(val originalTitle: LocalizedText,
                              val localizedTitles: Set[LocalizedText],
-                             val length: ReadableDuration,
+                             val runtime: ReadableDuration,
                              val releaseDate: LocalDate,
                              version: Long,
                              id: Long) extends VersionedLongIdEntity(version, id) {
 
   Validate.notNull(originalTitle)
   Validate.noNullElements(localizedTitles)
-  Validate.notNull(length)
+  Validate.notNull(runtime)
 
   override def equals(o: Any): Boolean = o match {
     case other: MotionPicture => (originalTitle == other.originalTitle) && (releaseDate == other.releaseDate)

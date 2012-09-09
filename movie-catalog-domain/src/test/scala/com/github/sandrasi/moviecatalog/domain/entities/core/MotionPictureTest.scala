@@ -19,7 +19,7 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
     val subject = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle, ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     subject.originalTitle should be(EnglishMovieTitle)
     subject.localizedTitles should be(Set(HungarianMovieTitle, ItalianMovieTitle))
-    subject.length should be(Duration.standardMinutes(154))
+    subject.runtime should be(Duration.standardMinutes(154))
     subject.releaseDate should be(new LocalDate(1994, 10, 14))
     subject.id should be(None)
   }
@@ -42,7 +42,7 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
     }
   }
 
-  test("should not create motion picture with null length") {
+  test("should not create motion picture with null runtime") {
     intercept[IllegalArgumentException] {
       TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), null, new LocalDate(1994, 10, 14))
     }
@@ -53,7 +53,7 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
     val otherMotionPicture = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val otherMotionPictureWithDifferentOriginalTitle = TestMotionPicture("Die hard: With a vengeance", Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val otherMotionPictureWithDifferentLocalizedTitles = TestMotionPicture(EnglishMovieTitle, Set(ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val otherMotionPictureWithDifferentLength = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(1), new LocalDate(1994, 10, 14))
+    val otherMotionPictureWithDifferentRuntime = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(1), new LocalDate(1994, 10, 14))
     val otherMotionPictureWithDifferentReleaseDate = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(2000, 1, 1))
 
     motionPicture should not equal(null)
@@ -63,7 +63,7 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
     motionPicture should equal(motionPicture)
     motionPicture should equal(otherMotionPicture)
     motionPicture should equal(otherMotionPictureWithDifferentLocalizedTitles)
-    motionPicture should equal(otherMotionPictureWithDifferentLength)
+    motionPicture should equal(otherMotionPictureWithDifferentRuntime)
   }
 
   test("should calculate hash code") {
@@ -78,6 +78,6 @@ private object TestMotionPicture {
 
   def apply(originalTitle: LocalizedText,
             localizedTitles: Set[LocalizedText],
-            length: ReadableDuration,
-            releaseDate: LocalDate) = new MotionPicture(originalTitle, localizedTitles, length, releaseDate, 0, 0) {}
+            runtime: ReadableDuration,
+            releaseDate: LocalDate) = new MotionPicture(originalTitle, localizedTitles, runtime, releaseDate, 0, 0) {}
 }

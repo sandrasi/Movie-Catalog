@@ -19,7 +19,7 @@ class MovieTest extends FunSuite with ShouldMatchers {
     val subject = Movie(EnglishMovieTitle)
     subject.originalTitle should be(EnglishMovieTitle)
     subject.localizedTitles should be('empty)
-    subject.length should be(Duration.ZERO)
+    subject.runtime should be(Duration.ZERO)
     subject.releaseDate should be(new LocalDate(0))
     subject.version should be(0)
     subject.id should be(None)
@@ -30,9 +30,9 @@ class MovieTest extends FunSuite with ShouldMatchers {
     subject.localizedTitles should be(Set(HungarianMovieTitle, ItalianMovieTitle))
   }
 
-  test("should create movie with specified length") {
-    val subject = Movie(EnglishMovieTitle, length = Duration.standardMinutes(154))
-    subject.length should be(Duration.standardMinutes(154))
+  test("should create movie with specified runtime") {
+    val subject = Movie(EnglishMovieTitle, runtime = Duration.standardMinutes(154))
+    subject.runtime should be(Duration.standardMinutes(154))
   }
 
   test("should create movie with specified release date") {

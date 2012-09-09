@@ -90,7 +90,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
   private def setNodePropertiesFrom(n: Node, m: Movie): Node = {
     setLocalizedText(n, MovieOriginalTitle, m.originalTitle)
     setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
-    setDuration(n, MovieLength, m.length)
+    setDuration(n, MovieRuntime, m.runtime)
     setLocalDate(n, MovieReleaseDate, m.releaseDate)
     setVersion(n, m)
     n

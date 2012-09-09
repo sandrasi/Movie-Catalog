@@ -226,7 +226,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should create node from movie") {
     val movieNode = transaction(db) { subject.createNodeFrom(PulpFiction) }
-    getDuration(movieNode, MovieLength) should be(PulpFiction.length)
+    getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
     getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
     getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
@@ -610,7 +610,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedMovie) }
     getLocalizedText(updatedNode, MovieOriginalTitle) should be(LocalizedText("Die hard: With a vengeance"))
     getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)))
-    getDuration(updatedNode, MovieLength) should be(Duration.standardMinutes(131))
+    getDuration(updatedNode, MovieRuntime) should be(Duration.standardMinutes(131))
     getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
     updatedNode.getId should be(movie.id.get)
@@ -625,7 +625,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not update movie node if the movie has an id referring to a node which does not exist in the database") {
-    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.length, PulpFiction.releaseDate, id = getNodeCount + 1)
+    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.runtime, PulpFiction.releaseDate, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(movie) }
     }
@@ -633,7 +633,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update movie node if the movie has an id referring to a non movie node") {
     val node = createNode()
-    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.length, PulpFiction.releaseDate, id = node.getId)
+    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.runtime, PulpFiction.releaseDate, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(movie) }
     }

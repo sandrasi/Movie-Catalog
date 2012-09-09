@@ -23,7 +23,7 @@ private[neo4j] object MovieCatalogDbConstants {
   final val LocaleLanguage = "language"
   final val LocaleVariant = "variant"
 
-  final val MovieLength = "length"
+  final val MovieRuntime = "runtime"
   final val MovieOriginalTitle = "originalTitle"
   final val MovieLocalizedTitles = "localizedTitles"
   final val MovieReleaseDate = "movieReleaseDate"
