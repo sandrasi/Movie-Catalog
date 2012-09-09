@@ -4,20 +4,20 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search.BooleanClause.Occur.MUST
-import org.apache.lucene.search.{BooleanQuery, NumericRangeQuery, Query, TermQuery}
+import org.apache.lucene.search.{BooleanQuery, NumericRangeQuery, TermQuery}
 import org.neo4j.index.lucene.ValueContext
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
-import com.github.sandrasi.moviecatalog.domain.entities.container.{Soundtrack, DigitalContainer}
-import com.github.sandrasi.moviecatalog.domain.entities.core.Character
+import com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer
+import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 import org.neo4j.graphdb._
 import org.neo4j.graphdb.Direction._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 
 private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
 
@@ -29,11 +29,13 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
   private final val CastIndex = IdxMgr.forRelationships("Cast")
   private final val CharacterIndex = IdxMgr.forNodes("Characters")
   private final val DigitalContainerIndex = IdxMgr.forRelationships("DigitalConainers")
+  private final val MovieIndex = IdxMgr.forNodes("Movies")
   
   def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = e match {
     case ac: AbstractCast => lock(ac) { setNodePropertiesFrom(createNode(ac), ac) }
     case c: Character => lock(c) { setNodePropertiesFrom(createNode(c), c) }
     case dc: DigitalContainer => lock(dc) { setNodePropertiesFrom(createNode(dc), dc) }
+    case m: Movie => lock(m) { setNodePropertiesFrom(createNode(m), m) }
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 
@@ -78,6 +80,16 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
+  private def setNodePropertiesFrom(n: Node, m: Movie): Node = withExistenceCheck(m) {
+    setLocalizedText(n, MovieOriginalTitle, m.originalTitle)
+    setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
+    setDuration(n, MovieRuntime, m.runtime)
+    setLocalDate(n, MovieReleaseDate, m.releaseDate)
+    setVersion(n, m)
+    index(n, m)
+    n
+  }
+
   private def setVersion(n: Node, e: VersionedLongIdEntity) {
     if (e.id != None && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
     setLong(n, Version, if (e.id == None) e.version else e.version + 1)
@@ -109,12 +121,29 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.foreach(DigitalContainerIndex.add(_, "withSubtitle", WithSubtitle.name))
   }
 
+  private def index(n: Node, m: Movie) {
+    MovieIndex.remove(n)
+    MovieIndex.add(n, MovieOriginalTitle, m.originalTitle.text)
+    MovieIndex.add(n, MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)
+    MovieIndex.add(n, MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)
+    MovieIndex.add(n, MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)
+    for (lt <- m.localizedTitles) {
+      MovieIndex.add(n, MovieLocalizedTitles, lt.text)
+      MovieIndex.add(n, MovieLocalizedTitles + LocaleLanguage, lt.locale.getLanguage)
+      MovieIndex.add(n, MovieLocalizedTitles + LocaleCountry, lt.locale.getCountry)
+      MovieIndex.add(n, MovieLocalizedTitles + LocaleVariant, lt.locale.getVariant)
+    }
+    MovieIndex.add(n, MovieRuntime, ValueContext.numeric(m.runtime.getMillis))
+    MovieIndex.add(n, MovieReleaseDate, ValueContext.numeric(m.releaseDate.toDateTimeAtStartOfDay.getMillis))
+  }
+
   private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists in the repository".format(e))
 
   private def exists(e: VersionedLongIdEntity): Boolean = e match {
     case ac: AbstractCast => exists(ac)
     case c: Character => exists(c)
     case dc: DigitalContainer => exists(dc)
+    case m: Movie => exists(m)
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 
@@ -141,7 +170,17 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     (dcsWithSameMotionPicture & dcsWithSameSoundtracks & dcsWithSameSubtitles).filter((n: Node) => n.getRelationships(WithSoundtrack, OUTGOING).iterator().asScala.size == dc.soundtracks.size && n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.size == dc.subtitles.size).size > 0
   }
 
-    //case l: Long => NumericRangeQuery.newLongRange(k, l, l, true, true)
+  private def exists(m: Movie): Boolean = {
+    val releaseDateMillis = m.releaseDate.toDateTimeAtStartOfDay.getMillis
+    val query = new BooleanQuery()
+    query.add(new TermQuery(new Term(MovieOriginalTitle, m.originalTitle.text)), MUST)
+    query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)), MUST)
+    query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)), MUST)
+    query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)), MUST)
+    query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, releaseDateMillis, releaseDateMillis, true, true), MUST)
+    MovieIndex.query(query).getSingle != null
+  }
+
   private def getNode(e: VersionedLongIdEntity) = try {
     val node = if (e.id != None) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
     if (SubrefNodeSupp.isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))

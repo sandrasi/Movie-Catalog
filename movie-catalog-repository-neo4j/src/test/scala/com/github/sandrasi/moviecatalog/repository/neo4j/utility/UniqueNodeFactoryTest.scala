@@ -1,16 +1,17 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
-import org.scalatest.matchers.ShouldMatchers
+import java.util.Locale
 import org.joda.time.LocalDate
+import org.junit.runner.RunWith
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Movie, Character, Person}
+import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
+import com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer
+import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
-import java.util.UUID
-import com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -190,6 +191,73 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
       val anotherDigitalContainerNode = subject.createNodeFrom(anotherDigitalContainer)
       digitalContainerNode.getId should not equal(anotherDigitalContainerNode.getId)
+    }
+  }
+
+  test("should not create node from movie if a node already exists") {
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      subject.createNodeFrom(PulpFiction)
+    }
+
+    intercept[IllegalArgumentException] {
+      implicit val tx = db.beginTx()
+      transaction(tx) {
+        subject.createNodeFrom(PulpFiction)
+      }
+    }
+  }
+
+  test("should create node from movie if the original title is different") {
+    val anotherMovie = Movie("Die hard: With a vengeance", releaseDate = PulpFiction.releaseDate)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val movieNode = subject.createNodeFrom(PulpFiction)
+      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      movieNode.getId should not equal(anotherMovieNode.getId)
+    }
+  }
+
+  test("should create node from movie if the original title's locale's language is different") {
+    implicit val locale = new Locale("hu", "US")
+    val anotherMovie = Movie(new LocalizedText(PulpFiction.originalTitle.text), releaseDate = PulpFiction.releaseDate)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val movieNode = subject.createNodeFrom(PulpFiction)
+      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      movieNode.getId should not equal(anotherMovieNode.getId)
+    }
+  }
+
+  test("should create node from movie if the original title's locale's country is different") {
+    implicit val locale = new Locale("en", "GB")
+    val anotherMovie = Movie(new LocalizedText(PulpFiction.originalTitle.text), releaseDate = PulpFiction.releaseDate)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val movieNode = subject.createNodeFrom(PulpFiction)
+      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      movieNode.getId should not equal(anotherMovieNode.getId)
+    }
+  }
+
+  test("should create node from movie if the original title's locale's variant is different") {
+    implicit val locale = new Locale("en", "US", "California")
+    val anotherMovie = Movie(new LocalizedText(PulpFiction.originalTitle.text), releaseDate = PulpFiction.releaseDate)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val movieNode = subject.createNodeFrom(PulpFiction)
+      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      movieNode.getId should not equal(anotherMovieNode.getId)
+    }
+  }
+
+  test("should create node from movie if the release date is different") {
+    val anotherMovie = Movie(PulpFiction.originalTitle, releaseDate = new LocalDate(1995, 5, 19))
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val movieNode = subject.createNodeFrom(PulpFiction)
+      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
 }
