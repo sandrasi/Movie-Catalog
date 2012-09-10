@@ -31,15 +31,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     subject = NodeManager(db)
   }
 
-  test("should return the same node factory instance for the same database") {
+  test("should return the same node manager instance for the same database") {
     subject should be theSameInstanceAs(NodeManager(db))
   }
 
-  test("should return different node factory instances for different databases") {
+  test("should return different node manager instances for different databases") {
     subject should not be theSameInstanceAs(NodeManager(createTempDb()))
   }
 
-  test("should not instantiate node factory if the database is null") {
+  test("should not instantiate node manager if the database is null") {
     intercept[IllegalArgumentException] {
       NodeManager(null)
     }
