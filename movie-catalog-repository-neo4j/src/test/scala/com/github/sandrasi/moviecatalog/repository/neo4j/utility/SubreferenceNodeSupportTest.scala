@@ -36,33 +36,33 @@ class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with B
   }
 
   test("should create subreference nodes if they don't exist") {
-    db.getAllNodes.asScala should have size(1)
+    getNodeCount should be(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
-    db.getAllNodes.asScala should have size(2)
+    getNodeCount should be(2)
     subject.getSubrefNodeIdFor(classOf[Actor])
-    db.getAllNodes.asScala should have size(3)
+    getNodeCount should be(3)
     subject.getSubrefNodeIdFor(classOf[Actress])
-    db.getAllNodes.asScala should have size(4)
+    getNodeCount should be(4)
     subject.getSubrefNodeIdFor(classOf[Character])
-    db.getAllNodes.asScala should have size(5)
+    getNodeCount should be(5)
     subject.getSubrefNodeIdFor(classOf[DigitalContainer])
-    db.getAllNodes.asScala should have size(6)
+    getNodeCount should be(6)
     subject.getSubrefNodeIdFor(classOf[Movie])
-    db.getAllNodes.asScala should have size(7)
+    getNodeCount should be(7)
     subject.getSubrefNodeIdFor(classOf[Person])
-    db.getAllNodes.asScala should have size(8)
+    getNodeCount should be(8)
     subject.getSubrefNodeIdFor(classOf[Soundtrack])
-    db.getAllNodes.asScala should have size(9)
+    getNodeCount should be(9)
     subject.getSubrefNodeIdFor(classOf[Subtitle])
-    db.getAllNodes.asScala should have size(10)
+    getNodeCount should be(10)
   }
 
   test("should reuse subreference nodes if they already exist") {
-    db.getAllNodes.asScala should have size(1)
+    getNodeCount should be(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
-    db.getAllNodes.asScala should have size(2)
+    getNodeCount should be(2)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
-    db.getAllNodes.asScala should have size(2)
+    getNodeCount should be(2)
   }
 
   test("should not return a subreference node id for unsupported types") {

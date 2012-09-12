@@ -22,14 +22,14 @@ class TransactionSupportTest extends FunSuite with BeforeAndAfterAll with Before
   
   test("should abort transaction if an exception occurs") {
     try {
-      db.getAllNodes.asScala.size should be(1)
+      getNodeCount should be(1)
       transaction(db) {
         db.createNode()
         throw new Exception("test exception")
       }
       fail("transaction(GraphDatabaseService) should have thrown an exception")
     } catch {
-      case _: Exception => db.getAllNodes.asScala.size should be(1)
+      case _: Exception => getNodeCount should be(1)
     }
   }
 }

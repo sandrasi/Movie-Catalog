@@ -4,12 +4,11 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import java.io.IOException
 import java.nio.file.FileVisitResult._
-import java.nio.file.{Files, Path, Paths, SimpleFileVisitor}
+import java.nio.file.{Files, Path, SimpleFileVisitor}
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.{Locale, UUID}
 import org.joda.time.{Duration, LocalDate}
-import org.neo4j.graphdb.{Node, Relationship, RelationshipType}
-import org.neo4j.kernel.EmbeddedGraphDatabase
+import org.neo4j.graphdb.{GraphDatabaseService, Node, Relationship, RelationshipType}
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll}
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
@@ -19,6 +18,8 @@ import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, 
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility._
+import org.neo4j.test.TestGraphDatabaseFactory
+import org.neo4j.tooling.GlobalGraphOperations
 
 private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 
@@ -39,55 +40,29 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val HungarianSubtitle = Subtitle("hu", "Hungarian")
   protected final val ItalianSubtitle = Subtitle("it", "Italian")
 
-  protected var db: EmbeddedGraphDatabase = _
+  protected var db: GraphDatabaseService = _
   protected var subrefNodeSupp: SubreferenceNodeSupport = _
 
   private var dbs: ArrayBuffer[Database] = _
 
   override protected def beforeAll() {
     dbs = ArrayBuffer(Database("movie-catalog-repository-neo4j-test"))
-    db = dbs(0).gDb
+    db = dbs(0).db
     subrefNodeSupp = SubreferenceNodeSupport(db)
   }
 
   override protected def afterAll() {
-    dbs.foreach(cleanUpDatabase(_))
-  }
-
-  private def cleanUpDatabase(database: Database) {
-    database.gDb.shutdown()
-    if (!database.permanent) deleteStoreDir(database.gDb.getStoreDir)
-  }
-
-  private def deleteStoreDir(storeDir: String) {
-    Files.walkFileTree(Paths.get(storeDir),
-      new SimpleFileVisitor[Path] {
-
-        override def visitFile(file: Path, attrs: BasicFileAttributes) = { Files.delete(file); CONTINUE }
-
-        override def postVisitDirectory(dir: Path, e: IOException) = if (e == null) { Files.delete(dir); CONTINUE } else throw e
-      })
+    dbs.foreach(_.shutDown())
   }
 
   protected override def afterEach() {
-    for (db <- dbs) if (!db.permanent) truncateDb(db.gDb)
+    for (db <- dbs) if (!db.permanent) db.truncate()
   }
 
-  private def truncateDb(db: EmbeddedGraphDatabase) {
-    transaction(db) { db.getAllNodes.asScala.view.filter(isDeletable(_, db)).foreach(deleteNode(_)) }
-  }
-
-  private def isDeletable(n: Node, db: EmbeddedGraphDatabase) = n != db.getReferenceNode
-
-  protected def deleteNode(n: Node) {
-    n.getRelationships.asScala.foreach(_.delete())
-    n.delete()
-  }
-
-  protected def createTempDb(): EmbeddedGraphDatabase = {
+  protected def createTempDb(): GraphDatabaseService = {
     val db = Database()
     dbs += db
-    db.gDb
+    db.db
   }
 
   protected def createNode(): Node = transaction(db) { db.createNode() }
@@ -126,19 +101,47 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 
   protected def createSubtitleFrom(n: Node): Subtitle = EntityFactory(db).createEntityFrom(n, classOf[Subtitle])
 
-  protected def getNodeCount: Int = db.getAllNodes.iterator().asScala.size
+  protected def getNodeCount: Int = GlobalGraphOperations.at(db).getAllNodes.iterator().asScala.size
 
   protected final class TestRelationshipType(override val name: String) extends RelationshipType
 }
 
-private final class Database private (val gDb: EmbeddedGraphDatabase, val permanent: Boolean)
+private final class Database private (val db: GraphDatabaseService, val storeDir: Option[Path], val permanent: Boolean) extends TransactionSupport {
+
+  def truncate() {
+    transaction(db) { GlobalGraphOperations.at(db).getAllNodes.asScala.view.filter(isDeletable(_)).foreach(deleteNode(_)) }
+  }
+
+  private def isDeletable(n: Node) = n != db.getReferenceNode
+
+  private def deleteNode(n: Node) {
+    n.getRelationships.asScala.foreach(_.delete())
+    n.delete()
+  }
+
+  def shutDown() {
+    db.shutdown()
+    if (!permanent && storeDir.isDefined) deleteStoreDir()
+  }
+
+  private def deleteStoreDir() {
+    Files.walkFileTree(storeDir.get,
+      new SimpleFileVisitor[Path] {
+
+        override def visitFile(file: Path, attrs: BasicFileAttributes) = { Files.delete(file); CONTINUE }
+
+        override def postVisitDirectory(dir: Path, e: IOException) = if (e == null) { Files.delete(dir); CONTINUE } else throw e
+      }
+    )
+  }
+}
 
 private object Database {
 
   def apply(): Database = apply(UUID.randomUUID().toString)
 
-  def apply(tempStoreDirPrefix: String): Database = {
+  def apply(tempStoreDirPrefix: String, permanent: Boolean = false): Database = {
     val storeDir = Files.createTempDirectory(tempStoreDirPrefix)
-    new Database(new EmbeddedGraphDatabase(storeDir.toString), false)
+    new Database(new TestGraphDatabaseFactory().newEmbeddedDatabase(storeDir.toString), Some(storeDir), permanent)
   }
 }
