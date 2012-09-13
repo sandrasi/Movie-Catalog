@@ -73,7 +73,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 
   protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { from.createRelationshipTo(to, relType) }
 
-  protected def insertEntity[A <: VersionedLongIdEntity](entity: A): A = entity match {
+  protected def insertEntity[A <: VersionedLongIdEntity]: PartialFunction[A, A] = {
     case a: Actor => createActorFrom(createNodeFrom(a)).asInstanceOf[A]
     case a: Actress => createActressFrom(createNodeFrom(a)).asInstanceOf[A]
     case c: Character => createCharacterFrom(createNodeFrom(c)).asInstanceOf[A]
@@ -82,7 +82,6 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
     case p: Person => createPersonFrom(createNodeFrom(p)).asInstanceOf[A]
     case s: Soundtrack => createSoundtrackFrom(createNodeFrom(s)).asInstanceOf[A]
     case s: Subtitle => createSubtitleFrom(createNodeFrom(s)).asInstanceOf[A]
-    case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(entity.getClass.getName))
   }
 
   protected def createActorFrom(n: Node): Actor = EntityFactory(db).createEntityFrom(n, classOf[Actor])
