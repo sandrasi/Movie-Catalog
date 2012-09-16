@@ -26,7 +26,7 @@ sealed trait MotionPictureDto extends BaseEntityDto {
 
   def originalTitle: String
   def localizedTitle: Option[String]
-  def length: Long
+  def runtime: Long
   def releaseDate: String
 }
 
@@ -38,7 +38,7 @@ case class CharacterDto(id: Option[Long], name: String, discriminator: String) e
 
 case class DigitalContainerDto(id: Option[Long], motionPicture: MotionPictureDto, soundtracks: Set[SoundtrackDto], subtitles: Set[SubtitleDto]) extends BaseEntityDto
 
-case class MovieDto(id: Option[Long], originalTitle: String, localizedTitle: Option[String], length: Long, releaseDate: String) extends MotionPictureDto
+case class MovieDto(id: Option[Long], originalTitle: String, localizedTitle: Option[String], runtime: Long, releaseDate: String) extends MotionPictureDto
 
 case class PersonDto(id: Option[Long], name: String, gender: String, dateOfBirth: String, placeOfBirth: String) extends BaseEntityDto
 
@@ -51,7 +51,7 @@ object DtoSupport {
   implicit def toCharacterDto(c: Character): CharacterDto = CharacterDto(c.id, c.name, c.discriminator)
 
   implicit def toMotionPictureDto(m: MotionPicture)(implicit l: Locale = US): MotionPictureDto = m match {
-    case movie: Movie => MovieDto(m.id, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None, m.length.getMillis, m.releaseDate.toString)
+    case movie: Movie => MovieDto(m.id, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None, m.runtime.getMillis, m.releaseDate.toString)
     case _ => throw new IllegalArgumentException("Unsupported motion picture type: %s".format(m.getClass.getName))
   }
 

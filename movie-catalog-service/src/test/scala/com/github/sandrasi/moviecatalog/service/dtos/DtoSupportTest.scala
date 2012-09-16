@@ -23,12 +23,12 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   
   test("should convert movie to movie dto") {
     val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, Some(movie.localizedTitles.filter(_.locale == HungarianLocale).head.text), movie.length.getMillis, movie.releaseDate.toString))
+    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, Some(movie.localizedTitles.filter(_.locale == HungarianLocale).head.text), movie.runtime.getMillis, movie.releaseDate.toString))
   }
   
   test("should convert movie to movie dto if no localized title matches the current locale") {
     val movie = Movie("Pulp fiction", Set(LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, None, movie.length.getMillis, movie.releaseDate.toString))
+    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, None, movie.runtime.getMillis, movie.releaseDate.toString))
   }
   
   test("should convert person to person dto") {
@@ -39,7 +39,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   test("should convert actor to actor dto") {
     val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     val character = Character("Vincent Vega")
-    val movie = Movie("Pulp fiction", length = Duration.standardMinutes(154), releaseDate = new LocalDate(1994, 10, 14))
+    val movie = Movie("Pulp fiction", runtime = Duration.standardMinutes(154), releaseDate = new LocalDate(1994, 10, 14))
     val actor = Actor(person, character, movie)
     implicit val locale = HungarianLocale
     toActorDto(actor) should be(ActorDto(actor.id, toPersonDto(person), toCharacterDto(character), toMotionPictureDto(movie)))
@@ -48,7 +48,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   test("should convert actress to actress dto") {
     val person = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
     val character = Character("Mia Wallace")
-    val movie = Movie("Pulp fiction", length = Duration.standardMinutes(154), releaseDate = new LocalDate(1994, 10, 14))
+    val movie = Movie("Pulp fiction", runtime = Duration.standardMinutes(154), releaseDate = new LocalDate(1994, 10, 14))
     val actress = Actress(person, character, movie)
     implicit val locale = HungarianLocale
     toActressDto(actress) should be(ActressDto(actress.id, toPersonDto(person), toCharacterDto(character), toMotionPictureDto(movie)))
