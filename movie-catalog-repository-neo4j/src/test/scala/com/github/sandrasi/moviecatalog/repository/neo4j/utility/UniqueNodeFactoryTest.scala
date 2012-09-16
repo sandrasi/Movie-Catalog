@@ -1,17 +1,27 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
+import scala.collection.JavaConverters._
 import java.util.Locale
 import org.joda.time.LocalDate
+import org.neo4j.graphdb.Direction._
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
-import com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer
+import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
+import org.neo4j.graphdb.NotFoundException
+import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 
 @RunWith(classOf[JUnitRunner])
 class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -21,19 +31,43 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
   override protected def beforeEach() {
     subject = UniqueNodeFactory(db)
   }
+
+  test("should return the same unique node factory instance for the same database") {
+    subject should be theSameInstanceAs(UniqueNodeFactory(db))
+  }
+
+  test("should return different unique node factory instances for different databases") {
+    subject should not be theSameInstanceAs(UniqueNodeFactory(createTempDb()))
+  }
+
+  test("should not instantiate the unique node factory if the database is null") {
+    intercept[IllegalArgumentException] {
+      UniqueNodeFactory(null)
+    }
+  }
+
+  test("should create node from actor") {
+    val personNode = createNodeFrom(JohnTravolta)
+    val characterNode = createNodeFrom(VincentVega)
+    val movieNode = createNodeFrom(PulpFiction)
+    implicit val tx = db.beginTx()
+    val actorNode = transaction(tx) { subject.createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode))) }
+    actorNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(personNode)
+    actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
+    actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
+    getLong(actorNode, Version) should be(0)
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor]))
+  }
   
-  test("should not create node from actor if a node already exists") {
+  test("should not create node from actor if a node already exists for that actor") {
     val actor = Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction))
     implicit val tx = db.beginTx()
-    transaction(tx) {
-      subject.createNodeFrom(actor)
-    }
+    transaction(tx) { subject.createNodeFrom(actor) }
 
     intercept[IllegalArgumentException] {
       implicit val tx = db.beginTx()
-      transaction(tx) {
-        subject.createNodeFrom(actor)
-      }
+      transaction(tx) { subject.createNodeFrom(actor) }
     }
   }
   
@@ -76,17 +110,22 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     }
   }
 
-  test("should not create node from character if a node already exists") {
+  test("should create node from character") {
     implicit val tx = db.beginTx()
-    transaction(tx) {
-      subject.createNodeFrom(VincentVega)
-    }
+    val characterNode = transaction(tx) { subject.createNodeFrom(VincentVega) }
+    getString(characterNode, CharacterName) should be(VincentVega.name)
+    getString(characterNode, CharacterDiscriminator) should be(VincentVega.discriminator)
+    getLong(characterNode, Version) should be(VincentVega.version)
+    characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character]))
+  }
+
+  test("should not create node from character if a node already exists for that character") {
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.createNodeFrom(VincentVega) }
 
     intercept[IllegalArgumentException] {
       implicit val tx = db.beginTx()
-      transaction(tx) {
-        subject.createNodeFrom(VincentVega)
-      }
+      transaction(tx) { subject.createNodeFrom(VincentVega) }
     }
   }
 
@@ -110,18 +149,29 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     }
   }
 
-  test("should not create node from digital container if a node already exists") {
+  test("should create node from digital container") {
+    val movieNode = createNodeFrom(PulpFiction)
+    val englishSoundtrackNode = createNodeFrom(EnglishSoundtrack)
+    val hungarianSoundtrackNode = createNodeFrom(HungarianSoundtrack)
+    val englishSubtitleNode = createNodeFrom(EnglishSubtitle)
+    val hungarianSubtitleNode = createNodeFrom(HungarianSubtitle)
+    implicit val tx = db.beginTx()
+    val digitalContainerNode = transaction(tx) { subject.createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(englishSoundtrackNode), createSoundtrackFrom(hungarianSoundtrackNode)), Set(createSubtitleFrom(englishSubtitleNode), createSubtitleFrom(hungarianSubtitleNode)))) }
+    digitalContainerNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(movieNode)
+    digitalContainerNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSoundtrackNode, hungarianSoundtrackNode))
+    digitalContainerNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSubtitleNode, hungarianSubtitleNode))
+    getLong(digitalContainerNode, Version) should be(0)
+    digitalContainerNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer]))
+  }
+
+  test("should not create node from digital container if a node already exists for that digital container") {
     val digitalContainer = DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle)))
     implicit val tx = db.beginTx()
-    transaction(tx) {
-      subject.createNodeFrom(digitalContainer)
-    }
+    transaction(tx) { subject.createNodeFrom(digitalContainer) }
 
     intercept[IllegalArgumentException] {
       implicit val tx = db.beginTx()
-      transaction(tx) {
-        subject.createNodeFrom(digitalContainer)
-      }
+      transaction(tx) { subject.createNodeFrom(digitalContainer) }
     }
   }
 
@@ -194,17 +244,24 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     }
   }
 
-  test("should not create node from movie if a node already exists") {
+  test("should create node from movie") {
     implicit val tx = db.beginTx()
-    transaction(tx) {
-      subject.createNodeFrom(PulpFiction)
-    }
+    val movieNode = transaction(tx) { subject.createNodeFrom(PulpFiction) }
+    getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
+    getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
+    getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
+    getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
+    getLong(movieNode, Version) should be(PulpFiction.version)
+    movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie]))
+  }
+
+  test("should not create node from movie if a node already exists for that movie") {
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.createNodeFrom(PulpFiction) }
 
     intercept[IllegalArgumentException] {
       implicit val tx = db.beginTx()
-      transaction(tx) {
-        subject.createNodeFrom(PulpFiction)
-      }
+      transaction(tx) { subject.createNodeFrom(PulpFiction) }
     }
   }
 
@@ -258,6 +315,192 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
       val movieNode = subject.createNodeFrom(PulpFiction)
       val anotherMovieNode = subject.createNodeFrom(anotherMovie)
       movieNode.getId should not equal(anotherMovieNode.getId)
+    }
+  }
+
+  test("should create node from person") {
+    implicit val tx = db.beginTx()
+    val personNode = transaction(tx) { subject.createNodeFrom(JohnTravolta) }
+    getString(personNode, PersonName) should be(JohnTravolta.name)
+    getString(personNode, PersonGender) should be(JohnTravolta.gender.toString)
+    getLocalDate(personNode, PersonDateOfBirth) should be(JohnTravolta.dateOfBirth)
+    getString(personNode, PersonPlaceOfBirth) should be(JohnTravolta.placeOfBirth)
+    getLong(personNode, Version) should be(JohnTravolta.version)
+    personNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person]))
+  }
+
+  test("should not create node from person if a node already exists for that person") {
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.createNodeFrom(JohnTravolta) }
+
+    intercept[IllegalArgumentException] {
+      implicit val tx = db.beginTx()
+      transaction(tx) { subject.createNodeFrom(JohnTravolta) }
+    }
+  }
+
+  test("should create node from person if the name is different") {
+    val anotherPerson = Person("Samuel Leroy Jackson", JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val personNode = subject.createNodeFrom(JohnTravolta)
+      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      personNode.getId should not equal(anotherPersonNode.getId)
+    }
+  }
+
+  test("should create node from person if the gender is different") {
+    val anotherPerson = Person(JohnTravolta.name, Female, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val personNode = subject.createNodeFrom(JohnTravolta)
+      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      personNode.getId should not equal(anotherPersonNode.getId)
+    }
+  }
+
+  test("should create node from person if the date of birth is different") {
+    val anotherPerson = Person(JohnTravolta.name, JohnTravolta.gender, new LocalDate(1948, 12, 21), JohnTravolta.placeOfBirth)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val personNode = subject.createNodeFrom(JohnTravolta)
+      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      personNode.getId should not equal(anotherPersonNode.getId)
+    }
+  }
+
+  test("should create node from person if the place of birth is different") {
+    val anotherPerson = Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, "Washington, D.C., U.S.")
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val personNode = subject.createNodeFrom(JohnTravolta)
+      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      personNode.getId should not equal(anotherPersonNode.getId)
+    }
+  }
+
+  test("should create node from soundtrack") {
+    implicit val tx = db.beginTx()
+    val soundtrackNode = transaction(tx) { subject.createNodeFrom(EnglishSoundtrack) }
+    getString(soundtrackNode, SoundtrackLanguageCode) should be(EnglishSoundtrack.languageCode)
+    getString(soundtrackNode, SoundtrackFormatCode) should be(EnglishSoundtrack.formatCode)
+    Some(getLocalizedText(soundtrackNode, SoundtrackLanguageNames)) should be(EnglishSoundtrack.languageName)
+    Some(getLocalizedText(soundtrackNode, SoundtrackFormatNames)) should be(EnglishSoundtrack.formatName)
+    getLong(soundtrackNode, Version) should be(EnglishSoundtrack.version)
+    soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack]))
+  }
+
+  test("should create node from soundtrack without language name") {
+    implicit val tx = db.beginTx()
+    val soundtrackNode = transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = "DTS")) }
+    intercept[NotFoundException] {
+      soundtrackNode.getProperty(SoundtrackLanguageNames)
+    }
+  }
+
+  test("should create node from soundtrack without format name") {
+    implicit val tx = db.beginTx()
+    val soundtrackNode = transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", "English")) }
+    intercept[NotFoundException] {
+      soundtrackNode.getProperty(SoundtrackFormatNames)
+    }
+  }
+
+  test("should not create node from soundtrack if the language name locale does not match the current locale") {
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale))) }
+    }
+  }
+
+  test("should not create node from soundtrack if the format name locale does not match the current locale") {
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = LocalizedText("DTS")(HungarianLocale))) }
+    }
+  }
+
+  test("should not create node from soundtrack if a node already exists for that soundtrack") {
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.createNodeFrom(EnglishSoundtrack) }
+
+    intercept[IllegalArgumentException] {
+      implicit val tx = db.beginTx()
+      transaction(tx) { subject.createNodeFrom(EnglishSoundtrack) }
+    }
+  }
+
+  test("should create node from soundtrack if the language code is different") {
+    val anotherSoundtrack = Soundtrack("hu", EnglishSoundtrack.formatCode, EnglishSoundtrack.languageName.get, EnglishSoundtrack.formatName.get)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val soundtrackNode = subject.createNodeFrom(EnglishSoundtrack)
+      val anotherSoundtrackNode = subject.createNodeFrom(anotherSoundtrack)
+      soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
+    }
+  }
+
+  test("should create node from soundtrack if the format code is different") {
+    val anotherSoundtrack = Soundtrack(EnglishSoundtrack.languageCode, "dd5.1", EnglishSoundtrack.languageName.get, EnglishSoundtrack.formatName.get)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val soundtrackNode = subject.createNodeFrom(EnglishSoundtrack)
+      val anotherSoundtrackNode = subject.createNodeFrom(anotherSoundtrack)
+      soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
+    }
+  }
+
+  test("should create node from subtitle") {
+    implicit val tx = db.beginTx()
+    val subtitleNode = transaction(tx) { subject.createNodeFrom(EnglishSubtitle) }
+    getString(subtitleNode, SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
+    Some(getLocalizedText(subtitleNode, SubtitleLanguageNames)) should be(EnglishSubtitle.languageName)
+    getLong(subtitleNode, Version) should be(EnglishSubtitle.version)
+    subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle]))
+  }
+
+  test("should create node from subtitle without language name") {
+    implicit val tx = db.beginTx()
+    val subtitleNode = transaction(tx) { subject.createNodeFrom(Subtitle("en")) }
+    intercept[NotFoundException] {
+      subtitleNode.getProperty(SubtitleLanguageNames)
+    }
+  }
+
+  test("should not create node from subtitle if the language name locale does not match the current locale") {
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.createNodeFrom(Subtitle("en", LocalizedText("Angol")(HungarianLocale))) }
+    }
+  }
+
+  test("should not create node from subtitle if a node already exists for that subtitle") {
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.createNodeFrom(EnglishSubtitle) }
+
+    intercept[IllegalArgumentException] {
+      implicit val tx = db.beginTx()
+      transaction(tx) { subject.createNodeFrom(EnglishSubtitle) }
+    }
+  }
+
+  test("should create node from subtitle if the language code is different") {
+    val anotherSubtitle = Subtitle("hu", EnglishSubtitle.languageName.get)
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val soundtrackNode = subject.createNodeFrom(EnglishSubtitle)
+      val anotherSoundtrackNode = subject.createNodeFrom(anotherSubtitle)
+      soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
+    }
+  }
+
+  test("should not create node from unsupported entity") {
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      subject.createNodeFrom(new VersionedLongIdEntity(0, 0) {})
     }
   }
 }

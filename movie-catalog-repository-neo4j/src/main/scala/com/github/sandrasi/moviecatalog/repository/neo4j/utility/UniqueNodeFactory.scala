@@ -2,61 +2,56 @@ package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
-import org.apache.lucene.index.Term
-import org.apache.lucene.search.BooleanClause.Occur.MUST
-import org.apache.lucene.search.{BooleanQuery, NumericRangeQuery, TermQuery}
-import org.neo4j.index.lucene.ValueContext
+import org.neo4j.graphdb._
+import org.neo4j.graphdb.Direction._
+import java.util.Locale
+import java.util.Locale._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
-import com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie}
+import com.github.sandrasi.moviecatalog.domain.entities.container.{Subtitle, DigitalContainer, Soundtrack}
+import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import org.neo4j.graphdb._
-import org.neo4j.graphdb.Direction._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 
-private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
+private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
 
   Validate.notNull(db)
 
-  private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
+  private final val DbMgr = DatabaseManager(db)
+  private final val IdxMgr = IndexManager(db)
 
-  private final val IdxMgr = db.index()
-  private final val CastIndex = IdxMgr.forRelationships("Cast")
-  private final val CharacterIndex = IdxMgr.forNodes("Characters")
-  private final val DigitalContainerIndex = IdxMgr.forRelationships("DigitalConainers")
-  private final val MovieIndex = IdxMgr.forNodes("Movies")
-  
-  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = e match {
-    case ac: AbstractCast => lock(ac) { setNodePropertiesFrom(createNode(ac), ac) }
-    case c: Character => lock(c) { setNodePropertiesFrom(createNode(c), c) }
-    case dc: DigitalContainer => lock(dc) { setNodePropertiesFrom(createNode(dc), dc) }
-    case m: Movie => lock(m) { setNodePropertiesFrom(createNode(m), m) }
+  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = e match {
+    case ac: AbstractCast => lock(ac) { connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(ac), ac), ac.getClass), classOf[AbstractCast]) }
+    case c: Character => lock(c) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(c), c), classOf[Character]) }
+    case dc: DigitalContainer => lock(dc) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer]) }
+    case m: Movie => lock(m) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(m), m), classOf[Movie]) }
+    case p: Person => lock(p) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(p), p), classOf[Person]) }
+    case s: Soundtrack => lock(s) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack]) }
+    case s: Subtitle => lock(s) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Subtitle]) }
     case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
   }
 
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
-    tx.acquireWriteLock(lockNodeFor(e))
+    tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
     dbOp
   }
 
-  private def lockNodeFor(e: VersionedLongIdEntity) = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(e.getClass))
-
-  private def createNode(e: VersionedLongIdEntity): Node = if (e.id == None) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e, e.id.get))
+  private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
 
   private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = withExistenceCheck(ac) {
     n.getRelationships(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(Played, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(AppearedIn, OUTGOING).asScala.foreach(_.delete())
-    n.createRelationshipTo(getNode(ac.person), FilmCrewRelationshipType.forClass(ac.getClass))
-    n.createRelationshipTo(getNode(ac.character), Played)
-    n.createRelationshipTo(getNode(ac.motionPicture), AppearedIn)
+    n.createRelationshipTo(DbMgr.getNodeOf(ac.person), FilmCrewRelationshipType.forClass(ac.getClass))
+    n.createRelationshipTo(DbMgr.getNodeOf(ac.character), Played)
+    n.createRelationshipTo(DbMgr.getNodeOf(ac.motionPicture), AppearedIn)
     setVersion(n, ac)
-    index(n, ac)
+    IdxMgr.index(n, ac)
     n
   }
 
@@ -64,7 +59,7 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     setString(n, CharacterName, c.name)
     setString(n, CharacterDiscriminator, c.discriminator)
     setVersion(n, c)
-    index(n, c)
+    IdxMgr.index(n, c)
     n
   }
 
@@ -72,11 +67,11 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     n.getRelationships(WithContent, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(WithSoundtrack, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(WithSubtitle, OUTGOING).asScala.foreach(_.delete())
-    n.createRelationshipTo(getNode(dc.motionPicture), WithContent)
-    dc.soundtracks.map(getNode(_)).foreach(n.createRelationshipTo(_, WithSoundtrack))
-    dc.subtitles.map(getNode(_)).foreach(n.createRelationshipTo(_, WithSubtitle))
+    n.createRelationshipTo(DbMgr.getNodeOf(dc.motionPicture), WithContent)
+    dc.soundtracks.map(DbMgr.getNodeOf(_)).foreach(n.createRelationshipTo(_, WithSoundtrack))
+    dc.subtitles.map(DbMgr.getNodeOf(_)).foreach(n.createRelationshipTo(_, WithSubtitle))
     setVersion(n, dc)
-    index(n, dc)
+    IdxMgr.index(n, dc)
     n
   }
 
@@ -86,9 +81,42 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
     setDuration(n, MovieRuntime, m.runtime)
     setLocalDate(n, MovieReleaseDate, m.releaseDate)
     setVersion(n, m)
-    index(n, m)
+    IdxMgr.index(n, m)
     n
   }
+
+  private def setNodePropertiesFrom(n: Node, p: Person): Node = withExistenceCheck(p) {
+    setString(n, PersonName, p.name)
+    setString(n, PersonGender, p.gender.toString)
+    setLocalDate(n, PersonDateOfBirth, p.dateOfBirth)
+    setString(n, PersonPlaceOfBirth, p.placeOfBirth)
+    setVersion(n, p)
+    IdxMgr.index(n, p)
+    n
+  }
+
+  private def setNodePropertiesFrom(n: Node, s: Soundtrack, l: Locale): Node = withExistenceCheck(s) {
+    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
+    if ((s.formatName != None) && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
+    setString(n, SoundtrackLanguageCode, s.languageCode)
+    setString(n, SoundtrackFormatCode, s.formatCode)
+    if (s.languageName != None) addOrReplaceLocalizedText(n, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageNames, l)
+    if (s.formatName != None) addOrReplaceLocalizedText(n, SoundtrackFormatNames, s.formatName.get) else deleteLocalizedText(n, SoundtrackFormatNames, l)
+    setVersion(n, s)
+    IdxMgr.index(n, s)
+    n
+  }
+
+  private def setNodePropertiesFrom(n: Node, s: Subtitle, l: Locale): Node = withExistenceCheck(s) {
+    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
+    setString(n, SubtitleLanguageCode, s.languageCode)
+    if (s.languageName != None) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
+    setVersion(n, s)
+    IdxMgr.index(n, s)
+    n
+  }
+
+  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!IdxMgr.exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists in the repository".format(e))
 
   private def setVersion(n: Node, e: VersionedLongIdEntity) {
     if (e.id != None && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
@@ -96,100 +124,9 @@ private[utility] class UniqueNodeFactory(db: GraphDatabaseService) {
   }
 
   private def hasExpectedVersion(n: Node, v: Long) = hasLong(n, Version) && getLong(n, Version) == v
-  
-  private def index(n: Node, ac: AbstractCast) {
-    CastIndex.get("type", FilmCrewRelationshipType.forClass(ac.getClass), n, null).iterator.asScala.foreach(CastIndex.remove(_))
-    CastIndex.get("played", Played.name, n, null).iterator.asScala.foreach(CastIndex.remove(_))
-    CastIndex.get("appearedIn", AppearedIn.name, n, null).iterator.asScala.foreach(CastIndex.remove(_))
-    CastIndex.add(n.getSingleRelationship(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING), "type", FilmCrewRelationshipType.forClass(ac.getClass).name)
-    CastIndex.add(n.getSingleRelationship(Played, OUTGOING), "played", Played.name)
-    CastIndex.add(n.getSingleRelationship(AppearedIn, OUTGOING), "appearedIn", AppearedIn.name)
-  }
-
-  private def index(n: Node, c: Character) {
-    CharacterIndex.remove(n)
-    CharacterIndex.add(n, CharacterName, c.name)
-    CharacterIndex.add(n, CharacterDiscriminator, c.discriminator)
-  }
-
-  private def index(n: Node, dc: DigitalContainer) {
-    DigitalContainerIndex.get("withContent", WithContent.name, n, null).iterator().asScala.foreach(DigitalContainerIndex.remove(_))
-    DigitalContainerIndex.get("withSoundtrack", WithSoundtrack.name, n, null).iterator().asScala.foreach(DigitalContainerIndex.remove(_))
-    DigitalContainerIndex.get("withSubtitle", WithSubtitle.name, n, null).iterator().asScala.foreach(DigitalContainerIndex.remove(_))
-    DigitalContainerIndex.add(n.getSingleRelationship(WithContent, OUTGOING), "withContent", WithContent.name)
-    n.getRelationships(WithSoundtrack, OUTGOING).iterator().asScala.foreach(DigitalContainerIndex.add(_, "withSoundtrack", WithSoundtrack.name))
-    n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.foreach(DigitalContainerIndex.add(_, "withSubtitle", WithSubtitle.name))
-  }
-
-  private def index(n: Node, m: Movie) {
-    MovieIndex.remove(n)
-    MovieIndex.add(n, MovieOriginalTitle, m.originalTitle.text)
-    MovieIndex.add(n, MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)
-    MovieIndex.add(n, MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)
-    MovieIndex.add(n, MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)
-    for (lt <- m.localizedTitles) {
-      MovieIndex.add(n, MovieLocalizedTitles, lt.text)
-      MovieIndex.add(n, MovieLocalizedTitles + LocaleLanguage, lt.locale.getLanguage)
-      MovieIndex.add(n, MovieLocalizedTitles + LocaleCountry, lt.locale.getCountry)
-      MovieIndex.add(n, MovieLocalizedTitles + LocaleVariant, lt.locale.getVariant)
-    }
-    MovieIndex.add(n, MovieRuntime, ValueContext.numeric(m.runtime.getMillis))
-    MovieIndex.add(n, MovieReleaseDate, ValueContext.numeric(m.releaseDate.toDateTimeAtStartOfDay.getMillis))
-  }
-
-  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists in the repository".format(e))
-
-  private def exists(e: VersionedLongIdEntity): Boolean = e match {
-    case ac: AbstractCast => exists(ac)
-    case c: Character => exists(c)
-    case dc: DigitalContainer => exists(dc)
-    case m: Movie => exists(m)
-    case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
-  }
-
-  private def exists(ac: AbstractCast): Boolean = {
-    val castsWithSamePerson = CastIndex.get("type", FilmCrewRelationshipType.forClass(ac.getClass).name, null, getNode(ac.person)).iterator.asScala.map(_.getStartNode).toSet
-    val castsWithSameCharacter = CastIndex.get("played", Played.name, null, getNode(ac.character)).iterator.asScala.map(_.getStartNode).toSet
-    val castsWithSameMotionPicture = CastIndex.get("appearedIn", AppearedIn.name, null, getNode(ac.motionPicture)).iterator.asScala.map(_.getStartNode).toSet
-    (castsWithSamePerson & castsWithSameCharacter & castsWithSameMotionPicture).size > 0
-  }
-
-  private def exists(c: Character): Boolean = {
-    val query = new BooleanQuery()
-    query.add(new TermQuery(new Term(CharacterName, c.name)), MUST)
-    query.add(new TermQuery(new Term(CharacterDiscriminator, c.discriminator)), MUST)
-    CharacterIndex.query(query).getSingle != null
-  }
-
-  private def exists(dc: DigitalContainer): Boolean = {
-    val dcsWithSameMotionPicture = DigitalContainerIndex.get("withContent", WithContent.name, null, getNode(dc.motionPicture)).iterator().asScala.map(_.getStartNode).toSet
-    val dcSetWithSameSoundtracks = for (s <- dc.soundtracks) yield DigitalContainerIndex.get("withSoundtrack", WithSoundtrack.name, null, getNode(s)).iterator().asScala.map(_.getStartNode).toSet
-    val dcSetWithSameSubtitles = for (s <- dc.subtitles) yield DigitalContainerIndex.get("withSubtitle", WithSubtitle.name, null, getNode(s)).iterator().asScala.map(_.getStartNode).toSet
-    val dcsWithSameSoundtracks = if (dcSetWithSameSoundtracks.isEmpty) Set.empty[Node] else dcSetWithSameSoundtracks.reduce(_ & _)
-    val dcsWithSameSubtitles = if (dcSetWithSameSubtitles.isEmpty) Set.empty[Node] else dcSetWithSameSubtitles.reduce(_ & _)
-    (dcsWithSameMotionPicture & dcsWithSameSoundtracks & dcsWithSameSubtitles).filter((n: Node) => n.getRelationships(WithSoundtrack, OUTGOING).iterator().asScala.size == dc.soundtracks.size && n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.size == dc.subtitles.size).size > 0
-  }
-
-  private def exists(m: Movie): Boolean = {
-    val releaseDateMillis = m.releaseDate.toDateTimeAtStartOfDay.getMillis
-    val query = new BooleanQuery()
-    query.add(new TermQuery(new Term(MovieOriginalTitle, m.originalTitle.text)), MUST)
-    query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)), MUST)
-    query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)), MUST)
-    query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)), MUST)
-    query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, releaseDateMillis, releaseDateMillis, true, true), MUST)
-    MovieIndex.query(query).getSingle != null
-  }
-
-  private def getNode(e: VersionedLongIdEntity) = try {
-    val node = if (e.id != None) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
-    if (SubrefNodeSupp.isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))
-  } catch {
-    case _: NotFoundException => throw new IllegalStateException("%s is not in the database".format(e))
-  }
 }
 
-private[utility] object UniqueNodeFactory {
+private[neo4j] object UniqueNodeFactory {
 
   private final val Instances = MutableMap.empty[GraphDatabaseService, UniqueNodeFactory]
 

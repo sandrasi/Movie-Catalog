@@ -13,7 +13,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Entit
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 
 @RunWith(classOf[JUnitRunner])
-class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
+@deprecated class SubreferenceNodeSupportTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
 
   private var subject: SubreferenceNodeSupport = _
 

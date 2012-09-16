@@ -12,7 +12,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Subre
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 
-private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) extends TransactionSupport {
+@deprecated private[neo4j] class SubreferenceNodeSupport private (db: GraphDatabaseService) extends TransactionSupport {
 
   Validate.notNull(db)
   
