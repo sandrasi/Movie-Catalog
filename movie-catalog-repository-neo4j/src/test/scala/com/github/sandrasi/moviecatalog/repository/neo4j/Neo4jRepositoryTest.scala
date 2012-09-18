@@ -322,8 +322,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should return all abstract cast from the database") {
-    val actress = insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), insertEntity(PulpFiction)))
-    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val movie = insertEntity(PulpFiction)
+    val actress = insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
     val cast = subject.query(classOf[AbstractCast])
     cast should have size(2)
     cast should contain(actor.asInstanceOf[AbstractCast])
@@ -380,8 +381,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
   
   test("should return entities matching the criterion from the database") {
-    insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), insertEntity(PulpFiction)))
-    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val movie = insertEntity(PulpFiction)
+    insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
     val maleCast = subject.query(classOf[AbstractCast], (ac: AbstractCast) => ac.isInstanceOf[Actor])
     maleCast should have size(1)
     maleCast should contain(actor.asInstanceOf[AbstractCast])
