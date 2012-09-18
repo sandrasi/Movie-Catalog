@@ -25,16 +25,15 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   private final val DbMgr = DatabaseManager(db)
   private final val IdxMgr = IndexManager(db)
 
-  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = e match {
-    case ac: AbstractCast => lock(ac) { connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(ac), ac), ac.getClass), classOf[AbstractCast]) }
-    case c: Character => lock(c) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(c), c), classOf[Character]) }
-    case dc: DigitalContainer => lock(dc) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer]) }
-    case m: Movie => lock(m) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(m), m), classOf[Movie]) }
-    case p: Person => lock(p) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(p), p), classOf[Person]) }
-    case s: Soundtrack => lock(s) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack]) }
-    case s: Subtitle => lock(s) { connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Subtitle]) }
-    case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(e.getClass.getName))
-  }
+  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { e match {
+    case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(ac), ac), ac.getClass), classOf[AbstractCast])
+    case c: Character => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(c), c), classOf[Character])
+    case dc: DigitalContainer => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer])
+    case m: Movie => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(m), m), classOf[Movie])
+    case p: Person => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(p), p), classOf[Person])
+    case s: Soundtrack => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack])
+    case s: Subtitle => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Subtitle])
+  }}
 
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
     tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
@@ -116,7 +115,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!IdxMgr.exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists in the repository".format(e))
+  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!IdxMgr.exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
 
   private def setVersion(n: Node, e: VersionedLongIdEntity) {
     if (e.id != None && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
