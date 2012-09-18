@@ -107,31 +107,11 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case s: Subtitle => exists(s)
   }
 
-  private def exists(ac: AbstractCast): Boolean = {
-    val personNode = lookUpExact(ac.person)
-    val characterNode = lookUpExact(ac.character)
-    val motionPictureNode = lookUpExact(ac.motionPicture)
-    if (!personNode.isDefined || !characterNode.isDefined || !motionPictureNode.isDefined) return false
-    val castsWithSamePerson = CastIndex.get("person", personNode.get.getId).iterator.asScala.toSet
-    val castsWithSameCharacter = CastIndex.get("character", characterNode.get.getId).iterator.asScala.toSet
-    val castsWithSameMotionPicture = CastIndex.get("motionPicture", motionPictureNode.get.getId).iterator.asScala.toSet
-    (castsWithSamePerson & castsWithSameCharacter & castsWithSameMotionPicture).size > 0
-  }
+  private def exists(ac: AbstractCast): Boolean = lookUpExact(ac).isDefined
 
   private def exists(c: Character): Boolean = lookUpExact(c).isDefined
 
-  private def exists(dc: DigitalContainer): Boolean = {
-    val motionPictureNode = lookUpExact(dc.motionPicture)
-    val soundtrackNodes = (for (s <- dc.soundtracks) yield lookUpExact(s)).flatten
-    val subtitleNodes = (for (s <- dc.subtitles) yield lookUpExact(s)).flatten
-    if (!motionPictureNode.isDefined || soundtrackNodes.size != dc.soundtracks.size || subtitleNodes.size != dc.subtitles.size) return false
-    val dcsWithSameMotionPicture = DigitalContainerIndex.get("motionPicture", motionPictureNode.get.getId).iterator.asScala.toSet
-    val dcSetWithSameSoundtracks = for (s <- soundtrackNodes) yield DigitalContainerIndex.get("soundtrack", s.getId).iterator.asScala.toSet
-    val dcSetWithSameSubtitles = for (s <- subtitleNodes) yield DigitalContainerIndex.get("subtitle", s.getId).iterator.asScala.toSet
-    val dcsWithSameSoundtracks = if (dcSetWithSameSoundtracks.isEmpty) Set.empty[Node] else dcSetWithSameSoundtracks.reduce(_ & _)
-    val dcsWithSameSubtitles = if (dcSetWithSameSubtitles.isEmpty) Set.empty[Node] else dcSetWithSameSubtitles.reduce(_ & _)
-    (dcsWithSameMotionPicture & dcsWithSameSoundtracks & dcsWithSameSubtitles).filter((n: Node) => n.getRelationships(WithSoundtrack, OUTGOING).iterator.asScala.size == dc.soundtracks.size && n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.size == dc.subtitles.size).size > 0
-  }
+  private def exists(dc: DigitalContainer): Boolean = lookUpExact(dc).isDefined
 
   private def exists(m: MotionPicture): Boolean = lookUpExact(m).isDefined
 
@@ -141,11 +121,35 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
 
   private def exists(s: Subtitle): Boolean = lookUpExact(s).isDefined
 
+  private def lookUpExact(ac: AbstractCast): Option[Node] = {
+    val personNode = lookUpExact(ac.person)
+    val characterNode = lookUpExact(ac.character)
+    val motionPictureNode = lookUpExact(ac.motionPicture)
+    if (!personNode.isDefined || !characterNode.isDefined || !motionPictureNode.isDefined) return None
+    val castsWithSamePerson = CastIndex.get("person", personNode.get.getId).iterator.asScala.toSet
+    val castsWithSameCharacter = CastIndex.get("character", characterNode.get.getId).iterator.asScala.toSet
+    val castsWithSameMotionPicture = CastIndex.get("motionPicture", motionPictureNode.get.getId).iterator.asScala.toSet
+    (castsWithSamePerson & castsWithSameCharacter & castsWithSameMotionPicture).headOption
+  }
+
   private def lookUpExact(c: Character): Option[Node] = {
     val query = new BooleanQuery()
     query.add(new TermQuery(new Term(CharacterName, c.name)), MUST)
     query.add(new TermQuery(new Term(CharacterDiscriminator, c.discriminator)), MUST)
     Option(CharacterIndex.query(query).getSingle)
+  }
+
+  private def lookUpExact(dc: DigitalContainer): Option[Node] = {
+    val motionPictureNode = lookUpExact(dc.motionPicture)
+    val soundtrackNodes = (for (s <- dc.soundtracks) yield lookUpExact(s)).flatten
+    val subtitleNodes = (for (s <- dc.subtitles) yield lookUpExact(s)).flatten
+    if (!motionPictureNode.isDefined || soundtrackNodes.size != dc.soundtracks.size || subtitleNodes.size != dc.subtitles.size) return None
+    val dcsWithSameMotionPicture = DigitalContainerIndex.get("motionPicture", motionPictureNode.get.getId).iterator.asScala.toSet
+    val dcSetWithSameSoundtracks = for (s <- soundtrackNodes) yield DigitalContainerIndex.get("soundtrack", s.getId).iterator.asScala.toSet
+    val dcSetWithSameSubtitles = for (s <- subtitleNodes) yield DigitalContainerIndex.get("subtitle", s.getId).iterator.asScala.toSet
+    val dcsWithSameSoundtracks = if (dcSetWithSameSoundtracks.isEmpty) Set.empty[Node] else dcSetWithSameSoundtracks.reduce(_ & _)
+    val dcsWithSameSubtitles = if (dcSetWithSameSubtitles.isEmpty) Set.empty[Node] else dcSetWithSameSubtitles.reduce(_ & _)
+    (dcsWithSameMotionPicture & dcsWithSameSoundtracks & dcsWithSameSubtitles).filter((n: Node) => n.getRelationships(WithSoundtrack, OUTGOING).iterator.asScala.size == dc.soundtracks.size && n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.size == dc.subtitles.size).headOption
   }
 
   private def lookUpExact(m: MotionPicture): Option[Node] = {
