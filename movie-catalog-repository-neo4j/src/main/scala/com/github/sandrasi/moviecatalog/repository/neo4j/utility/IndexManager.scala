@@ -121,6 +121,16 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
 
   private def exists(s: Subtitle): Boolean = lookUpExact(s).isDefined
 
+  def lookUpExact: PartialFunction[VersionedLongIdEntity, Option[Node]] = {
+    case ac: AbstractCast => lookUpExact(ac)
+    case c: Character => lookUpExact(c)
+    case dc: DigitalContainer => lookUpExact(dc)
+    case m: MotionPicture => lookUpExact(m)
+    case p: Person => lookUpExact(p)
+    case s: Soundtrack => lookUpExact(s)
+    case s: Subtitle => lookUpExact(s)
+  }
+
   private def lookUpExact(ac: AbstractCast): Option[Node] = {
     val personNode = lookUpExact(ac.person)
     val characterNode = lookUpExact(ac.character)
