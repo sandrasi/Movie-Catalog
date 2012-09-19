@@ -54,8 +54,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
     getLong(actorNode, Version) should be(0)
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should contain(dbMgr.getSubreferenceNode(classOf[AbstractCast]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should contain(dbMgr.getSubreferenceNode(classOf[Actor]))
   }
 
   test("should not create node from the actor if the person does not exist in the database") {
@@ -132,7 +132,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getString(characterNode, CharacterName) should be(VincentVega.name)
     getString(characterNode, CharacterDiscriminator) should be(VincentVega.discriminator)
     getLong(characterNode, Version) should be(VincentVega.version)
-    characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character]))
+    characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Character]))
   }
 
   test("should not create node from character if the character already has an id") {
@@ -152,7 +152,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     digitalContainerNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSoundtrackNode, hungarianSoundtrackNode))
     digitalContainerNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSubtitleNode, hungarianSubtitleNode))
     getLong(digitalContainerNode, Version) should be(0)
-    digitalContainerNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer]))
+    digitalContainerNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[DigitalContainer]))
   }
   
   test("should not create node from the digital container if the motion picture does not exist in the database") {
@@ -231,7 +231,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
     getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
     getLong(movieNode, Version) should be(PulpFiction.version)
-    movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie]))
+    movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Movie]))
   }
   
   test("should not create node from movie if the movie already has an id") {
@@ -247,7 +247,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalDate(personNode, PersonDateOfBirth) should be(JohnTravolta.dateOfBirth)
     getString(personNode, PersonPlaceOfBirth) should be(JohnTravolta.placeOfBirth)
     getLong(personNode, Version) should be(JohnTravolta.version)
-    personNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person]))
+    personNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Person]))
   }
 
   test("should not create node from person if the person already has an id") {
@@ -263,7 +263,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     Some(getLocalizedText(soundtrackNode, SoundtrackLanguageNames)) should be(EnglishSoundtrack.languageName)
     Some(getLocalizedText(soundtrackNode, SoundtrackFormatNames)) should be(EnglishSoundtrack.formatName)
     getLong(soundtrackNode, Version) should be(EnglishSoundtrack.version)
-    soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack]))
+    soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Soundtrack]))
   }
 
   test("should create node from soundtrack without language name") {
@@ -303,7 +303,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getString(subtitleNode, SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
     Some(getLocalizedText(subtitleNode, SubtitleLanguageNames)) should be(EnglishSubtitle.languageName)
     getLong(subtitleNode, Version) should be(EnglishSubtitle.version)
-    subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle]))
+    subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Subtitle]))
   }
 
   test("should create node from subtitle without language name") {
@@ -825,14 +825,14 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val characterNode = createNodeFrom(VincentVega)
     val movieNode = createNodeFrom(PulpFiction)
     val actorNode = createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode)))
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast])).hasRelationship(INCOMING, IsA) should be(true)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[AbstractCast]).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createActorFrom(actorNode)) }
     personNode.hasRelationship(INCOMING) should be(false)
     characterNode.hasRelationship(INCOMING) should be(false)
     movieNode.hasRelationship(INCOMING) should be(false)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast])).hasRelationship(INCOMING, IsA) should be(false)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor])).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[AbstractCast]).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(actorNode.getId)
     }
@@ -840,9 +840,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should delete character node") {
     val characterNode = createNodeFrom(VincentVega)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[Character]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createCharacterFrom(characterNode)) }
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character])).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[Character]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(characterNode.getId)
     }
@@ -853,12 +853,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtrackNode = createNodeFrom(EnglishSoundtrack)
     val subtitleNode = createNodeFrom(EnglishSubtitle)
     val digitalContainerNode = createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(soundtrackNode)), Set(createSubtitleFrom(subtitleNode))))
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[DigitalContainer]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createDigitalContainerFrom(digitalContainerNode)) }
     movieNode.hasRelationship(INCOMING) should be(false)
     soundtrackNode.hasRelationship(INCOMING) should be(false)
     subtitleNode.hasRelationship(INCOMING) should be(false)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer])).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[DigitalContainer]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(digitalContainerNode.getId)
     }
@@ -866,9 +866,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should delete movie node") {
     val movieNode = createNodeFrom(PulpFiction)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[Movie]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createMovieFrom(movieNode)) }
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie])).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[Movie]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(movieNode.getId)
     }
@@ -876,9 +876,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should delete person node") {
     val personNode = createNodeFrom(JohnTravolta)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[Person]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createPersonFrom(personNode)) }
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person])).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[Person]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(personNode.getId)
     }
@@ -886,9 +886,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should delete soundtrack node") {
     val soundtrackNode = createNodeFrom(EnglishSoundtrack)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[Soundtrack]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createSoundtrackFrom(soundtrackNode)) }
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack])).hasRelationship(INCOMING, IsA) should be(false)
+    dbMgr.getSubreferenceNode(classOf[Soundtrack]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(soundtrackNode.getId)
     }
@@ -896,9 +896,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should delete subtitle node") {
     val subtitleNode = createNodeFrom(EnglishSubtitle)
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle])).hasRelationship(INCOMING, IsA) should be(true)
+    dbMgr.getSubreferenceNode(classOf[Subtitle]).hasRelationship(INCOMING, IsA) should be(true)
     transaction(db) { subject.deleteNodeOf(createSubtitleFrom(subtitleNode)) }
-    db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle])).hasRelationship(INCOMING, IsA) should be(false)
+      dbMgr.getSubreferenceNode(classOf[Subtitle]).hasRelationship(INCOMING, IsA) should be(false)
     intercept[NotFoundException] {
       db.getNodeById(subtitleNode.getId)
     }

@@ -41,14 +41,14 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val ItalianSubtitle = Subtitle("it", "Italian")
 
   protected var db: GraphDatabaseService = _
-  protected var subrefNodeSupp: SubreferenceNodeSupport = _
+  protected var dbMgr: DatabaseManager = _
 
   private var dbs: ArrayBuffer[Database] = _
 
   override protected def beforeAll() {
     dbs = ArrayBuffer(Database("movie-catalog-repository-neo4j-test"))
     db = dbs(0).db
-    subrefNodeSupp = SubreferenceNodeSupport(db)
+    dbMgr = DatabaseManager(db)
   }
 
   override protected def afterAll() {
@@ -56,7 +56,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   }
 
   protected override def afterEach() {
-    for (db <- dbs) if (!db.permanent) db.truncate()
+    dbs.foreach((db: Database) => if (!db.permanent) db.truncate())
   }
 
   protected def createTempDb(): GraphDatabaseService = {

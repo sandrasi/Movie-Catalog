@@ -66,7 +66,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
 
   test("should not create abstract cast from node of unspecified abstract cast node") {
     val node = createNode()
-    transaction(db) { node.createRelationshipTo(db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
+    transaction(db) { node.createRelationshipTo(dbMgr.getSubreferenceNode(classOf[AbstractCast]), IsA) }
     intercept[IllegalArgumentException] {
       subject.createEntityFrom(node, classOf[AbstractCast])
     }
@@ -208,7 +208,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
 
   test("should not create unsupported entity from node") {
     val node = createNode()
-    transaction(db) { node.createRelationshipTo(db.getNodeById(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer])), EntityRelationshipType.IsA) }
+    transaction(db) { node.createRelationshipTo(dbMgr.getSubreferenceNode(classOf[DigitalContainer]), EntityRelationshipType.IsA) }
     intercept[IllegalArgumentException] {
       subject.createEntityFrom(node, classOf[VersionedLongIdEntity])
     }

@@ -56,8 +56,8 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
     getLong(actorNode, Version) should be(0)
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[AbstractCast]))
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode.getId).toTraversable should contain(subrefNodeSupp.getSubrefNodeIdFor(classOf[Actor]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should contain(dbMgr.getSubreferenceNode(classOf[AbstractCast]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should contain(dbMgr.getSubreferenceNode(classOf[Actor]))
   }
   
   test("should not create node from actor if a node already exists for that actor") {
@@ -116,7 +116,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     getString(characterNode, CharacterName) should be(VincentVega.name)
     getString(characterNode, CharacterDiscriminator) should be(VincentVega.discriminator)
     getLong(characterNode, Version) should be(VincentVega.version)
-    characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Character]))
+    characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Character]))
   }
 
   test("should not create node from character if a node already exists for that character") {
@@ -161,7 +161,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     digitalContainerNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSoundtrackNode, hungarianSoundtrackNode))
     digitalContainerNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(englishSubtitleNode, hungarianSubtitleNode))
     getLong(digitalContainerNode, Version) should be(0)
-    digitalContainerNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[DigitalContainer]))
+    digitalContainerNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[DigitalContainer]))
   }
 
   test("should not create node from digital container if a node already exists for that digital container") {
@@ -252,7 +252,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
     getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLong(movieNode, Version) should be(PulpFiction.version)
-    movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Movie]))
+    movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Movie]))
   }
 
   test("should not create node from movie if a node already exists for that movie") {
@@ -326,7 +326,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     getLocalDate(personNode, PersonDateOfBirth) should be(JohnTravolta.dateOfBirth)
     getString(personNode, PersonPlaceOfBirth) should be(JohnTravolta.placeOfBirth)
     getLong(personNode, Version) should be(JohnTravolta.version)
-    personNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Person]))
+    personNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Person]))
   }
 
   test("should not create node from person if a node already exists for that person") {
@@ -387,7 +387,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     Some(getLocalizedText(soundtrackNode, SoundtrackLanguageNames)) should be(EnglishSoundtrack.languageName)
     Some(getLocalizedText(soundtrackNode, SoundtrackFormatNames)) should be(EnglishSoundtrack.formatName)
     getLong(soundtrackNode, Version) should be(EnglishSoundtrack.version)
-    soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Soundtrack]))
+    soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Soundtrack]))
   }
 
   test("should create node from soundtrack without language name") {
@@ -458,7 +458,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     getString(subtitleNode, SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
     Some(getLocalizedText(subtitleNode, SubtitleLanguageNames)) should be(EnglishSubtitle.languageName)
     getLong(subtitleNode, Version) should be(EnglishSubtitle.version)
-    subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode.getId should be(subrefNodeSupp.getSubrefNodeIdFor(classOf[Subtitle]))
+    subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Subtitle]))
   }
 
   test("should create node from subtitle without language name") {
