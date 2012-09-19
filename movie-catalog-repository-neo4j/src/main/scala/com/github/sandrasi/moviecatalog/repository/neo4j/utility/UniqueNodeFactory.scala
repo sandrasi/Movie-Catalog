@@ -115,7 +115,10 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = if (!IdxMgr.exists(e)) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
+  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = {
+    val node = IdxMgr.lookUpExact(e)
+    if (!node.isDefined || Some(node.get.getId) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
+  }
 
   private def setVersion(n: Node, e: VersionedLongIdEntity) {
     if (e.id != None && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
