@@ -25,24 +25,34 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   private final val DbMgr = DatabaseManager(db)
   private final val IdxMgr = IndexManager(db)
 
-  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { e match {
+  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) { e match {
     case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(ac), ac), ac.getClass), classOf[AbstractCast])
-    case c: Character => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(c), c), classOf[Character])
-    case dc: DigitalContainer => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer])
-    case m: Movie => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(m), m), classOf[Movie])
-    case p: Person => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(p), p), classOf[Person])
-    case s: Soundtrack => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack])
-    case s: Subtitle => connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(s), s, l), classOf[Subtitle])
-  }}
+    case c: Character => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(c), c), classOf[Character])
+    case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer])
+    case m: Movie => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(m), m), classOf[Movie])
+    case p: Person => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(p), p), classOf[Person])
+    case s: Soundtrack => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack])
+    case s: Subtitle => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(s), s, l), classOf[Subtitle])
+  }}}
+
+  def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = lock(e) { withExistenceCheck(e) { e match {
+    case ac: AbstractCast => setNodePropertiesFrom(DbMgr.getNodeOf(ac), ac)
+    case c: Character => setProperties(DbMgr.getNodeOf(c), c)
+  }}}
 
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
     tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
     dbOp
   }
 
+  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = {
+    val node = IdxMgr.lookUpExact(e)
+    if (!node.isDefined || Some(node.get.getId) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
+  }
+
   private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
 
-  private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = withExistenceCheck(ac) {
+  private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = {
     n.getRelationships(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(Played, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(AppearedIn, OUTGOING).asScala.foreach(_.delete())
@@ -54,7 +64,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, c: Character): Node = withExistenceCheck(c) {
+  private def setProperties(n: Node, c: Character): Node = {
     setString(n, CharacterName, c.name)
     setString(n, CharacterDiscriminator, c.discriminator)
     setVersion(n, c)
@@ -62,7 +72,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, dc: DigitalContainer): Node = withExistenceCheck(dc) {
+  private def setProperties(n: Node, dc: DigitalContainer): Node = {
     n.getRelationships(WithContent, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(WithSoundtrack, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(WithSubtitle, OUTGOING).asScala.foreach(_.delete())
@@ -74,7 +84,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, m: Movie): Node = withExistenceCheck(m) {
+  private def setProperties(n: Node, m: Movie): Node = {
     setLocalizedText(n, MovieOriginalTitle, m.originalTitle)
     setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
     setDuration(n, MovieRuntime, m.runtime)
@@ -84,7 +94,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, p: Person): Node = withExistenceCheck(p) {
+  private def setProperties(n: Node, p: Person): Node = {
     setString(n, PersonName, p.name)
     setString(n, PersonGender, p.gender.toString)
     setLocalDate(n, PersonDateOfBirth, p.dateOfBirth)
@@ -94,7 +104,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, s: Soundtrack, l: Locale): Node = withExistenceCheck(s) {
+  private def setProperties(n: Node, s: Soundtrack, l: Locale): Node = {
     if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
     if ((s.formatName != None) && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
     setString(n, SoundtrackLanguageCode, s.languageCode)
@@ -106,18 +116,13 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setNodePropertiesFrom(n: Node, s: Subtitle, l: Locale): Node = withExistenceCheck(s) {
+  private def setProperties(n: Node, s: Subtitle, l: Locale): Node = {
     if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
     setString(n, SubtitleLanguageCode, s.languageCode)
     if (s.languageName != None) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
     setVersion(n, s)
     IdxMgr.index(n, s)
     n
-  }
-
-  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = {
-    val node = IdxMgr.lookUpExact(e)
-    if (!node.isDefined || Some(node.get.getId) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
   }
 
   private def setVersion(n: Node, e: VersionedLongIdEntity) {

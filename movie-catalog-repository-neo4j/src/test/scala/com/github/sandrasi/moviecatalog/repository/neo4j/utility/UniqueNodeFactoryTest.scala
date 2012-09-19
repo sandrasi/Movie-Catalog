@@ -500,7 +500,77 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
   test("should not create node from unsupported entity") {
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      subject.createNodeFrom(new VersionedLongIdEntity(0, 0) {})
+      transaction(tx) { subject.createNodeFrom(new VersionedLongIdEntity(0, 0) {}) }
+    }
+  }
+
+  test("should update actor node") {
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val anotherPersonNode = createNodeFrom(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."))
+    val anotherCharacterNode = createNodeFrom(Character("Zeus Carver"))
+    val anotherMovieNode = createNodeFrom(Movie("Die hard: With a vengeance"))
+    val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.version, actor.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedActor) }
+    updatedNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
+    updatedNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(anotherCharacterNode)
+    updatedNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(anotherMovieNode)
+    getLong(updatedNode, Version) should be (actor.version + 1)
+    updatedNode.getId should be(actor.id.get)
+  }
+
+  test("should not update actor node if a different node already exists for the modified actor") {
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val anotherPerson = insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."))
+    val anotherCharacter = insertEntity(Character("Zeus Carver"))
+    val anotherMovie = insertEntity(Movie("Die hard: With a vengeance"))
+    insertEntity(Actor(anotherPerson, anotherCharacter, anotherMovie))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(Actor(anotherPerson, anotherCharacter, anotherMovie, actor.version, actor.id.get)) }
+    }
+  }
+
+  test("should not update actor node if the version of the actor does not match the version of the node") {
+    val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Actor(insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), insertEntity(Character("Zeus Carver")), insertEntity(Movie("Die hard: With a vengeance")), actor.version + 1, actor.id.get)) }
+    }
+  }
+
+  test("should update character node") {
+    val character = insertEntity(VincentVega)
+    val modifiedCharacter = Character("Jules Winnfield", "discriminator", character.version, character.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedCharacter) }
+    getString(updatedNode, CharacterName) should be("Jules Winnfield")
+    getString(updatedNode, CharacterDiscriminator) should be("discriminator")
+    getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
+    updatedNode.getId should be(character.id.get)
+  }
+
+  test("should not update character node if a different node already exists for the modified character") {
+    val character = insertEntity(VincentVega)
+    insertEntity(Character("Jules Winnfield", "discriminator"))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", "discriminator", character.version, character.id.get)) }
+    }
+  }
+
+  test("should not update character node if the version of the character does not match the version of the node") {
+    val character = insertEntity(VincentVega)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", "discriminator", character.version + 1, character.id.get)) }
+    }
+  }
+
+  test("should not update node of unsupported entity") {
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(new VersionedLongIdEntity(0, 0) {}) }
     }
   }
 }
