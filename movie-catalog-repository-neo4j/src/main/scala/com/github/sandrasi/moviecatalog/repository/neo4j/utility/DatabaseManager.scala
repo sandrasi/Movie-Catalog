@@ -12,7 +12,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Subre
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 
-private[utility] class DatabaseManager(db: GraphDatabaseService) extends TransactionSupport {
+private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends TransactionSupport {
 
   Validate.notNull(db)
 
@@ -51,7 +51,7 @@ private[utility] class DatabaseManager(db: GraphDatabaseService) extends Transac
   def isNodeOfType[A <: VersionedLongIdEntity](n: Node, entityType: Class[A]) = n.getRelationships(IsA, OUTGOING).asScala.view.map(_.getEndNode.getId).exists(_ == getSubreferenceNodeId(entityType))
 }
 
-private[utility] object DatabaseManager {
+private[neo4j] object DatabaseManager {
 
   private final val Instances = MutableMap.empty[GraphDatabaseService, DatabaseManager]
 
