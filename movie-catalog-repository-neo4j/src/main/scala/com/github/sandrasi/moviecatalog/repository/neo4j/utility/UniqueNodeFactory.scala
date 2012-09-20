@@ -39,6 +39,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     case ac: AbstractCast => setNodePropertiesFrom(DbMgr.getNodeOf(ac), ac)
     case c: Character => setProperties(DbMgr.getNodeOf(c), c)
     case dc: DigitalContainer => setProperties(DbMgr.getNodeOf(dc), dc)
+    case m: Movie => setProperties(DbMgr.getNodeOf(m), m)
   }}}
 
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {

@@ -2,7 +2,7 @@ package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
 import scala.collection.JavaConverters._
 import java.util.Locale
-import org.joda.time.LocalDate
+import org.joda.time.{Duration, LocalDate}
 import org.neo4j.graphdb.Direction._
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
@@ -603,6 +603,65 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
       transaction(tx) { subject.updateNodeOf(DigitalContainer(insertEntity(Movie("Die hard: With a vengeance")), Set(insertEntity(ItalianSoundtrack)), Set(insertEntity(ItalianSubtitle)), digitalContainer.version + 1, digitalContainer.id.get)) }
     }
   }
+
+  test("should update movie node") {
+    val movie = insertEntity(PulpFiction)
+    val modifiedMovie = Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedMovie) }
+    getLocalizedText(updatedNode, MovieOriginalTitle) should be(LocalizedText("Die hard: With a vengeance"))
+    getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)))
+    getDuration(updatedNode, MovieRuntime) should be(Duration.standardMinutes(131))
+    getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(1995, 5, 19))
+    getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
+    updatedNode.getId should be(movie.id.get)
+  }
+
+  test("should not update movie node if a different node already exists for the modified movie") {
+    val movie = insertEntity(PulpFiction)
+    insertEntity(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)) }
+    }
+  }
+
+  test("should not update movie node if the version of the movie does not match the version of the node") {
+    val movie = insertEntity(PulpFiction)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version + 1, movie.id.get)) }
+    }
+  }
+
+//  test("should not update movie node if the version of the movie does not match the version of the node") {
+//    val movie = insertEntity(PulpFiction)
+//    val modifiedMovie = Movie("Die hard: With a vengeance", version = movie.version + 1, id = movie.id.get)
+//    intercept[IllegalStateException] {
+//      transaction(db) { subject.updateNodeOf(modifiedMovie) }
+//    }
+//  }
+//
+//  test("should not update movie node if the movie has an id referring to a node which does not exist in the database") {
+//    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.runtime, PulpFiction.releaseDate, id = getNodeCount + 1)
+//    intercept[IllegalStateException] {
+//      transaction(db) { subject.updateNodeOf(movie) }
+//    }
+//  }
+//
+//  test("should not update movie node if the movie has an id referring to a non movie node") {
+//    val node = createNode()
+//    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.runtime, PulpFiction.releaseDate, id = node.getId)
+//    intercept[ClassCastException] {
+//      transaction(db) { subject.updateNodeOf(movie) }
+//    }
+//  }
+//
+//  test("should not update movie node if the movie does not have an id") {
+//    intercept[IllegalStateException] {
+//      subject.updateNodeOf(PulpFiction)
+//    }
+//  }
 
   test("should not update node of unsupported entity") {
     implicit val tx = db.beginTx()
