@@ -633,34 +633,35 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     }
   }
 
-//  test("should not update movie node if the version of the movie does not match the version of the node") {
-//    val movie = insertEntity(PulpFiction)
-//    val modifiedMovie = Movie("Die hard: With a vengeance", version = movie.version + 1, id = movie.id.get)
-//    intercept[IllegalStateException] {
-//      transaction(db) { subject.updateNodeOf(modifiedMovie) }
-//    }
-//  }
-//
-//  test("should not update movie node if the movie has an id referring to a node which does not exist in the database") {
-//    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.runtime, PulpFiction.releaseDate, id = getNodeCount + 1)
-//    intercept[IllegalStateException] {
-//      transaction(db) { subject.updateNodeOf(movie) }
-//    }
-//  }
-//
-//  test("should not update movie node if the movie has an id referring to a non movie node") {
-//    val node = createNode()
-//    val movie = Movie(PulpFiction.originalTitle, PulpFiction.localizedTitles, PulpFiction.runtime, PulpFiction.releaseDate, id = node.getId)
-//    intercept[ClassCastException] {
-//      transaction(db) { subject.updateNodeOf(movie) }
-//    }
-//  }
-//
-//  test("should not update movie node if the movie does not have an id") {
-//    intercept[IllegalStateException] {
-//      subject.updateNodeOf(PulpFiction)
-//    }
-//  }
+  test("should update person node") {
+    val person = insertEntity(JohnTravolta)
+    val modifiedPerson = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version, person.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedPerson) }
+    getString(updatedNode, PersonName) should be("Uma Karuna Thurman")
+    getString(updatedNode, PersonGender) should be(Female.toString)
+    getLocalDate(updatedNode, PersonDateOfBirth) should be(new LocalDate(1970, 4, 29))
+    getString(updatedNode, PersonPlaceOfBirth) should be("Boston, Massachusetts, U.S.")
+    getLong(updatedNode, Version) should be(modifiedPerson.version + 1)
+    updatedNode.getId should be(person.id.get)
+  }
+
+  test("should not update person node if a different node already exists for the modified person") {
+    val person = insertEntity(JohnTravolta)
+    insertEntity(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S."))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version, person.id.get)) }
+    }
+  }
+
+  test("should not update person node if the version of the person does not match the version of the node") {
+    val person = insertEntity(JohnTravolta)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version + 1, person.id.get)) }
+    }
+  }
 
   test("should not update node of unsupported entity") {
     implicit val tx = db.beginTx()

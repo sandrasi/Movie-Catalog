@@ -25,22 +25,29 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   private final val DbMgr = DatabaseManager(db)
   private final val IdxMgr = IndexManager(db)
 
-  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) { e match {
-    case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(ac), ac), ac.getClass), classOf[AbstractCast])
-    case c: Character => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(c), c), classOf[Character])
-    case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer])
-    case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(m), m), m.getClass), classOf[MotionPicture])
-    case p: Person => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(p), p), classOf[Person])
-    case s: Soundtrack => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack])
-    case s: Subtitle => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(s), s, l), classOf[Subtitle])
-  }}}
+  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
+    val n = DbMgr.createNodeFor(e)
+    e match {
+      case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(n, ac), ac.getClass), classOf[AbstractCast])
+      case c: Character => connectNodeToSubreferenceNode(setProperties(n, c), classOf[Character])
+      case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(n, dc), classOf[DigitalContainer])
+      case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(n, m), m.getClass), classOf[MotionPicture])
+      case p: Person => connectNodeToSubreferenceNode(setProperties(n, p), classOf[Person])
+      case s: Soundtrack => connectNodeToSubreferenceNode(setProperties(n, s, l), classOf[Soundtrack])
+      case s: Subtitle => connectNodeToSubreferenceNode(setProperties(n, s, l), classOf[Subtitle])
+    }
+  }}
 
-  def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = lock(e) { withExistenceCheck(e) { e match {
-    case ac: AbstractCast => setNodePropertiesFrom(DbMgr.getNodeOf(ac), ac)
-    case c: Character => setProperties(DbMgr.getNodeOf(c), c)
-    case dc: DigitalContainer => setProperties(DbMgr.getNodeOf(dc), dc)
-    case m: Movie => setProperties(DbMgr.getNodeOf(m), m)
-  }}}
+  def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = lock(e) { withExistenceCheck(e) {
+    val n = DbMgr.getNodeOf(e)
+    e match {
+      case ac: AbstractCast => setNodePropertiesFrom(n, ac)
+      case c: Character => setProperties(n, c)
+      case dc: DigitalContainer => setProperties(n, dc)
+      case m: MotionPicture => setProperties(n, m)
+      case p: Person => setProperties(n, p)
+    }
+  }}
 
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
     tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
