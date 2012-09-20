@@ -567,6 +567,43 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     }
   }
 
+  test("should update digital container node") {
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
+    val anotherMovieNode = createNodeFrom(Movie("Die hard: With a vengeance"))
+    val anotherSoundtrackNode = createNodeFrom(ItalianSoundtrack)
+    val anotherSubtitleNode = createNodeFrom(ItalianSubtitle)
+    val modifiedDigitalContainer = DigitalContainer(createMovieFrom(anotherMovieNode), Set(createSoundtrackFrom(anotherSoundtrackNode)), Set(createSubtitleFrom(anotherSubtitleNode)), digitalContainer.version, digitalContainer.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedDigitalContainer) }
+    updatedNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(anotherMovieNode)
+    updatedNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(anotherSoundtrackNode))
+    updatedNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(anotherSubtitleNode))
+    getLong(updatedNode, Version) should be(modifiedDigitalContainer.version + 1)
+    updatedNode.getId should be(digitalContainer.id.get)
+  }
+
+  test("should not update digital container node if a different node already exists for the modified digital container") {
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
+    val anotherMovieNode = insertEntity(Movie("Die hard: With a vengeance"))
+    val anotherSoundtrackNode = insertEntity(ItalianSoundtrack)
+    val anotherSubtitleNode = insertEntity(ItalianSubtitle)
+    insertEntity(DigitalContainer(anotherMovieNode, Set(anotherSoundtrackNode), Set(anotherSubtitleNode)))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) {
+        subject.updateNodeOf(DigitalContainer(anotherMovieNode, Set(anotherSoundtrackNode), Set(anotherSubtitleNode), digitalContainer.version, digitalContainer.id.get))
+      }
+    }
+  }
+
+  test("should not update digital container node if the version of the digital container does not match the version of the node") {
+    val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(DigitalContainer(insertEntity(Movie("Die hard: With a vengeance")), Set(insertEntity(ItalianSoundtrack)), Set(insertEntity(ItalianSubtitle)), digitalContainer.version + 1, digitalContainer.id.get)) }
+    }
+  }
+
   test("should not update node of unsupported entity") {
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
