@@ -10,7 +10,7 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container.{Subtitle, DigitalContainer, Soundtrack}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
@@ -29,7 +29,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(DbMgr.createNodeFor(ac), ac), ac.getClass), classOf[AbstractCast])
     case c: Character => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(c), c), classOf[Character])
     case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(dc), dc), classOf[DigitalContainer])
-    case m: Movie => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(m), m), classOf[Movie])
+    case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(m), m), m.getClass), classOf[MotionPicture])
     case p: Person => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(p), p), classOf[Person])
     case s: Soundtrack => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(s), s, l), classOf[Soundtrack])
     case s: Subtitle => connectNodeToSubreferenceNode(setProperties(DbMgr.createNodeFor(s), s, l), classOf[Subtitle])
@@ -86,7 +86,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     n
   }
 
-  private def setProperties(n: Node, m: Movie): Node = {
+  private def setProperties(n: Node, m: MotionPicture): Node = {
     setLocalizedText(n, MovieOriginalTitle, m.originalTitle)
     setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
     setDuration(n, MovieRuntime, m.runtime)

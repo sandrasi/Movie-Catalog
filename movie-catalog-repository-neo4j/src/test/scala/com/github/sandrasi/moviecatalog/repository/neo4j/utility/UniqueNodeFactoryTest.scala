@@ -11,7 +11,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
@@ -56,8 +56,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
     getLong(actorNode, Version) should be(0)
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should contain(dbMgr.getSubreferenceNode(classOf[AbstractCast]))
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should contain(dbMgr.getSubreferenceNode(classOf[Actor]))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[AbstractCast])) and contain(dbMgr.getSubreferenceNode(classOf[Actor])))
   }
   
   test("should not create node from actor if a node already exists for that actor") {
@@ -252,7 +251,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
     getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLong(movieNode, Version) should be(PulpFiction.version)
-    movieNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Movie]))
+    movieNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[MotionPicture])) and contain(dbMgr.getSubreferenceNode(classOf[Movie])))
   }
 
   test("should not create node from movie if a node already exists for that movie") {
