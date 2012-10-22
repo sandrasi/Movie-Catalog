@@ -130,7 +130,6 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from character") {
     val characterNode = transaction(db) { subject.createNodeFrom(VincentVega) }
     getString(characterNode, CharacterName) should be(VincentVega.name)
-    getString(characterNode, CharacterDiscriminator) should be(VincentVega.discriminator)
     getLong(characterNode, Version) should be(VincentVega.version)
     characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Character]))
   }
@@ -451,24 +450,23 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Jules Winnfield", "discriminator", character.version, character.id.get)
+    val modifiedCharacter = Character("Jules Winnfield", character.version, character.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedCharacter) }
     getString(updatedNode, CharacterName) should be("Jules Winnfield")
-    getString(updatedNode, CharacterDiscriminator) should be("discriminator")
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getId should be(character.id.get)
   }
   
   test("should not update character node if the version of the character does not match the version of the node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Jules Winnfield", "discriminator", character.version + 1, character.id.get)
+    val modifiedCharacter = Character("Jules Winnfield", character.version + 1, character.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedCharacter) }
     }
   }
 
   test("should not update character node if the character has an id referring to a node which does not exist in the database") {
-    val character = Character(VincentVega.name, VincentVega.discriminator, id = getNodeCount + 1)
+    val character = Character(VincentVega.name, id = getNodeCount + 1)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(character) }
     }
@@ -476,7 +474,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update character node if the character has an id referring to a non character node") {
     val node = createNode()
-    val character = Character(VincentVega.name, VincentVega.discriminator, id = node.getId)
+    val character = Character(VincentVega.name, id = node.getId)
     intercept[ClassCastException] {
       transaction(db) { subject.updateNodeOf(character) }
     }

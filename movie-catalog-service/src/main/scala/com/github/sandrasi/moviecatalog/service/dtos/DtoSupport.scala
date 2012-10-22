@@ -34,7 +34,7 @@ case class ActorDto(id: Option[Long], person: PersonDto, character: CharacterDto
 
 case class ActressDto(id: Option[Long], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
 
-case class CharacterDto(id: Option[Long], name: String, discriminator: String) extends BaseEntityDto
+case class CharacterDto(id: Option[Long], name: String) extends BaseEntityDto
 
 case class DigitalContainerDto(id: Option[Long], motionPicture: MotionPictureDto, soundtracks: Set[SoundtrackDto], subtitles: Set[SubtitleDto]) extends BaseEntityDto
 
@@ -48,7 +48,7 @@ case class SubtitleDto(id: Option[Long], languageCode: String, languageName: Opt
 
 object DtoSupport {
 
-  implicit def toCharacterDto(c: Character): CharacterDto = CharacterDto(c.id, c.name, c.discriminator)
+  implicit def toCharacterDto(c: Character): CharacterDto = CharacterDto(c.id, c.name)
 
   implicit def toMotionPictureDto(m: MotionPicture)(implicit l: Locale = US): MotionPictureDto = m match {
     case movie: Movie => MovieDto(m.id, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None, m.runtime.getMillis, m.releaseDate.toString)

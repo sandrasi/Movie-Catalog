@@ -18,7 +18,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
 
   test("should convert charater to character dto") {
     val character = Character("Vincent Vega")
-    toCharacterDto(character) should be(CharacterDto(character.id, character.name, character.discriminator))
+    toCharacterDto(character) should be(CharacterDto(character.id, character.name))
   }
   
   test("should convert movie to movie dto") {

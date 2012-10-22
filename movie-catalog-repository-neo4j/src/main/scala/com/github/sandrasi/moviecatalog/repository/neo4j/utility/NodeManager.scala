@@ -71,7 +71,6 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
 
   private def setNodePropertiesFrom(n: Node, c: Character): Node = {
     setString(n, CharacterName, c.name)
-    setString(n, CharacterDiscriminator, c.discriminator)
     setVersion(n, c)
     n
   }

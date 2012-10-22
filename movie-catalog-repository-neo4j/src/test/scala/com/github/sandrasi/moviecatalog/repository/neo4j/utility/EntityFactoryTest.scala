@@ -102,7 +102,6 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val characterNode = createNodeFrom(VincentVega)
     val character = subject.createEntityFrom(characterNode, classOf[Character])
     character.name should be(VincentVega.name)
-    character.discriminator should be(VincentVega.discriminator)
     character.version should be(VincentVega.version)
     character.id should be(Some(characterNode.getId))
   }

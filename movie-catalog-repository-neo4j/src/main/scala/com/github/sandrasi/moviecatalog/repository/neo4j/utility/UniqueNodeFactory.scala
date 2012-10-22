@@ -75,7 +75,6 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
 
   private def setProperties(n: Node, c: Character): Node = {
     setString(n, CharacterName, c.name)
-    setString(n, CharacterDiscriminator, c.discriminator)
     setVersion(n, c)
     IdxMgr.index(n, c)
     n

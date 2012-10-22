@@ -51,7 +51,6 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private def index(n: Node, c: Character) {
     CharacterIndex.remove(n)
     CharacterIndex.add(n, CharacterName, c.name)
-    CharacterIndex.add(n, CharacterDiscriminator, c.discriminator)
   }
 
   private def index(n: Node, dc: DigitalContainer) {
@@ -145,7 +144,6 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private def lookUpExact(c: Character): Option[Node] = {
     val query = new BooleanQuery()
     query.add(new TermQuery(new Term(CharacterName, c.name)), MUST)
-    query.add(new TermQuery(new Term(CharacterDiscriminator, c.discriminator)), MUST)
     Option(CharacterIndex.query(query).getSingle)
   }
 

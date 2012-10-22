@@ -113,7 +113,6 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     implicit val tx = db.beginTx()
     val characterNode = transaction(tx) { subject.createNodeFrom(VincentVega) }
     getString(characterNode, CharacterName) should be(VincentVega.name)
-    getString(characterNode, CharacterDiscriminator) should be(VincentVega.discriminator)
     getLong(characterNode, Version) should be(VincentVega.version)
     characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Character]))
   }
@@ -129,17 +128,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
   }
 
   test("should create node from character if the name is different") {
-    val anotherCharacter = Character("Jules Winnfield", VincentVega.discriminator)
-    implicit val tx = db.beginTx()
-    transaction(tx) {
-      val characterNode = subject.createNodeFrom(VincentVega)
-      val anotherCharacterNode = subject.createNodeFrom(anotherCharacter)
-      characterNode.getId should not equal(anotherCharacterNode.getId)
-    }
-  }
-
-  test("should create node from character if the discriminator is different") {
-    val anotherCharacter = Character(VincentVega.name, "discriminator")
+    val anotherCharacter = Character("Jules Winnfield")
     implicit val tx = db.beginTx()
     transaction(tx) {
       val characterNode = subject.createNodeFrom(VincentVega)
@@ -540,21 +529,20 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Jules Winnfield", "discriminator", character.version, character.id.get)
+    val modifiedCharacter = Character("Jules Winnfield", character.version, character.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedCharacter) }
     getString(updatedNode, CharacterName) should be("Jules Winnfield")
-    getString(updatedNode, CharacterDiscriminator) should be("discriminator")
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getId should be(character.id.get)
   }
 
   test("should not update character node if a different node already exists for the modified character") {
     val character = insertEntity(VincentVega)
-    insertEntity(Character("Jules Winnfield", "discriminator"))
+    insertEntity(Character("Jules Winnfield"))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", "discriminator", character.version, character.id.get)) }
+      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", character.version, character.id.get)) }
     }
   }
 
@@ -562,7 +550,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     val character = insertEntity(VincentVega)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", "discriminator", character.version + 1, character.id.get)) }
+      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", character.version + 1, character.id.get)) }
     }
   }
 

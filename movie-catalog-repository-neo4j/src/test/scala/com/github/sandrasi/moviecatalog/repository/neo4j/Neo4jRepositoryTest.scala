@@ -198,7 +198,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should update character in the database and return a managed instance") {
     val characterInDb = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Zeus Carver", "discriminator", characterInDb.version, characterInDb.id.get)
+    val modifiedCharacter = Character("Zeus Carver", characterInDb.version, characterInDb.id.get)
     val updatedCharacter = subject.save(modifiedCharacter)
     updatedCharacter.version should be(characterInDb.version + 1)
     updatedCharacter.id should be (characterInDb.id)
