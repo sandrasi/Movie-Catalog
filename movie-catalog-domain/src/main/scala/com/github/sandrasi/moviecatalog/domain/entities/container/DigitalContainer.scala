@@ -8,7 +8,7 @@ class DigitalContainer(val motionPicture: MotionPicture,
                        val soundtracks: Set[Soundtrack],
                        val subtitles: Set[Subtitle],
                        version: Long,
-                       id: Long) extends VersionedLongIdEntity(version, id) {
+                       _id: Long) extends VersionedLongIdEntity(version, _id) {
 
   Validate.notNull(motionPicture)
   Validate.noNullElements(soundtracks)

@@ -3,7 +3,9 @@ package com.github.sandrasi.moviecatalog.domain.entities.core
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 
-class Character(val name: String, version: Long, _id: Long) extends VersionedLongIdEntity(version, _id) {
+class Character(val name: String,
+                version: Long,
+                _id: Long) extends VersionedLongIdEntity(version, _id) {
 
   Validate.notNull(name)
 

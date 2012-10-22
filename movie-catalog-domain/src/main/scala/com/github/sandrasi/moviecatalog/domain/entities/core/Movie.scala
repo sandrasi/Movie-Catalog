@@ -8,7 +8,7 @@ class Movie(originalTitle: LocalizedText,
             runtime: ReadableDuration,
             releaseDate: LocalDate,
             version: Long,
-            id: Long) extends MotionPicture(originalTitle, localizedTitles, runtime, releaseDate, version, id) {
+            _id: Long) extends MotionPicture(originalTitle, localizedTitles, runtime, releaseDate, version, _id) {
 
   override def equals(o: Any): Boolean = o match {
     case other: Movie => super.equals(o)

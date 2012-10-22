@@ -4,7 +4,10 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
-class Subtitle(val languageCode: String, val languageName: Option[LocalizedText], version: Long, id: Long) extends VersionedLongIdEntity(version, id) {
+class Subtitle(val languageCode: String,
+               val languageName: Option[LocalizedText],
+               version: Long,
+               _id: Long) extends VersionedLongIdEntity(version, _id) {
 
   Validate.notBlank(languageCode)
   Validate.notNull(languageName)

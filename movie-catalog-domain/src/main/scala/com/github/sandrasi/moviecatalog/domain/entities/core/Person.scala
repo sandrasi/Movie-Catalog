@@ -10,7 +10,7 @@ class Person(val name: String,
              val dateOfBirth: LocalDate,
              val placeOfBirth: String,
              version: Long,
-             id: Long) extends VersionedLongIdEntity(version, id) {
+             _id: Long) extends VersionedLongIdEntity(version, _id) {
   
   Validate.notNull(name)
   Validate.notNull(gender)

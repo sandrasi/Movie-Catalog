@@ -10,7 +10,7 @@ abstract class MotionPicture(val originalTitle: LocalizedText,
                              val runtime: ReadableDuration,
                              val releaseDate: LocalDate,
                              version: Long,
-                             id: Long) extends VersionedLongIdEntity(version, id) {
+                             _id: Long) extends VersionedLongIdEntity(version, _id) {
 
   Validate.notNull(originalTitle)
   Validate.noNullElements(localizedTitles)

@@ -9,7 +9,7 @@ class Soundtrack(val languageCode: String,
                  val languageName: Option[LocalizedText],
                  val formatName: Option[LocalizedText],
                  version: Long,
-                 id: Long) extends VersionedLongIdEntity(version, id) {
+                 _id: Long) extends VersionedLongIdEntity(version, _id) {
 
   Validate.notBlank(languageCode)
   Validate.notBlank(formatCode)

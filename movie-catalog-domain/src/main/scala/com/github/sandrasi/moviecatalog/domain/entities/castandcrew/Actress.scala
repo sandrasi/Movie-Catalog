@@ -8,7 +8,7 @@ class Actress(person: Person,
               character: Character,
               motionPicture: MotionPicture,
               version: Long,
-              id: Long) extends AbstractCast(person, character, motionPicture, version, id) {
+              _id: Long) extends AbstractCast(person, character, motionPicture, version, _id) {
 
   Validate.isTrue(person.gender == Female)
   

@@ -7,7 +7,7 @@ abstract class AbstractCast(override val person: Person,
                             override val character: Character,
                             override val motionPicture: MotionPicture,
                             version: Long,
-                            id: Long) extends VersionedLongIdEntity(version, id) with Cast {
+                            _id: Long) extends VersionedLongIdEntity(version, _id) with Cast {
 
   override def equals(o: Any): Boolean = o match {
     case other: AbstractCast => other.canEqual(this) && (person == other.person) && (character == other.character) && (motionPicture == other.motionPicture)
