@@ -30,6 +30,8 @@ class Soundtrack(val languageCode: String,
     result = 5 * result + formatCode.hashCode
     result
   }
+
+  override def toString: String = """%s(id: %s, version: %d, languageCode: "%s", languageName: %s, formatCode: "%s", formatName: %s)""".format(getClass.getSimpleName, id, version, languageCode, languageName, formatCode, formatName)
 }
 
 object Soundtrack {

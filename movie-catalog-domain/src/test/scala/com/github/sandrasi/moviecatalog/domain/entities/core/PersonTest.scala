@@ -68,4 +68,8 @@ class PersonTest extends FunSuite with ShouldMatchers {
 
     person.hashCode should equal(otherPerson.hashCode)
   }
+
+  test("should convert to string") {
+    Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.").toString should be("""Person(id: None, version: 0, name: "John Joseph Travolta", gender: Male, dateOfBirth: 1954-02-18, placeOfBirth: "Englewood, New Jersey, U.S.")""")
+  }
 }

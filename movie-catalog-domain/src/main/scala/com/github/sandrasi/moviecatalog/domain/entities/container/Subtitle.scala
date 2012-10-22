@@ -24,6 +24,8 @@ class Subtitle(val languageCode: String,
     result = 5 * result + languageCode.hashCode
     result
   }
+
+  override def toString: String = """%s(id: %s, version: %d, languageCode: "%s", languageName: %s)""".format(getClass.getSimpleName, id, version, languageCode, languageName)
 }
 
 object Subtitle {

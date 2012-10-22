@@ -20,4 +20,6 @@ abstract class BaseEntity[A](_id: Option[A]) {
     result = 5 * result + _id.hashCode
     result
   }
+
+  override def toString: String = "%s(id: %s)".format(getClass.getSimpleName, _id)
 }

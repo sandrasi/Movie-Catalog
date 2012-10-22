@@ -73,4 +73,8 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
 
     localizedText.hashCode should equal(otherLocalizedText.hashCode)
   }
+
+  test("should convert to string") {
+    LocalizedText("localized text")(US).toString should be(""""localized text" [en_US]""")
+  }
 }

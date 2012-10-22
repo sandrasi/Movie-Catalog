@@ -72,6 +72,10 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
 
     motionPicture.hashCode should equal(otherMotionPicture.hashCode)
   }
+
+  test("should convert to string") {
+    TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle, ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14)).toString should be("""anon$1(id: None, version: 0, originalTitle: "Pulp fiction" [en_US], localizedTitles: Set("Ponyvaregény" [hu_HU], "Pulp fiction" [it_IT]), runtime: PT9240S, releaseDate: 1994-10-14)""")
+  }
 }
 
 private object TestMotionPicture {

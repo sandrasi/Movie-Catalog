@@ -28,6 +28,8 @@ class DigitalContainer(val motionPicture: MotionPicture,
     result = 5 * result + subtitles.hashCode
     result
   }
+
+  override def toString: String = "%s(id: %s, version: %d, motionPicture: %s, soundtracks: %s, subtitles: %s)".format(getClass.getSimpleName, id, version, motionPicture, soundtracks, subtitles)
 }
 
 object DigitalContainer {

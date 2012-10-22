@@ -21,6 +21,8 @@ class Character(val name: String,
     result = 5 * result + name.hashCode
     result
   }
+
+  override def toString: String = """%s(id: %s, version: %d, name: "%s")""".format(getClass.getSimpleName, id, version, name)
 }
 
 object Character {

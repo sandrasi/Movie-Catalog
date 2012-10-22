@@ -97,4 +97,8 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
 
     soundtrack.hashCode should equal(otherSoundtrack.hashCode)
   }
+
+  test("should convert to string") {
+    Soundtrack("en", "dts", "English", "DTS").toString should be("""Soundtrack(id: None, version: 0, languageCode: "en", languageName: Some("English" [en_US]), formatCode: "dts", formatName: Some("DTS" [en_US]))""")
+  }
 }

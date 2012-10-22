@@ -63,6 +63,10 @@ class AbstractCastTest extends FunSuite with ShouldMatchers {
 
     cast.hashCode should equal(otherCast.hashCode)
   }
+
+  test("should convert to string") {
+    TestCast(JohnTravolta, VincentVega, PulpFiction).toString should be("""anon$1(id: None, version: 0, person: Person(id: None, version: 0, name: "John Joseph Travolta", gender: Male, dateOfBirth: 1954-02-18, placeOfBirth: "Englewood, New Jersey, U.S."), character: Character(id: None, version: 0, name: "Vincent Vega"), motionPicture: Movie(id: None, version: 0, originalTitle: "Pulp fiction" [en_US], localizedTitles: Set(), runtime: PT0S, releaseDate: 1970-01-01))""")
+  }
 }
 
 private object TestCast {

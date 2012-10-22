@@ -15,6 +15,10 @@ class VersionedLongIdEntityTest extends FunSuite with ShouldMatchers {
   test("should create entity with the given id") {
     TestVersionedLongIdEntity(0, 1).id should be(Some(1))
   }
+
+  test("should convert to string") {
+    TestVersionedLongIdEntity(0, 1).toString should be("anon$1(id: Some(1), version: 0)")
+  }
 }
 
 private object TestVersionedLongIdEntity {

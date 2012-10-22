@@ -31,6 +31,8 @@ class Person(val name: String,
     result = 5 * result + gender.hashCode
     result
   }
+
+  override def toString: String = """%s(id: %s, version: %d, name: "%s", gender: %s, dateOfBirth: %s, placeOfBirth: "%s")""".format(getClass.getSimpleName, id, version, name, gender, dateOfBirth, placeOfBirth)
 }
 
 object Person {

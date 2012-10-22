@@ -36,6 +36,10 @@ class BaseEntityTest extends FunSuite with ShouldMatchers {
 
     baseEntity.hashCode should equal(otherBaseEntity.hashCode)
   }
+
+  test("should convert to string") {
+    TestBaseEntity(1).toString should be("anon$1(id: Some(1))")
+  }
 }
 
 private object TestBaseEntity {

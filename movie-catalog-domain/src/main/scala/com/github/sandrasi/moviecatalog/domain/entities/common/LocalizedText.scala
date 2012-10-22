@@ -22,6 +22,8 @@ class LocalizedText(val text: String)(implicit val locale: Locale = US) {
     result = 5 * result + locale.hashCode
     result
   }
+
+  override def toString: String = """"%s" [%s]""".format(text, locale)
 }
 
 object LocalizedText {

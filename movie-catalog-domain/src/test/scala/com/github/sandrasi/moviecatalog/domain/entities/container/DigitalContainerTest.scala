@@ -86,4 +86,8 @@ class DigitalContainerTest extends FunSuite with ShouldMatchers {
 
     digitalContainer.hashCode should equal(otherDigitalContainer.hashCode)
   }
+
+  test("should convert to string") {
+    DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle)).toString should be("""DigitalContainer(id: None, version: 0, motionPicture: Movie(id: None, version: 0, originalTitle: "Pulp fiction" [en_US], localizedTitles: Set(), runtime: PT0S, releaseDate: 1970-01-01), soundtracks: Set(Soundtrack(id: None, version: 0, languageCode: "en", languageName: None, formatCode: "dts", formatName: None)), subtitles: Set(Subtitle(id: None, version: 0, languageCode: "en", languageName: None)))""")
+  }
 }

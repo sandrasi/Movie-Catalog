@@ -29,4 +29,6 @@ abstract class MotionPicture(val originalTitle: LocalizedText,
     result = 5 * result + releaseDate.hashCode
     result
   }
+
+  override def toString: String = "%s(id: %s, version: %d, originalTitle: %s, localizedTitles: %s, runtime: %s, releaseDate: %s)".format(getClass.getSimpleName, id, version, originalTitle, localizedTitles, runtime, releaseDate)
 }

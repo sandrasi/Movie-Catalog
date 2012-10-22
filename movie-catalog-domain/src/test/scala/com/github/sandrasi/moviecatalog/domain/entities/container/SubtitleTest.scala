@@ -60,4 +60,8 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
 
     subtitle.hashCode should equal(otherSubtitle.hashCode)
   }
+
+  test("should convert to string") {
+    Subtitle("en", "English").toString should be("""Subtitle(id: None, version: 0, languageCode: "en", languageName: Some("English" [en_US]))""")
+  }
 }

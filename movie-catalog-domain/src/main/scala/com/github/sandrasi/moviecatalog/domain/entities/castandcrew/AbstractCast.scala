@@ -23,4 +23,6 @@ abstract class AbstractCast(override val person: Person,
     result = 5 * result + motionPicture.hashCode
     result
   }
+
+  override def toString: String = "%s(id: %s, version: %d, person: %s, character: %s, motionPicture: %s)".format(getClass.getSimpleName, id, version, person, character, motionPicture)
 }
