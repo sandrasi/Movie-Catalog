@@ -17,7 +17,7 @@
     <name>Movie catalog Neo4J repository</name>
 
     <properties>
-        <org.neo4j.version>1.8.RC1</org.neo4j.version>
+        <org.neo4j.version>1.8</org.neo4j.version>
     </properties>
 
     <dependencies>
