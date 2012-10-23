@@ -56,7 +56,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   }
 
   protected override def afterEach() {
-    dbs.foreach((db: Database) => if (!db.permanent) db.truncate())
+    dbs.foreach(db => if (!db.permanent) db.truncate())
   }
 
   protected def createTempDb(): GraphDatabaseService = {
