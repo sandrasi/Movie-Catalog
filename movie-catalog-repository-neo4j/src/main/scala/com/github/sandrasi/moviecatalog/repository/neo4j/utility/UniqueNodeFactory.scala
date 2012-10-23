@@ -47,6 +47,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
       case m: MotionPicture => setProperties(n, m)
       case p: Person => setProperties(n, p)
       case s: Soundtrack => setProperties(n, s, l)
+      case s: Subtitle => setProperties(n, s, l)
     }
   }}
 

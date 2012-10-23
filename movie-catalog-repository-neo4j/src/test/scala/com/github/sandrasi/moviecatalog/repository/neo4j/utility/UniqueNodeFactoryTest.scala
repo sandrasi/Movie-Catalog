@@ -58,7 +58,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     getLong(actorNode, Version) should be(0)
     actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[AbstractCast])) and contain(dbMgr.getSubreferenceNode(classOf[Actor])))
   }
-  
+
   test("should not create node from actor if a node already exists for that actor") {
     val actor = Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction))
     implicit val tx = db.beginTx()
@@ -69,7 +69,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
       transaction(tx) { subject.createNodeFrom(actor) }
     }
   }
-  
+
   test("should create node from actor if a different person played the same character in the same movie") {
     val character = insertEntity(VincentVega)
     val movie = insertEntity(PulpFiction)
@@ -706,6 +706,61 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     implicit val locale = AmericanLocale
     intercept[IllegalStateException] {
       transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", LocalizedText("Olasz")(HungarianLocale), LocalizedText("Dolby Digital 5.1")(HungarianLocale), soundtrack.version, soundtrack.id.get)) }
+    }
+  }
+
+  test("should update subtitle node") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    val modifiedSubtitle = Subtitle("it", "Italian", subtitle.version, subtitle.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+    getString(updatedNode, SubtitleLanguageCode) should be("it")
+    getLocalizedText(updatedNode, SubtitleLanguageNames) should be(LocalizedText("Italian"))
+    getLong(updatedNode, Version) should be(modifiedSubtitle.version + 1)
+    updatedNode.getId should be(subtitle.id.get)
+  }
+
+  test("should add the subtitle language name to the node properties") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    val modifiedSubtitle = Subtitle(subtitle.languageCode, LocalizedText("Angol")(HungarianLocale), subtitle.version, subtitle.id.get)
+    implicit val tx = db.beginTx()
+    implicit val locale = HungarianLocale
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+    getLocalizedTextSet(updatedNode, SubtitleLanguageNames) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
+  }
+
+  test("should remove the subtitle language name from the node properties") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    val modifiedSubtitle = Subtitle(subtitle.languageCode, null, subtitle.version, subtitle.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+    hasLocalizedText(updatedNode, SubtitleLanguageNames) should be(false)
+  }
+
+  test("should not update subtitle node if a different node already exists for the modified subtitle") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    insertEntity(Subtitle("it", "Italian"))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(Subtitle("it", "Italian", subtitle.version, subtitle.id.get)) }
+    }
+  }
+
+  test("should not update subtitle node if the version of the subtitle does not match the version of the node") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    val modifiedSubtitle = Subtitle("it", version = subtitle.version + 1, id = subtitle.id.get)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+    }
+  }
+
+  test("should not update subtitle node if the language name locale does not match the current locale") {
+    val subtitle = insertEntity(EnglishSubtitle)
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Subtitle("en", LocalizedText("Olasz")(HungarianLocale), subtitle.version, subtitle.id.get)) }
     }
   }
 
