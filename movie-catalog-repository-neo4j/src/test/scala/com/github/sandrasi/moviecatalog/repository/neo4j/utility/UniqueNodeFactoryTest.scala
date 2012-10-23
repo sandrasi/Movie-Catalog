@@ -651,6 +651,64 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     }
   }
 
+  test("should update soundtrack node") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    val modifiedSoundtrack = Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version, soundtrack.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
+    getString(updatedNode, SoundtrackLanguageCode) should be("it")
+    getString(updatedNode, SoundtrackFormatCode) should be("dd5.1")
+    getLocalizedText(updatedNode, SoundtrackLanguageNames) should be(LocalizedText("Italian"))
+    getLocalizedText(updatedNode, SoundtrackFormatNames) should be(LocalizedText("Dolby Digital 5.1"))
+    getLong(updatedNode, Version) should be(modifiedSoundtrack.version + 1)
+    updatedNode.getId should be(soundtrack.id.get)
+  }
+
+  test("should add the soundtrack language and format names to the node properties") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrack.version, soundtrack.id.get)
+    implicit val tx = db.beginTx()
+    implicit val locale = HungarianLocale
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
+    getLocalizedTextSet(updatedNode, SoundtrackLanguageNames) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
+    getLocalizedTextSet(updatedNode, SoundtrackFormatNames) should be(Set(LocalizedText("DTS")(AmericanLocale), LocalizedText("DTS")(HungarianLocale)))
+  }
+
+  test("should remove the soundtrack language and format names from the node properties") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, null, null, soundtrack.version, soundtrack.id.get)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
+    hasLocalizedText(updatedNode, SoundtrackLanguageNames) should be(false)
+    hasLocalizedText(updatedNode, SoundtrackFormatNames) should be(false)
+  }
+
+  test("should not update soundtrack node if a different node already exists for the modified soundtrack") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    insertEntity(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1"))
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version, soundtrack.id.get)) }
+    }
+  }
+
+  test("should not update soundtrack node if the version of the soundtrack does not match the version of the node") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version + 1, soundtrack.id.get)) }
+    }
+  }
+
+  test("should not update soundtrack node if the language name locale and format name locale do not match the current locale") {
+    val soundtrack = insertEntity(EnglishSoundtrack)
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", LocalizedText("Olasz")(HungarianLocale), LocalizedText("Dolby Digital 5.1")(HungarianLocale), soundtrack.version, soundtrack.id.get)) }
+    }
+  }
+
   test("should not update node of unsupported entity") {
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {

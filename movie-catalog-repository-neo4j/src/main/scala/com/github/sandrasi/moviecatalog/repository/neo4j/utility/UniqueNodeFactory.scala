@@ -10,7 +10,7 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
 import com.github.sandrasi.moviecatalog.domain.entities.container.{Subtitle, DigitalContainer, Soundtrack}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
@@ -38,7 +38,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     }
   }}
 
-  def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction): Node = lock(e) { withExistenceCheck(e) {
+  def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
     val n = DbMgr.getNodeOf(e)
     e match {
       case ac: AbstractCast => setNodePropertiesFrom(n, ac)
@@ -46,6 +46,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
       case dc: DigitalContainer => setProperties(n, dc)
       case m: MotionPicture => setProperties(n, m)
       case p: Person => setProperties(n, p)
+      case s: Soundtrack => setProperties(n, s, l)
     }
   }}
 
