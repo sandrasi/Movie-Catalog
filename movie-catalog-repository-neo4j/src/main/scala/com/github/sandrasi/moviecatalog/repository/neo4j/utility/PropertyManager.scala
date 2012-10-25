@@ -9,7 +9,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbC
 private[utility] object PropertyManager {
   
   def getString(propCntnr: PropertyContainer, key: String): String = propCntnr.getProperty(key).asInstanceOf[String]
-  
+
   def setString(propCntnr: PropertyContainer, key: String, str: String) { propCntnr.setProperty(key, str) }
 
   def hasLong(propCntnr: PropertyContainer, key: String): Boolean = hasProperty(propCntnr, key, classOf[java.lang.Long])
@@ -23,9 +23,9 @@ private[utility] object PropertyManager {
   def setDuration(propCntnr: PropertyContainer, key: String, duration: ReadableDuration) { propCntnr.setProperty(key, duration.getMillis) }
   
   def getLocalDate(propCntnr: PropertyContainer, key: String): LocalDate = new LocalDate(propCntnr.getProperty(key).asInstanceOf[Long])
-  
+
   def setLocalDate(propCntnr: PropertyContainer, key: String, date: LocalDate) { propCntnr.setProperty(key, date.toDateTimeAtStartOfDay.getMillis) }
-  
+
   def hasLocalizedText(propCntnr: PropertyContainer, key: String): Boolean = hasProperty(propCntnr, key, classOf[Array[String]]) && hasProperty(propCntnr, key + LocaleLanguage, classOf[Array[String]]) && hasProperty(propCntnr, key + LocaleCountry, classOf[Array[String]]) && hasProperty(propCntnr, key + LocaleVariant, classOf[Array[String]])
   
   def hasLocalizedText(propCntnr: PropertyContainer, key: String, locale: Locale): Boolean = hasLocalizedText(propCntnr, key) && getLocalizedTextSet(propCntnr, key).find(_.locale == locale) != None
