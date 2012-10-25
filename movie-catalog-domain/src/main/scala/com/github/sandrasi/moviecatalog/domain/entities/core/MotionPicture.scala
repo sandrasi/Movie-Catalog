@@ -15,6 +15,7 @@ abstract class MotionPicture(val originalTitle: LocalizedText,
   Validate.notNull(originalTitle)
   Validate.noNullElements(localizedTitles)
   Validate.notNull(runtime)
+  Validate.notNull(releaseDate)
 
   override def equals(o: Any): Boolean = o match {
     case other: MotionPicture => (originalTitle == other.originalTitle) && (releaseDate == other.releaseDate)

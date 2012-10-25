@@ -48,6 +48,12 @@ class MotionPictureTest extends FunSuite with ShouldMatchers {
     }
   }
 
+  test("should not create motion picture with null release date") {
+    intercept[IllegalArgumentException] {
+      TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), null)
+    }
+  }
+
   test("should compare two objects for equality") {
     val motionPicture = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val otherMotionPicture = TestMotionPicture(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
