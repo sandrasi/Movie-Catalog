@@ -17,6 +17,8 @@ private[neo4j] object MovieCatalogDbConstants {
   final val ClassSubtitle = classOf[Subtitle]
 
   final val CharacterName = "name"
+  final val CharacterCreator = "creator"
+  final val CharacterCreationDate = "creationDate"
 
   final val LocaleCountry = "country"
   final val LocaleLanguage = "language"

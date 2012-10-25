@@ -1,9 +1,11 @@
 package com.github.sandrasi.moviecatalog.service.dtos
 
 import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import java.util.Locale
 import org.joda.time.{Duration, LocalDate}
+import org.junit.runner.RunWith
 import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
@@ -11,14 +13,15 @@ import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, 
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.service.dtos.DtoSupport._
 
+@RunWith(classOf[JUnitRunner])
 class DtoSupportTest extends FunSuite with ShouldMatchers {
 
   private final val HungarianLocale = new Locale("hu", "HU")
   private final val ItalianLocale = Locale.ITALY
 
   test("should convert charater to character dto") {
-    val character = Character("Vincent Vega")
-    toCharacterDto(character) should be(CharacterDto(character.id, character.name))
+    val character = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
+    toCharacterDto(character) should be(CharacterDto(character.id, character.name, character.creator, character.creationDate.toString))
   }
   
   test("should convert movie to movie dto") {

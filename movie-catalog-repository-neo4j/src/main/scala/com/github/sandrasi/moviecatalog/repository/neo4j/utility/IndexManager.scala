@@ -51,6 +51,8 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private def index(n: Node, c: Character) {
     CharacterIndex.remove(n)
     CharacterIndex.add(n, CharacterName, c.name)
+    CharacterIndex.add(n, CharacterCreator, c.creator)
+    CharacterIndex.add(n, CharacterCreationDate, ValueContext.numeric(c.creationDate.toDateTimeAtStartOfDay.getMillis))
   }
 
   private def index(n: Node, dc: DigitalContainer) {
@@ -142,8 +144,11 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   }
 
   private def lookUpExact(c: Character): Option[Node] = {
+    val creationDateMillis = c.creationDate.toDateTimeAtStartOfDay.getMillis
     val query = new BooleanQuery()
     query.add(new TermQuery(new Term(CharacterName, c.name)), MUST)
+    query.add(new TermQuery(new Term(CharacterCreator, c.creator)), MUST)
+    query.add(NumericRangeQuery.newLongRange(CharacterCreationDate, creationDateMillis, creationDateMillis, true, true) , MUST)
     Option(CharacterIndex.query(query).getSingle)
   }
 

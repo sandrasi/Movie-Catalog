@@ -529,10 +529,12 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Jules Winnfield", character.version, character.id.get)
+    val modifiedCharacter = Character("Machete", "Robert Rodriguez", new LocalDate(2007, 4, 6), character.version, character.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedCharacter) }
-    getString(updatedNode, CharacterName) should be("Jules Winnfield")
+    getString(updatedNode, CharacterName) should be("Machete")
+    getString(updatedNode, CharacterCreator) should be("Robert Rodriguez")
+    getLocalDate(updatedNode, CharacterCreationDate) should be(new LocalDate(2007, 4, 6))
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getId should be(character.id.get)
   }
@@ -542,7 +544,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     insertEntity(Character("Jules Winnfield"))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", character.version, character.id.get)) }
+      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", version = character.version, id = character.id.get)) }
     }
   }
 
@@ -550,7 +552,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     val character = insertEntity(VincentVega)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", character.version + 1, character.id.get)) }
+      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", version = character.version + 1, id = character.id.get)) }
     }
   }
 

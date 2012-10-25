@@ -59,7 +59,17 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
 
   test("should not find the character if the name is different") {
     createNodeFrom(VincentVega)
-    subject.exists(Character("Jules Winnfield")) should be(false)
+    subject.exists(Character("Jules Winnfield", VincentVega.creator, VincentVega.creationDate)) should be(false)
+  }
+
+  test("should not find the character if the creator is different") {
+    createNodeFrom(VincentVega)
+    subject.exists(Character(VincentVega.name, "Robert Rodriguez", VincentVega.creationDate)) should be(false)
+  }
+
+  test("should not find the character if the creation date is different") {
+    createNodeFrom(VincentVega)
+    subject.exists(Character(VincentVega.name, VincentVega.creator, new LocalDate(2000, 1, 1))) should be(false)
   }
 
   test("should find the same digital container") {

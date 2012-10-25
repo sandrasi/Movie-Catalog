@@ -28,8 +28,8 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val AmericanLocale = Locale.US
   protected final val HungarianLocale = new Locale("hu", "HU")
   protected final val ItalianLocale = Locale.ITALY
-  protected final val VincentVega = Character("Vincent Vega")
-  protected final val MiaWallace = Character("Mia Wallace")
+  protected final val VincentVega = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
+  protected final val MiaWallace = Character("Mia Wallace", "Quentin Tarantino", new LocalDate(1994, 10, 14))
   protected final val PulpFiction = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
   protected final val JohnTravolta = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
   protected final val UmaThurman = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")

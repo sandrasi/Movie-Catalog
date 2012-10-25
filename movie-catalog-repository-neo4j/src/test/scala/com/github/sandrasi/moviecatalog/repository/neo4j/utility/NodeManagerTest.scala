@@ -450,16 +450,18 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Jules Winnfield", character.version, character.id.get)
+    val modifiedCharacter = Character("Machete", "Robert Rodriguez", new LocalDate(2007, 4, 6), character.version, character.id.get)
     val updatedNode = transaction(db) { subject.updateNodeOf(modifiedCharacter) }
-    getString(updatedNode, CharacterName) should be("Jules Winnfield")
+    getString(updatedNode, CharacterName) should be("Machete")
+    getString(updatedNode, CharacterCreator) should be("Robert Rodriguez")
+    getString(updatedNode, CharacterCreationDate) should be(new LocalDate(2007, 4, 6))
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getId should be(character.id.get)
   }
   
   test("should not update character node if the version of the character does not match the version of the node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Jules Winnfield", character.version + 1, character.id.get)
+    val modifiedCharacter = Character("Jules Winnfield", version = character.version + 1, id = character.id.get)
     intercept[IllegalStateException] {
       transaction(db) { subject.updateNodeOf(modifiedCharacter) }
     }
