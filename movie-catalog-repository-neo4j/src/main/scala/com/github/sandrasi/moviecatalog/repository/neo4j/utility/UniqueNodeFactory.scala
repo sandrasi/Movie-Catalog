@@ -58,7 +58,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
 
   private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = {
     val node = IdxMgr.lookUpExact(e)
-    if (!node.isDefined || Some(node.get.getId) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
+    if (node.isEmpty || Some(node.get.getId) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
   }
 
   private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
@@ -117,8 +117,8 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   }
 
   private def setProperties(n: Node, s: Soundtrack, l: Locale): Node = {
-    if ((s.languageName.isDefined) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
-    if ((s.formatName.isDefined) && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
+    if (s.languageName.isDefined && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
+    if (s.formatName.isDefined && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
     setString(n, SoundtrackLanguageCode, s.languageCode)
     setString(n, SoundtrackFormatCode, s.formatCode)
     if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageNames, l)
@@ -129,7 +129,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   }
 
   private def setProperties(n: Node, s: Subtitle, l: Locale): Node = {
-    if ((s.languageName.isDefined) && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
+    if (s.languageName.isDefined && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
     setString(n, SubtitleLanguageCode, s.languageCode)
     if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
     setVersion(n, s)
@@ -138,7 +138,7 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   }
 
   private def setVersion(n: Node, e: VersionedLongIdEntity) {
-    if (e.id != None && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
+    if (e.id.isDefined && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
     setLong(n, Version, if (e.id.isEmpty) e.version else e.version + 1)
   }
 

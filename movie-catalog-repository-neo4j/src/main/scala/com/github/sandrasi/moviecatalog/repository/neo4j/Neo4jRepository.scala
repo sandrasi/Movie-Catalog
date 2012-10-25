@@ -20,7 +20,7 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
   }
 
   override def save[A <: VersionedLongIdEntity](entity: A)(implicit locale: Locale = US): A = transaction(db) {
-    EntityFactory.createEntityFrom(if (entity.id == None) NodeManager.createNodeFrom(entity) else NodeManager.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
+    EntityFactory.createEntityFrom(if (entity.id.isEmpty) NodeManager.createNodeFrom(entity) else NodeManager.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
   }
 
   override def delete(entity: VersionedLongIdEntity) { transaction(db) { NodeManager.deleteNodeOf(entity) } }

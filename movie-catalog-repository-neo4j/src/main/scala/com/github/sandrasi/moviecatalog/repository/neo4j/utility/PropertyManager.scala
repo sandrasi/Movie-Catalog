@@ -28,7 +28,7 @@ private[utility] object PropertyManager {
 
   def hasLocalizedText(propCntnr: PropertyContainer, key: String): Boolean = hasProperty(propCntnr, key, classOf[Array[String]]) && hasProperty(propCntnr, key + LocaleLanguage, classOf[Array[String]]) && hasProperty(propCntnr, key + LocaleCountry, classOf[Array[String]]) && hasProperty(propCntnr, key + LocaleVariant, classOf[Array[String]])
   
-  def hasLocalizedText(propCntnr: PropertyContainer, key: String, locale: Locale): Boolean = hasLocalizedText(propCntnr, key) && getLocalizedTextSet(propCntnr, key).find(_.locale == locale) != None
+  def hasLocalizedText(propCntnr: PropertyContainer, key: String, locale: Locale): Boolean = hasLocalizedText(propCntnr, key) && getLocalizedTextSet(propCntnr, key).find(_.locale == locale).isDefined
   
   private def hasProperty(propCntnr: PropertyContainer, key: String, propertyType: Class[_]) = propCntnr.hasProperty(key) && propCntnr.getProperty(key).getClass == propertyType
 

@@ -33,5 +33,5 @@ object Subtitle {
   def apply(languageCode: String,
             languageName: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0) = new Subtitle(languageCode, if (languageName != null) Some(languageName) else None, version, id)
+            id: Long = 0) = new Subtitle(languageCode, Option(languageName), version, id)
 }

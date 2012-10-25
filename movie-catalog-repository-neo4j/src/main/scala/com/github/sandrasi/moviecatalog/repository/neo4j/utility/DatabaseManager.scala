@@ -17,13 +17,13 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
   Validate.notNull(db)
 
   def getNodeOf(e: VersionedLongIdEntity) = try {
-    val node = if (e.id != None) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
+    val node = if (e.id.isDefined) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
     if (isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))
   } catch {
     case _: NotFoundException => throw new IllegalStateException("%s is not in the database".format(e))
   }
 
-  def createNodeFor(e: VersionedLongIdEntity): Node = if (e.id == None) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e, e.id.get))
+  def createNodeFor(e: VersionedLongIdEntity): Node = if (e.id.isEmpty) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e, e.id.get))
 
   def getSubreferenceNode[A <: VersionedLongIdEntity](c: Class[A]) = db.getNodeById(getSubreferenceNodeId(c))
 

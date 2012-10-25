@@ -38,7 +38,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
 
   private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)), IsA); n }
 
-  private def createNode(e: VersionedLongIdEntity): Node = if (e.id == None) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e, e.id.get))
+  private def createNode(e: VersionedLongIdEntity): Node = if (e.id.isEmpty) db.createNode() else throw new IllegalStateException("Entity %s already has an id: %d".format(e, e.id.get))
 
   def updateNodeOf(e: VersionedLongIdEntity)(implicit l: Locale = US): Node = e match {
     case ac: AbstractCast => setNodePropertiesFrom(getNode(ac), ac)
@@ -52,7 +52,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
   }
 
   private def getNode(e: VersionedLongIdEntity) = try {
-    val node = if (e.id != None) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
+    val node = if (e.id.isDefined) db.getNodeById(e.id.get) else throw new IllegalStateException("%s is not in the database".format(e))
     if (SubrefNodeSupp.isNodeOfType(node, e.getClass)) node else throw new ClassCastException("Node [id: %d] is not of type %s".format(e.id.get, e.getClass.getName))
   } catch {
     case _: NotFoundException => throw new IllegalStateException("%s is not in the database".format(e))
@@ -105,27 +105,27 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
   }
 
   private def setNodePropertiesFrom(n: Node, s: Soundtrack, l: Locale): Node = {
-    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
-    if ((s.formatName != None) && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
+    if (s.languageName.isDefined && (s.languageName.get.locale != l)) throw new IllegalStateException("Soundtrack language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
+    if (s.formatName.isDefined && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
     setString(n, SoundtrackLanguageCode, s.languageCode)
     setString(n, SoundtrackFormatCode, s.formatCode)
-    if (s.languageName != None) addOrReplaceLocalizedText(n, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageNames, l)
-    if (s.formatName != None) addOrReplaceLocalizedText(n, SoundtrackFormatNames, s.formatName.get) else deleteLocalizedText(n, SoundtrackFormatNames, l)
+    if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageNames, l)
+    if (s.formatName.isDefined) addOrReplaceLocalizedText(n, SoundtrackFormatNames, s.formatName.get) else deleteLocalizedText(n, SoundtrackFormatNames, l)
     setVersion(n, s)
     n
   }
 
   private def setNodePropertiesFrom(n: Node, s: Subtitle, l: Locale): Node = {
-    if ((s.languageName != None) && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
+    if (s.languageName.isDefined && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
     setString(n, SubtitleLanguageCode, s.languageCode)
-    if (s.languageName != None) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
+    if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
     setVersion(n, s)
     n
   }
 
   private def setVersion(n: Node, e: VersionedLongIdEntity) {
-    if (e.id != None && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
-    setLong(n, Version, if (e.id == None) e.version else e.version + 1)
+    if (e.id.isDefined && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
+    setLong(n, Version, if (e.id.isEmpty) e.version else e.version + 1)
   }
   
   private def hasExpectedVersion(n: Node, v: Long) = hasLong(n, Version) && getLong(n, Version) == v
