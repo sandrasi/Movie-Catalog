@@ -105,7 +105,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final class TestRelationshipType(override val name: String) extends RelationshipType
 }
 
-private final class Database private (val db: GraphDatabaseService, val storeDir: Option[Path], val permanent: Boolean) extends TransactionSupport {
+private final class Database private (val db: GraphDatabaseService, val storeDir: Path, val permanent: Boolean) extends TransactionSupport {
 
   def truncate() {
     transaction(db) { GlobalGraphOperations.at(db).getAllNodes.asScala.view.filter(isDeletable(_)).foreach(deleteNode(_)) }
@@ -120,11 +120,11 @@ private final class Database private (val db: GraphDatabaseService, val storeDir
 
   def shutDown() {
     db.shutdown()
-    if (!permanent && storeDir.isDefined) deleteStoreDir()
+    if (!permanent) deleteStoreDir()
   }
 
   private def deleteStoreDir() {
-    Files.walkFileTree(storeDir.get,
+    Files.walkFileTree(storeDir,
       new SimpleFileVisitor[Path] {
 
         override def visitFile(file: Path, attrs: BasicFileAttributes) = { Files.delete(file); CONTINUE }
@@ -141,6 +141,6 @@ private object Database {
 
   def apply(tempStoreDirPrefix: String, permanent: Boolean = false): Database = {
     val storeDir = Files.createTempDirectory(tempStoreDirPrefix)
-    new Database(new TestGraphDatabaseFactory().newEmbeddedDatabase(storeDir.toString), Some(storeDir), permanent)
+    new Database(new TestGraphDatabaseFactory().newEmbeddedDatabase(storeDir.toString), storeDir, permanent)
   }
 }
