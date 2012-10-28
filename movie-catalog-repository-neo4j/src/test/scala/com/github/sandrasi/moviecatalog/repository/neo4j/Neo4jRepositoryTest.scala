@@ -34,7 +34,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     configurationMetaData.get("storeDir").get.name should be("storeDir")
     configurationMetaData.get("storeDir").get.description should be("The directory where Neo4j stores the database")
     configurationMetaData.get("storeDir").get.valueType should be(classOf[String])
-    configurationMetaData.get("storeDir").get.parameterConverter.isInstanceOf[Function1[Seq[String], String]] should be(true)
+    configurationMetaData.get("storeDir").get.parameterConverter.isInstanceOf[(Seq[String]) => String] should be(true)
   }
 
   test("should instantiate Neo4jRepository from configuration") {

@@ -122,7 +122,7 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
     stmt.execute(sql)
   }
 
-  private class TestRowMapper extends RowMapper[Tuple2[String, Int]] {
+  private class TestRowMapper extends RowMapper[(String, Int)] {
     def map(rs: ResultSet) = (rs.getString("text_field"), rs.getInt("number_field"))
   }
 }
