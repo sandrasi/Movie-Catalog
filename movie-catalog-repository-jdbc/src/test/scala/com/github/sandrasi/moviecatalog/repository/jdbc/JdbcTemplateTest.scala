@@ -109,16 +109,16 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
   }
 
   private def newDataSource(url: String, user: String = "sa", password: String = "sa") = {
-    val ds = new JdbcDataSource();
-    ds.setURL(url);
-    ds.setUser(user);
-    ds.setPassword(password);
+    val ds = new JdbcDataSource()
+    ds.setURL(url)
+    ds.setUser(user)
+    ds.setPassword(password)
     ds
   }
 
   private def executeSql(sql: String) {
     val conn = ds.getConnection
-    val stmt = conn.createStatement();
+    val stmt = conn.createStatement()
     stmt.execute(sql)
   }
 
