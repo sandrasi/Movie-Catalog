@@ -772,4 +772,122 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
       transaction(tx) { subject.updateNodeOf(new VersionedLongIdEntity(0, 0) {}) }
     }
   }
+
+  test("should delete actor node") {
+    val personNode = createNodeFrom(JohnTravolta)
+    val characterNode = createNodeFrom(VincentVega)
+    val movieNode = createNodeFrom(PulpFiction)
+    val actorNode = createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode)))
+    assert(dbMgr.getSubreferenceNode(classOf[AbstractCast]).hasRelationship(INCOMING, IsA))
+    assert(dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createActorFrom(actorNode)) }
+    assert(!personNode.hasRelationship(INCOMING))
+    assert(!characterNode.hasRelationship(INCOMING))
+    assert(!movieNode.hasRelationship(INCOMING))
+    assert(!dbMgr.getSubreferenceNode(classOf[AbstractCast]).hasRelationship(INCOMING, IsA))
+    assert(!dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(actorNode.getId)
+    }
+  }
+
+  test("should delete character node") {
+    val characterNode = createNodeFrom(VincentVega)
+    assert(dbMgr.getSubreferenceNode(classOf[Character]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createCharacterFrom(characterNode)) }
+    assert(!dbMgr.getSubreferenceNode(classOf[Character]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(characterNode.getId)
+    }
+  }
+
+  test("should delete digital container node") {
+    val movieNode = createNodeFrom(PulpFiction)
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
+    val digitalContainerNode = createNodeFrom(DigitalContainer(createMovieFrom(movieNode), Set(createSoundtrackFrom(soundtrackNode)), Set(createSubtitleFrom(subtitleNode))))
+    assert(dbMgr.getSubreferenceNode(classOf[DigitalContainer]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createDigitalContainerFrom(digitalContainerNode)) }
+    assert(!movieNode.hasRelationship(INCOMING))
+    assert(!soundtrackNode.hasRelationship(INCOMING))
+    assert(!subtitleNode.hasRelationship(INCOMING))
+    assert(!dbMgr.getSubreferenceNode(classOf[DigitalContainer]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(digitalContainerNode.getId)
+    }
+  }
+
+  test("should delete movie node") {
+    val movieNode = createNodeFrom(PulpFiction)
+    assert(dbMgr.getSubreferenceNode(classOf[Movie]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createMovieFrom(movieNode)) }
+    assert(!dbMgr.getSubreferenceNode(classOf[Movie]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(movieNode.getId)
+    }
+  }
+
+  test("should delete person node") {
+    val personNode = createNodeFrom(JohnTravolta)
+    assert(dbMgr.getSubreferenceNode(classOf[Person]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createPersonFrom(personNode)) }
+    assert(!dbMgr.getSubreferenceNode(classOf[Person]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(personNode.getId)
+    }
+  }
+
+  test("should delete soundtrack node") {
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
+    assert(dbMgr.getSubreferenceNode(classOf[Soundtrack]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createSoundtrackFrom(soundtrackNode)) }
+    assert(!dbMgr.getSubreferenceNode(classOf[Soundtrack]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(soundtrackNode.getId)
+    }
+  }
+
+  test("should delete subtitle node") {
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
+    assert(dbMgr.getSubreferenceNode(classOf[Subtitle]).hasRelationship(INCOMING, IsA))
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.deleteNodeOf(createSubtitleFrom(subtitleNode)) }
+    assert(!dbMgr.getSubreferenceNode(classOf[Subtitle]).hasRelationship(INCOMING, IsA))
+    intercept[NotFoundException] {
+      db.getNodeById(subtitleNode.getId)
+    }
+  }
+
+  test("should not delete node if the version of the entity does not match the version of the node") {
+    val character = insertEntity(VincentVega)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.deleteNodeOf(Character(character.name, character.creator, character.creationDate, character.version + 1, character.id.get)) }
+    }
+  }
+
+  test("should not delete node if at least one node references it") {
+    val characterNode = createNodeFrom(VincentVega)
+    val node = createNode()
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      node.createRelationshipTo(characterNode, new TestRelationshipType("test"))
+      intercept[IllegalStateException] {
+        subject.deleteNodeOf(createCharacterFrom(characterNode))
+      }
+    }
+  }
+
+  test("should not delete unsupported entity") {
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.deleteNodeOf(new VersionedLongIdEntity(0, 1) {}) }
+    }
+  }
 }

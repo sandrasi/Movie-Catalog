@@ -51,6 +51,17 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     }
   }}
 
+  def deleteNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction) {
+    lock(e) {
+      val n = DbMgr.getNodeOf(e)
+      if (n.hasRelationship(INCOMING)) throw new IllegalStateException("%s is referenced by other entities".format(e))
+      if (!hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
+      n.getRelationships(OUTGOING).asScala.foreach(_.delete())
+      n.delete()
+      n
+    }
+  }
+
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
     tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
     dbOp
