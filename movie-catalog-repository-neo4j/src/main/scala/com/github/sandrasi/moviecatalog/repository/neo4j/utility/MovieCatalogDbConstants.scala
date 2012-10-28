@@ -16,9 +16,17 @@ private[neo4j] object MovieCatalogDbConstants {
   final val ClassSoundtrack = classOf[Soundtrack]
   final val ClassSubtitle = classOf[Subtitle]
 
+  final val CastPerson = "person"
+  final val CastCharacter = "character"
+  final val CastMotionPicture = "motionPicture"
+
   final val CharacterName = "name"
   final val CharacterCreator = "creator"
   final val CharacterCreationDate = "creationDate"
+
+  final val DigitalContainerMotionPicture = "motionPicture"
+  final val DigitalContainerSoundtrack = "soundtrack"
+  final val DigitalContainerSubtitle = "subtitle"
 
   final val LocaleCountry = "country"
   final val LocaleLanguage = "language"
