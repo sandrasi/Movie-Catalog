@@ -681,8 +681,8 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, null, null, soundtrack.version, soundtrack.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
-    hasLocalizedText(updatedNode, SoundtrackLanguageNames) should be(false)
-    hasLocalizedText(updatedNode, SoundtrackFormatNames) should be(false)
+    assert(!hasLocalizedText(updatedNode, SoundtrackLanguageNames))
+    assert(!hasLocalizedText(updatedNode, SoundtrackFormatNames))
   }
 
   test("should not update soundtrack node if a different node already exists for the modified soundtrack") {
@@ -736,7 +736,7 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     val modifiedSubtitle = Subtitle(subtitle.languageCode, null, subtitle.version, subtitle.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
-    hasLocalizedText(updatedNode, SubtitleLanguageNames) should be(false)
+    assert(!hasLocalizedText(updatedNode, SubtitleLanguageNames))
   }
 
   test("should not update subtitle node if a different node already exists for the modified subtitle") {

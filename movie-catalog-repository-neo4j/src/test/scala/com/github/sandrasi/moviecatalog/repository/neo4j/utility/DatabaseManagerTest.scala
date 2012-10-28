@@ -116,31 +116,31 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val personSubrefNode = subject.getSubreferenceNode(classOf[Person])
     val soundtrackSubrefNode = subject.getSubreferenceNode(classOf[Soundtrack])
     val subtitleSubrefNode = subject.getSubreferenceNode(classOf[Subtitle])
-    subject.isSubreferenceNode(abstractCastSubrefNode) should be(true)
-    subject.isSubreferenceNode(actorSubrefNode) should be(true)
-    subject.isSubreferenceNode(actressSubrefNode) should be(true)
-    subject.isSubreferenceNode(characterSubrefNode) should be(true)
-    subject.isSubreferenceNode(digitalContainerSubrefNode) should be(true)
-    subject.isSubreferenceNode(movieSubrefNode) should be(true)
-    subject.isSubreferenceNode(personSubrefNode) should be(true)
-    subject.isSubreferenceNode(soundtrackSubrefNode) should be(true)
-    subject.isSubreferenceNode(subtitleSubrefNode) should be(true)
+    assert(subject.isSubreferenceNode(abstractCastSubrefNode))
+    assert(subject.isSubreferenceNode(actorSubrefNode))
+    assert(subject.isSubreferenceNode(actressSubrefNode))
+    assert(subject.isSubreferenceNode(characterSubrefNode))
+    assert(subject.isSubreferenceNode(digitalContainerSubrefNode))
+    assert(subject.isSubreferenceNode(movieSubrefNode))
+    assert(subject.isSubreferenceNode(personSubrefNode))
+    assert(subject.isSubreferenceNode(soundtrackSubrefNode))
+    assert(subject.isSubreferenceNode(subtitleSubrefNode))
   }
 
   test("should return false for non-subreference nodes") {
-    subject.isSubreferenceNode(createNode()) should be(false)
+    assert(!subject.isSubreferenceNode(createNode()))
   }
 
   test("should return true if the node is connected to the expected subreference node") {
     val n = createNode()
     transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[AbstractCast]), IsA) }
-    subject.isNodeOfType(n, classOf[AbstractCast]) should be(true)
+    assert(subject.isNodeOfType(n, classOf[AbstractCast]))
   }
 
   test("should return false if the node is not connected to the expected subreference node") {
     val n = createNode()
     transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[AbstractCast]), IsA) }
-    subject.isNodeOfType(n, classOf[Actor]) should be(false)
+    assert(!subject.isNodeOfType(n, classOf[Actor]))
   }
 
   test("should not check if the node is connected to the expected subreference node for unsupported types") {

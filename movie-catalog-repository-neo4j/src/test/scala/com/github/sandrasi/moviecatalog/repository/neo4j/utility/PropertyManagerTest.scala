@@ -24,13 +24,13 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("should return true if the property container has the given long property") {
     val node = createNode()
     transaction(db) { node.setProperty("key", 1L) }
-    PropertyManager.hasLong(node, "key") should be(true)
+    assert(PropertyManager.hasLong(node, "key"))
   }
 
   test("should return false if the property container has the given property but it is not a long") {
     val node = createNode()
     transaction(db) { node.setProperty("key", "foo") }
-    PropertyManager.hasLong(node, "key") should be(false)
+    assert(!PropertyManager.hasLong(node, "key"))
   }
 
   test("should get the long property") {
@@ -79,7 +79,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(true)
+    assert(PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the text is missing from the localized text property") {
@@ -89,7 +89,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the text of the localized text property is not a string array") {
@@ -100,7 +100,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the locale's language is missing from the localized text property") {
@@ -110,7 +110,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the language of the locale of the localized text property is not a string array") {
@@ -121,7 +121,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the locale's country is missing from the localized text property") {
@@ -131,7 +131,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the country of the locale of the localized text property is not a string array") {
@@ -142,7 +142,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, "US")
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the locale's variant is missing from the localized text property") {
@@ -152,7 +152,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleCountry, Array("US"))
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return false if the variant of the locale of the localized text property is not a string array") {
@@ -163,7 +163,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, "")
     }
-    PropertyManager.hasLocalizedText(node, "key") should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key"))
   }
 
   test("should return true if the property container has the given localized text property with the given locale") {
@@ -174,7 +174,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key", AmericanLocale) should be(true)
+    assert(PropertyManager.hasLocalizedText(node, "key", AmericanLocale))
   }
 
   test("should return false if the property container does not have the given localized text property with the given locale") {
@@ -185,7 +185,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.hasLocalizedText(node, "key", HungarianLocale) should be(false)
+    assert(!PropertyManager.hasLocalizedText(node, "key", HungarianLocale))
   }
 
   test("should get the first localized text property") {
@@ -307,10 +307,10 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleVariant, Array(""))
       PropertyManager.deleteLocalizedText(node, "key")
     }
-    node.hasProperty("key") should be(false)
-    node.hasProperty("key" + LocaleLanguage) should be(false)
-    node.hasProperty("key" + LocaleCountry) should be(false)
-    node.hasProperty("key" + LocaleVariant) should be(false)
+    assert(!node.hasProperty("key"))
+    assert(!node.hasProperty("key" + LocaleLanguage))
+    assert(!node.hasProperty("key" + LocaleCountry))
+    assert(!node.hasProperty("key" + LocaleVariant))
   }
 
   test("should delete the localized text property with the given locale") {
@@ -337,9 +337,9 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleVariant, Array(""))
       PropertyManager.deleteLocalizedText(node, "key", AmericanLocale)
     }
-    node.hasProperty("key") should be(false)
-    node.hasProperty("key" + LocaleLanguage) should be(false)
-    node.hasProperty("key" + LocaleCountry) should be(false)
-    node.hasProperty("key" + LocaleVariant) should be(false)
+    assert(!node.hasProperty("key"))
+    assert(!node.hasProperty("key" + LocaleLanguage))
+    assert(!node.hasProperty("key" + LocaleCountry))
+    assert(!node.hasProperty("key" + LocaleVariant))
   }
 }

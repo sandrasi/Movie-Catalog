@@ -47,7 +47,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     abstractCast.motionPicture should be(PulpFiction)
     abstractCast.version should be(0)
     abstractCast.id should be(Some(actorNode.getId))
-    abstractCast.isInstanceOf[Actor] should be(true)
+    assert(abstractCast.isInstanceOf[Actor])
   }
 
   test("should create abstract cast entity from actress node") {
@@ -61,7 +61,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     abstractCast.motionPicture should be(PulpFiction)
     abstractCast.version should be(0)
     abstractCast.id should be(Some(actressNode.getId))
-    abstractCast.isInstanceOf[Actress] should be(true)
+    assert(abstractCast.isInstanceOf[Actress])
   }
 
   test("should not create abstract cast from node of unspecified abstract cast node") {

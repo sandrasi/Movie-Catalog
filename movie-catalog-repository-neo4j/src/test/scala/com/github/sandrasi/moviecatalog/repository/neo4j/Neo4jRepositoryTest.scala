@@ -34,7 +34,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     configurationMetaData.get("storeDir").get.name should be("storeDir")
     configurationMetaData.get("storeDir").get.description should be("The directory where Neo4j stores the database")
     configurationMetaData.get("storeDir").get.valueType should be(classOf[String])
-    configurationMetaData.get("storeDir").get.parameterConverter.isInstanceOf[(Seq[String]) => String] should be(true)
+    assert(configurationMetaData.get("storeDir").get.parameterConverter.isInstanceOf[(Seq[String]) => String])
   }
 
   test("should instantiate Neo4jRepository from configuration") {
@@ -55,42 +55,42 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should fetch actor from the database by id") {
     val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
-    subject.get(actorNode.getId, classOf[Actor]).get.isInstanceOf[Actor] should be(true)
+    assert(subject.get(actorNode.getId, classOf[Actor]).get.isInstanceOf[Actor])
   }
 
   test("should fetch actress from the database by id") {
     val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), insertEntity(PulpFiction)))
-    subject.get(actressNode.getId, classOf[Actress]).get.isInstanceOf[Actress] should be(true)
+    assert(subject.get(actressNode.getId, classOf[Actress]).get.isInstanceOf[Actress])
   }
 
   test("should fetch character from the database by id") {
     val characterNode = createNodeFrom(VincentVega)
-    subject.get(characterNode.getId, classOf[Character]).get.isInstanceOf[Character] should be(true)
+    assert(subject.get(characterNode.getId, classOf[Character]).get.isInstanceOf[Character])
   }
 
   test("should fetch digital container from the database by id") {
     val digitalContainerNode = createNodeFrom(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
-    subject.get(digitalContainerNode.getId, classOf[DigitalContainer]).get.isInstanceOf[DigitalContainer] should be(true)
+    assert(subject.get(digitalContainerNode.getId, classOf[DigitalContainer]).get.isInstanceOf[DigitalContainer])
   }
 
   test("should fetch movie from the database by id") {
     val movieNode = createNodeFrom(PulpFiction)
-    subject.get(movieNode.getId, classOf[Movie]).get.isInstanceOf[Movie] should be(true)
+    assert(subject.get(movieNode.getId, classOf[Movie]).get.isInstanceOf[Movie])
   }
 
   test("should fetch person from the database by id") {
     val personNode = createNodeFrom(JohnTravolta)
-    subject.get(personNode.getId, classOf[Person]).get.isInstanceOf[Person] should be(true)
+    assert(subject.get(personNode.getId, classOf[Person]).get.isInstanceOf[Person])
   }
   
   test("should fetch soundtrack from the database by id") {
     val soundtrackNode = createNodeFrom(EnglishSoundtrack)
-    subject.get(soundtrackNode.getId, classOf[Soundtrack]).get.isInstanceOf[Soundtrack] should be(true)
+    assert(subject.get(soundtrackNode.getId, classOf[Soundtrack]).get.isInstanceOf[Soundtrack])
   }
 
   test("should fetch subtitle from the database by id") {
     val subtitleNode = createNodeFrom(EnglishSubtitle)
-    subject.get(subtitleNode.getId, classOf[Subtitle]).get.isInstanceOf[Subtitle] should be(true)
+    assert(subject.get(subtitleNode.getId, classOf[Subtitle]).get.isInstanceOf[Subtitle])
   }
 
   test("should return nothing if there is no node in the database with the specified id") {

@@ -31,18 +31,18 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
     executeSql("INSERT INTO test_table (text_field, number_field) VALUES ('test', 1)")
 
     val it = subject.query("SELECT text_field, number_field FROM test_table", new TestRowMapper)
-    it.hasNext should be(true)
+    assert(it.hasNext)
     it.next should be(("test", 1))
-    it.hasNext should be(false)
+    assert(!it.hasNext)
   }
 
   test("query iterator's hasNext() should return true no matter how many times it is called until next() is called") {
     executeSql("INSERT INTO test_table (text_field, number_field) VALUES ('test', 1)")
 
     val it = subject.query("SELECT text_field, number_field FROM test_table", new TestRowMapper)
-    for (i <- 0 until new scala.util.Random().nextInt(100)) it.hasNext should be(true)
+    for (i <- 0 until new scala.util.Random().nextInt(100)) assert(it.hasNext)
     it.next()
-    it.hasNext should be(false)
+    assert(!it.hasNext)
   }
 
   test("quert iterator's hasNext() should return false no matter how many times it is called after the last record is returned") {
@@ -50,7 +50,7 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
 
     val it = subject.query("SELECT text_field, number_field FROM test_table", new TestRowMapper)
     it.next()
-    for (i <- 0 until new scala.util.Random().nextInt(100)) it.hasNext should be(false)
+    for (i <- 0 until new scala.util.Random().nextInt(100)) assert(!it.hasNext)
   }
 
   test("query iterator's next() should throw a NoSuchElementException exception if it is called after the last result is returned") {
