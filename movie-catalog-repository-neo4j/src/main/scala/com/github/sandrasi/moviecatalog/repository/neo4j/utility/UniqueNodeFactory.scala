@@ -62,6 +62,8 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
     }
   }
 
+  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Iterator[Node] = DbMgr.getSubreferenceNode(c).getRelationships(IsA, INCOMING).iterator.asScala.map(_.getStartNode)
+
   private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
     tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
     dbOp

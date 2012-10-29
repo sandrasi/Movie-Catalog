@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Movie, Person}
@@ -888,6 +888,62 @@ class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeA
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
       transaction(tx) { subject.deleteNodeOf(new VersionedLongIdEntity(0, 1) {}) }
+    }
+  }
+
+  test("should find all abstract cast nodes") {
+    val movie = insertEntity(PulpFiction)
+    val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
+    val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
+    val abstractCastNodes = subject.getNodesOfType(classOf[AbstractCast]).toList
+    abstractCastNodes should (contain(actorNode) and contain(actressNode) and have size(2))
+  }
+
+  test("should find all actor nodes") {
+    val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
+    val actorNodes = subject.getNodesOfType(classOf[Actor]).toList
+    actorNodes should (contain(actorNode) and have size(1))
+  }
+
+  test("should find all character nodes") {
+    val characterNode = createNodeFrom(VincentVega)
+    val characterNodes = subject.getNodesOfType(classOf[Character]).toList
+    characterNodes should (contain(characterNode) and have size(1))
+  }
+
+  test("should find all digital container nodes") {
+    val digitalContainerNode = createNodeFrom(DigitalContainer(insertEntity(PulpFiction)))
+    val digitalContainerNodes = subject.getNodesOfType(classOf[DigitalContainer]).toList
+    digitalContainerNodes should (contain(digitalContainerNode) and have size(1))
+  }
+
+  test("should find all movie nodes") {
+    val movieNode = createNodeFrom(PulpFiction)
+    val movieNodes = subject.getNodesOfType(classOf[Movie]).toList
+    movieNodes should (contain(movieNode) and have size(1))
+  }
+
+  test("should find all person nodes") {
+    val personNode = createNodeFrom(JohnTravolta)
+    val personNodes = subject.getNodesOfType(classOf[Person]).toList
+    personNodes should (contain(personNode) and have size(1))
+  }
+
+  test("should find all soundtrack nodes") {
+    val soundtrackNode = createNodeFrom(EnglishSoundtrack)
+    val soundtrackNodes = subject.getNodesOfType(classOf[Soundtrack]).toList
+    soundtrackNodes should (contain(soundtrackNode) and have size(1))
+  }
+
+  test("should find all subtitle nodes") {
+    val subtitleNode = createNodeFrom(EnglishSubtitle)
+    val subtitleNodes = subject.getNodesOfType(classOf[Subtitle]).toList
+    subtitleNodes should (contain(subtitleNode) and have size(1))
+  }
+
+  test("should not find nodes of unsupported entity type") {
+    intercept[IllegalArgumentException] {
+      subject.getNodesOfType(classOf[VersionedLongIdEntity])
     }
   }
 }
