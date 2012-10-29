@@ -21,21 +21,21 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
     subject = SubreferenceNodeSupport(db)
   }
 
-  test("should return the same subreference node support instance for the same database") {
+  ignore("should return the same subreference node support instance for the same database") {
     subject should be theSameInstanceAs(SubreferenceNodeSupport(db))
   }
 
-  test("should return different subreference node support instances for different databases") {
+  ignore("should return different subreference node support instances for different databases") {
     subject should not be theSameInstanceAs(SubreferenceNodeSupport(createTempDb()))
   }
 
-  test("should not instantiate entity subreference node support if the database is null") {
+  ignore("should not instantiate entity subreference node support if the database is null") {
     intercept[IllegalArgumentException] {
       SubreferenceNodeSupport(null)
     }
   }
 
-  test("should create subreference nodes if they don't exist") {
+  ignore("should create subreference nodes if they don't exist") {
     getNodeCount should be(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
     getNodeCount should be(2)
@@ -57,7 +57,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
     getNodeCount should be(10)
   }
 
-  test("should reuse subreference nodes if they already exist") {
+  ignore("should reuse subreference nodes if they already exist") {
     getNodeCount should be(1)
     subject.getSubrefNodeIdFor(classOf[AbstractCast])
     getNodeCount should be(2)
@@ -65,13 +65,13 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
     getNodeCount should be(2)
   }
 
-  test("should not return a subreference node id for unsupported types") {
+  ignore("should not return a subreference node id for unsupported types") {
     intercept[IllegalArgumentException] {
       subject.getSubrefNodeIdFor(classOf[VersionedLongIdEntity])
     }
   }
 
-  test("should return true for subreference nodes") {
+  ignore("should return true for subreference nodes") {
     val abstractCastSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast]))
     val actorSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[Actor]))
     val actressSubrefNode = db.getNodeById(subject.getSubrefNodeIdFor(classOf[Actress]))
@@ -92,23 +92,23 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
     assert(subject.isSubreferenceNode(subtitleSubrefNode))
   }
 
-  test("should return false for non-subreference nodes") {
+  ignore("should return false for non-subreference nodes") {
     assert(!subject.isSubreferenceNode(createNode()))
   }
 
-  test("should return true if the node is connected to the expected subreference node") {
+  ignore("should return true if the node is connected to the expected subreference node") {
     val n = createNode()
     transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
     assert(subject.isNodeOfType(n, classOf[AbstractCast]))
   }
 
-  test("should return false if the node is not connected to the expected subreference node") {
+  ignore("should return false if the node is not connected to the expected subreference node") {
     val n = createNode()
     transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
     assert(!subject.isNodeOfType(n, classOf[Actor]))
   }
 
-  test("should not check if the node is connected to the expected subreference node for unsupported types") {
+  ignore("should not check if the node is connected to the expected subreference node for unsupported types") {
     val n = createNode()
     transaction(db) { n.createRelationshipTo(db.getNodeById(subject.getSubrefNodeIdFor(classOf[AbstractCast])), IsA) }
     intercept[IllegalArgumentException] {

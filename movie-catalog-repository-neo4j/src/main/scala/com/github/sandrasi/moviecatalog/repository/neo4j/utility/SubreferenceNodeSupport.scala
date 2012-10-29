@@ -40,7 +40,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbC
   def isNodeOfType[A <: VersionedLongIdEntity](n: Node, entityType: Class[A]) = n.getRelationships(IsA, OUTGOING).asScala.view.map(_.getEndNode.getId).exists(_ == getSubrefNodeIdFor(entityType))
 }
 
-private[neo4j] object SubreferenceNodeSupport {
+@deprecated private[neo4j] object SubreferenceNodeSupport {
 
   private final val Instances = MutableMap.empty[GraphDatabaseService, SubreferenceNodeSupport]
 

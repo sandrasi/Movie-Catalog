@@ -19,7 +19,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmC
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 
-private[neo4j] class NodeManager private (db: GraphDatabaseService) {
+@deprecated private[neo4j] class NodeManager private (db: GraphDatabaseService) {
 
   Validate.notNull(db)
   
@@ -148,7 +148,7 @@ private[neo4j] class NodeManager private (db: GraphDatabaseService) {
   def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Traversable[Node] = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)).getRelationships(IsA, INCOMING).iterator().asScala.map(_.getStartNode).toTraversable
 }
 
-private[neo4j] object NodeManager {
+@deprecated private[neo4j] object NodeManager {
 
   private final val Instances = MutableMap.empty[GraphDatabaseService, NodeManager]
 
