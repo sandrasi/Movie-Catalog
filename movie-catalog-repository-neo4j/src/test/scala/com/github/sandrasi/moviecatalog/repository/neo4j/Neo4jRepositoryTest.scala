@@ -381,7 +381,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should shut down the repository") {
     subject.shutdown()
-    intercept[IllegalStateException] {
+    intercept[Exception] {
       subject.save(VincentVega)
     }
   }

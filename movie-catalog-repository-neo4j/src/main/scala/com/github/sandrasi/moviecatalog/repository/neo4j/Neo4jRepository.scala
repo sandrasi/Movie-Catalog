@@ -11,7 +11,7 @@ import com.github.sandrasi.moviecatalog.repository.{Repository, RepositoryFactor
 class Neo4jRepository(db: GraphDatabaseService) extends Repository with TransactionSupport {
 
   private final val EntityFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.EntityFactory(db)
-  private final val NodeManager = com.github.sandrasi.moviecatalog.repository.neo4j.utility.NodeManager(db)
+  private final val UniqueNodeFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.UniqueNodeFactory(db)
 
   override def get[A <: VersionedLongIdEntity](id: Long, entityType: Class[A])(implicit locale: Locale = US): Option[A] = try {
     Some(EntityFactory.createEntityFrom(db.getNodeById(id), entityType))
@@ -19,13 +19,19 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
     case _: NotFoundException | _: ClassCastException | _: IllegalArgumentException => None
   }
 
-  override def save[A <: VersionedLongIdEntity](entity: A)(implicit locale: Locale = US): A = transaction(db) {
-    EntityFactory.createEntityFrom(if (entity.id.isEmpty) NodeManager.createNodeFrom(entity) else NodeManager.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
+  override def save[A <: VersionedLongIdEntity](entity: A)(implicit locale: Locale = US): A = {
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      EntityFactory.createEntityFrom(if (entity.id.isEmpty) UniqueNodeFactory.createNodeFrom(entity) else UniqueNodeFactory.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
+    }
   }
 
-  override def delete(entity: VersionedLongIdEntity) { transaction(db) { NodeManager.deleteNodeOf(entity) } }
+  override def delete(entity: VersionedLongIdEntity) {
+    implicit val tx = db.beginTx()
+    transaction(tx) { UniqueNodeFactory.deleteNodeOf(entity) }
+  }
 
-  override def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A] = NodeManager.getNodesOfType(entityType).map(EntityFactory.createEntityFrom(_, entityType)).filter(predicate(_))
+  override def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A] = UniqueNodeFactory.getNodesOfType(entityType).map(EntityFactory.createEntityFrom(_, entityType)).filter(predicate(_))
 
   override def search(text: String)(implicit locale: Locale = US): Iterator[VersionedLongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")
 
