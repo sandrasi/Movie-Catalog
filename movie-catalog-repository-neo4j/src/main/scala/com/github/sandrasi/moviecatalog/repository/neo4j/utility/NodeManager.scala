@@ -145,7 +145,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager
     n.delete()
   }
 
-  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Traversable[Node] = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)).getRelationships(IsA, INCOMING).iterator().asScala.map(_.getStartNode).toTraversable
+  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Iterator[Node] = db.getNodeById(SubrefNodeSupp.getSubrefNodeIdFor(c)).getRelationships(IsA, INCOMING).iterator.asScala.map(_.getStartNode)
 }
 
 @deprecated private[neo4j] object NodeManager {

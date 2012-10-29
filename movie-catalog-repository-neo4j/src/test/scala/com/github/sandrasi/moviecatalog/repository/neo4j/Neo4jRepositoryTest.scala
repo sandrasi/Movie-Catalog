@@ -325,68 +325,58 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val movie = insertEntity(PulpFiction)
     val actress = insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
-    val cast = subject.query(classOf[AbstractCast])
-    cast should have size(2)
-    cast should contain(actor.asInstanceOf[AbstractCast])
-    cast should contain(actress.asInstanceOf[AbstractCast])
+    val cast = subject.query(classOf[AbstractCast]).toList
+    cast should (contain(actor.asInstanceOf[AbstractCast]) and contain(actress.asInstanceOf[AbstractCast]) and have size(2))
   }
   
   test("should return all actors from the database") {
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
-    val actors = subject.query(classOf[Actor])
-    actors should have size(1)
-    actors should contain(actor)
+    val actors = subject.query(classOf[Actor]).toList
+    actors should (contain(actor) and have size(1))
   }
-  
+
   test("should return all characters from the database") {
     val character = insertEntity(VincentVega)
-    val characters = subject.query(classOf[Character])
-    characters should have size(1)
-    characters should contain(character)
+    val characters = subject.query(classOf[Character]).toList
+    characters should (contain(character) and have size(1))
   }
 
   test("should return all digital containers from the database") {
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction)))
-    val digitalContainers = subject.query(classOf[DigitalContainer])
-    digitalContainers should have size(1)
-    digitalContainers should contain(digitalContainer)
+    val digitalContainers = subject.query(classOf[DigitalContainer]).toList
+    digitalContainers should (contain(digitalContainer) and have size(1))
   }
 
   test("should return all movies from the database") {
     val movie = insertEntity(PulpFiction)
-    val movies = subject.query(classOf[Movie])
-    movies should have size(1)
-    movies should contain(movie)
+    val movies = subject.query(classOf[Movie]).toList
+    movies should (contain(movie) and have size(1))
   }
 
   test("should return all persons from the database") {
     val person = insertEntity(JohnTravolta)
-    val persons = subject.query(classOf[Person])
-    persons should have size(1)
-    persons should contain(person)
+    val persons = subject.query(classOf[Person]).toList
+    persons should (contain(person) and have size(1))
   }
 
   test("should return all soundtracks from the database") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val soundtracks = subject.query(classOf[Soundtrack])
-    soundtracks should have size(1)
-    soundtracks should contain(soundtrack)
+    val soundtracks = subject.query(classOf[Soundtrack]).toList
+    soundtracks should (contain(soundtrack) and have size(1))
   }
 
   test("should return all subtitles from the database") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val subtitles = subject.query(classOf[Subtitle])
-    subtitles should have size(1)
-    subtitles should contain(subtitle)
+    val subtitles = subject.query(classOf[Subtitle]).toList
+    subtitles should (contain(subtitle) and have size(1))
   }
-  
+
   test("should return entities matching the criterion from the database") {
     val movie = insertEntity(PulpFiction)
     insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
-    val maleCast = subject.query(classOf[AbstractCast], (ac: AbstractCast) => ac.isInstanceOf[Actor])
-    maleCast should have size(1)
-    maleCast should contain(actor.asInstanceOf[AbstractCast])
+    val maleCast = subject.query(classOf[AbstractCast], (ac: AbstractCast) => ac.isInstanceOf[Actor]).toList
+    maleCast should (contain(actor.asInstanceOf[AbstractCast]) and have size(1))
   }
 
   test("should shut down the repository") {

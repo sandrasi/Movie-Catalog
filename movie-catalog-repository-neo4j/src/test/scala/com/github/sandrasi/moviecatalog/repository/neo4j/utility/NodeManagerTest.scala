@@ -954,61 +954,54 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager
   }
 
   ignore("should find all abstract cast nodes") {
-    val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
-    val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), insertEntity(PulpFiction)))
-    val abstractCastNodes = subject.getNodesOfType(classOf[AbstractCast])
-    abstractCastNodes should have size(2)
-    abstractCastNodes should contain(actorNode)
-    abstractCastNodes should contain(actressNode)
+    val movie = insertEntity(PulpFiction)
+    val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
+    val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
+    val abstractCastNodes = subject.getNodesOfType(classOf[AbstractCast]).toList
+    abstractCastNodes should (contain(actorNode) and contain(actressNode) and have size(2))
   }
 
   ignore("should find all actor nodes") {
     val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
-    val actorNodes = subject.getNodesOfType(classOf[Actor])
-    actorNodes should have size(1)
-    actorNodes should contain(actorNode)
+    val actorNodes = subject.getNodesOfType(classOf[Actor]).toList
+    actorNodes should (contain(actorNode) and have size(1))
+
   }
 
   ignore("should find all character nodes") {
     val characterNode = createNodeFrom(VincentVega)
-    val characterNodes = subject.getNodesOfType(classOf[Character])
-    characterNodes should have size(1)
-    characterNodes should contain(characterNode)
+    val characterNodes = subject.getNodesOfType(classOf[Character]).toList
+    characterNodes should (contain(characterNode) and have size(1))
   }
 
   ignore("should find all digital container nodes") {
     val digitalContainerNode = createNodeFrom(DigitalContainer(insertEntity(PulpFiction)))
-    val digitalContainerNodes = subject.getNodesOfType(classOf[DigitalContainer])
-    digitalContainerNodes should have size(1)
-    digitalContainerNodes should contain(digitalContainerNode)
+    val digitalContainerNodes = subject.getNodesOfType(classOf[DigitalContainer]).toList
+    digitalContainerNodes should (contain(digitalContainerNode) and have size(1))
   }
 
   ignore("should find all movie nodes") {
     val movieNode = createNodeFrom(PulpFiction)
-    val movieNodes = subject.getNodesOfType(classOf[Movie])
-    movieNodes should have size(1)
-    movieNodes should contain(movieNode)
+    val movieNodes = subject.getNodesOfType(classOf[Movie]).toList
+    movieNodes should (contain(movieNode) and have size(1))
   }
 
   ignore("should find all person nodes") {
     val personNode = createNodeFrom(JohnTravolta)
-    val personNodes = subject.getNodesOfType(classOf[Person])
-    personNodes should have size(1)
-    personNodes should contain(personNode)
+    val personNodes = subject.getNodesOfType(classOf[Person]).toList
+    personNodes should (contain(personNode) and have size(1))
   }
 
   ignore("should find all soundtrack nodes") {
     val soundtrackNode = createNodeFrom(EnglishSoundtrack)
-    val soundtrackNodes = subject.getNodesOfType(classOf[Soundtrack])
-    soundtrackNodes should have size(1)
-    soundtrackNodes should contain(soundtrackNode)
+    val soundtrackNodes = subject.getNodesOfType(classOf[Soundtrack]).toList
+    soundtrackNodes should (contain(soundtrackNode) and have size(1))
   }
 
   ignore("should find all subtitle nodes") {
     val subtitleNode = createNodeFrom(EnglishSubtitle)
-    val subtitleNodes = subject.getNodesOfType(classOf[Subtitle])
-    subtitleNodes should have size(1)
-    subtitleNodes should contain(subtitleNode)
+    val subtitleNodes = subject.getNodesOfType(classOf[Subtitle]).toList
+    subtitleNodes should (contain(subtitleNode) and have size(1))
   }
 
   ignore("should not find nodes of unsupported entity type") {

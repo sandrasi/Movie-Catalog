@@ -12,9 +12,9 @@ trait Repository {
   
   def delete(entity: VersionedLongIdEntity)
 
-  def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Traversable[A]
+  def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A]
 
-  def search(text: String)(implicit locale: Locale): Traversable[VersionedLongIdEntity]
+  def search(text: String)(implicit locale: Locale): Iterator[VersionedLongIdEntity]
 
   def shutdown()
 }
