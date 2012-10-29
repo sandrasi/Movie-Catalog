@@ -22,7 +22,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   Validate.notNull(db)
 
-  private final val SubrefNodeSupp = SubreferenceNodeSupport(db)
+  private final val DbMgr = DatabaseManager(db)
 
   def createEntityFrom[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(implicit locale: Locale = US): A = withTypeCheck(n, entityType) {
     entityType match {
@@ -39,10 +39,10 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
     }
   }
   
-  private def withTypeCheck[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(op: => VersionedLongIdEntity) = if (SubrefNodeSupp.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
+  private def withTypeCheck[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(op: => VersionedLongIdEntity) = if (DbMgr.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
   
-  private def createAbstractCastFrom(n: Node) = if (SubrefNodeSupp.isNodeOfType(n, classOf[Actor])) createActorFrom(n)
-    else if (SubrefNodeSupp.isNodeOfType(n, classOf[Actress])) createActressFrom(n)
+  private def createAbstractCastFrom(n: Node) = if (DbMgr.isNodeOfType(n, classOf[Actor])) createActorFrom(n)
+    else if (DbMgr.isNodeOfType(n, classOf[Actress])) createActressFrom(n)
     else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassAbstractCast.getName, n.getId))
 
   private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
