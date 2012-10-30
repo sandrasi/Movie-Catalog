@@ -5,16 +5,17 @@ import java.util.Locale.US
 import org.neo4j.graphdb.{GraphDatabaseService, NotFoundException}
 import org.neo4j.kernel.EmbeddedGraphDatabase
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.{Repository, RepositoryFactory}
+import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.{EntityFactory, NodeManager}
 
 class Neo4jRepository(db: GraphDatabaseService) extends Repository with TransactionSupport {
 
-  private final val EntityFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.EntityFactory(db)
-  private final val UniqueNodeFactory = com.github.sandrasi.moviecatalog.repository.neo4j.utility.UniqueNodeFactory(db)
+  private final val EntityFact = EntityFactory(db)
+  private final val NodeMgr = NodeManager(db)
 
   override def get[A <: VersionedLongIdEntity](id: Long, entityType: Class[A])(implicit locale: Locale = US): Option[A] = try {
-    Some(EntityFactory.createEntityFrom(db.getNodeById(id), entityType))
+    Some(EntityFact.createEntityFrom(db.getNodeById(id), entityType))
   } catch {
     case _: NotFoundException | _: ClassCastException | _: IllegalArgumentException => None
   }
@@ -22,16 +23,16 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
   override def save[A <: VersionedLongIdEntity](entity: A)(implicit locale: Locale = US): A = {
     implicit val tx = db.beginTx()
     transaction(tx) {
-      EntityFactory.createEntityFrom(if (entity.id.isEmpty) UniqueNodeFactory.createNodeFrom(entity) else UniqueNodeFactory.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
+      EntityFact.createEntityFrom(if (entity.id.isEmpty) NodeMgr.createNodeFrom(entity) else NodeMgr.updateNodeOf(entity), entity.getClass).asInstanceOf[A]
     }
   }
 
   override def delete(entity: VersionedLongIdEntity) {
     implicit val tx = db.beginTx()
-    transaction(tx) { UniqueNodeFactory.deleteNodeOf(entity) }
+    transaction(tx) { NodeMgr.deleteNodeOf(entity) }
   }
 
-  override def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A] = UniqueNodeFactory.getNodesOfType(entityType).map(EntityFactory.createEntityFrom(_, entityType)).filter(predicate(_))
+  override def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A] = NodeMgr.getNodesOfType(entityType).map(EntityFact.createEntityFrom(_, entityType)).filter(predicate(_))
 
   override def search(text: String)(implicit locale: Locale = US): Iterator[VersionedLongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")
 

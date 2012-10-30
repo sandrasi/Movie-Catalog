@@ -18,7 +18,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbC
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 
-private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
+private[neo4j] class NodeManager(db: GraphDatabaseService) {
 
   Validate.notNull(db)
 
@@ -158,13 +158,13 @@ private[neo4j] class UniqueNodeFactory(db: GraphDatabaseService) {
   private def hasExpectedVersion(n: Node, v: Long) = hasLong(n, Version) && getLong(n, Version) == v
 }
 
-private[neo4j] object UniqueNodeFactory {
+private[neo4j] object NodeManager {
 
-  private final val Instances = MutableMap.empty[GraphDatabaseService, UniqueNodeFactory]
+  private final val Instances = MutableMap.empty[GraphDatabaseService, NodeManager]
 
-  def apply(db: GraphDatabaseService): UniqueNodeFactory = {
+  def apply(db: GraphDatabaseService): NodeManager = {
     if (!Instances.contains(db)) {
-      Instances += db -> new UniqueNodeFactory(db)
+      Instances += db -> new NodeManager(db)
     }
     Instances(db)
   }

@@ -24,25 +24,25 @@ import org.neo4j.graphdb.NotFoundException
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 
 @RunWith(classOf[JUnitRunner])
-class UniqueNodeFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
+class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
 
-  private var subject: UniqueNodeFactory = _
+  private var subject: NodeManager = _
 
   override protected def beforeEach() {
-    subject = UniqueNodeFactory(db)
+    subject = NodeManager(db)
   }
 
   test("should return the same unique node factory instance for the same database") {
-    subject should be theSameInstanceAs(UniqueNodeFactory(db))
+    subject should be theSameInstanceAs(NodeManager(db))
   }
 
   test("should return different unique node factory instances for different databases") {
-    subject should not be theSameInstanceAs(UniqueNodeFactory(createTempDb()))
+    subject should not be theSameInstanceAs(NodeManager(createTempDb()))
   }
 
   test("should not instantiate the unique node factory if the database is null") {
     intercept[IllegalArgumentException] {
-      UniqueNodeFactory(null)
+      NodeManager(null)
     }
   }
 

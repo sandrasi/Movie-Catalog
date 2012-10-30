@@ -69,12 +69,12 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 
   protected def createNodeFrom(e: VersionedLongIdEntity): Node = {
     implicit val tx = db.beginTx()
-    transaction(tx) { UniqueNodeFactory(db).createNodeFrom(e) }
+    transaction(tx) { NodeManager(db).createNodeFrom(e) }
   }
 
   protected def updateNodeOf(e: VersionedLongIdEntity, l: Locale = AmericanLocale): Node = {
     val tx = db.beginTx()
-    transaction(tx) { UniqueNodeFactory(db).updateNodeOf(e)(tx = tx, l = l) }
+    transaction(tx) { NodeManager(db).updateNodeOf(e)(tx = tx, l = l) }
   }
 
   protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { from.createRelationshipTo(to, relType) }
