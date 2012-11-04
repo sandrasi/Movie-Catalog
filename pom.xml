@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.clapper</groupId>
             <artifactId>grizzled-slf4j_${scala.version}</artifactId>
-            <version>0.6.9</version>
+            <version>0.6.10</version>
         </dependency>
     </dependencies>
 
@@ -84,20 +84,9 @@
         <testSourceDirectory>src/test/scala</testSourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>2.15.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                </configuration>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>3.1.0</version>
             </plugin>
         </plugins>
     </build>
