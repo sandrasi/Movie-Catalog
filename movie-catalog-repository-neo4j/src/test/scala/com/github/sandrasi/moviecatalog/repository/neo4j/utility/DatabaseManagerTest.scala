@@ -5,7 +5,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
@@ -72,7 +72,7 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should create subreference nodes if they don't exist") {
     getNodeCount should be(1)
-    subject.getSubreferenceNode(classOf[AbstractCast])
+    subject.getSubreferenceNode(classOf[Cast])
     getNodeCount should be(2)
     subject.getSubreferenceNode(classOf[Actor])
     getNodeCount should be(3)
@@ -94,9 +94,9 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should reuse subreference nodes if they already exist") {
     getNodeCount should be(1)
-    subject.getSubreferenceNode(classOf[AbstractCast])
+    subject.getSubreferenceNode(classOf[Cast])
     getNodeCount should be(2)
-    subject.getSubreferenceNode(classOf[AbstractCast])
+    subject.getSubreferenceNode(classOf[Cast])
     getNodeCount should be(2)
   }
 
@@ -107,7 +107,7 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should return true for subreference nodes") {
-    val abstractCastSubrefNode = subject.getSubreferenceNode(classOf[AbstractCast])
+    val abstractCastSubrefNode = subject.getSubreferenceNode(classOf[Cast])
     val actorSubrefNode = subject.getSubreferenceNode(classOf[Actor])
     val actressSubrefNode = subject.getSubreferenceNode(classOf[Actress])
     val characterSubrefNode = subject.getSubreferenceNode(classOf[Character])
@@ -133,19 +133,19 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should return true if the node is connected to the expected subreference node") {
     val n = createNode()
-    transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[AbstractCast]), IsA) }
-    assert(subject.isNodeOfType(n, classOf[AbstractCast]))
+    transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[Cast]), IsA) }
+    assert(subject.isNodeOfType(n, classOf[Cast]))
   }
 
   test("should return false if the node is not connected to the expected subreference node") {
     val n = createNode()
-    transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[AbstractCast]), IsA) }
+    transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[Cast]), IsA) }
     assert(!subject.isNodeOfType(n, classOf[Actor]))
   }
 
   test("should not check if the node is connected to the expected subreference node for unsupported types") {
     val n = createNode()
-    transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[AbstractCast]), IsA) }
+    transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[Cast]), IsA) }
     intercept[IllegalArgumentException] {
       subject.isNodeOfType(n, classOf[VersionedLongIdEntity])
     }

@@ -26,7 +26,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   def createEntityFrom[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(implicit locale: Locale = US): A = withTypeCheck(n, entityType) {
     entityType match {
-      case ClassAbstractCast => createAbstractCastFrom(n)
+      case ClassCast => createAbstractCastFrom(n)
       case ClassActor => createActorFrom(n)
       case ClassActress => createActressFrom(n)
       case ClassCharacter => createCharacterFrom(n)
@@ -43,13 +43,13 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
   
   private def createAbstractCastFrom(n: Node) = if (DbMgr.isNodeOfType(n, classOf[Actor])) createActorFrom(n)
     else if (DbMgr.isNodeOfType(n, classOf[Actress])) createActressFrom(n)
-    else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassAbstractCast.getName, n.getId))
+    else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassCast.getName, n.getId))
 
   private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
   private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
-  private def createCharacterFrom(n: Node) = new Character(getString(n, CharacterName), getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), n.getId)
+  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), n.getId)
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), n.getId)
   

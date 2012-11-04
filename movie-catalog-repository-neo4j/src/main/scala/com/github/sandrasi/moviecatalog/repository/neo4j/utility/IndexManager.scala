@@ -4,9 +4,6 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import org.neo4j.graphdb.{GraphDatabaseService, Node}
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
@@ -17,6 +14,7 @@ import org.apache.lucene.search.{NumericRangeQuery, TermQuery, BooleanQuery}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search.BooleanClause.Occur._
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast
 
 private[utility] class IndexManager(db: GraphDatabaseService) {
 
@@ -32,7 +30,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private final val SubtitleIndex = IdxMgr.forNodes("Subtitles")
 
   def index: PartialFunction[(Node, VersionedLongIdEntity), Unit] = {
-    case (n, ac: AbstractCast) => index(n, ac)
+    case (n, c: Cast) => index(n, c)
     case (n, c: Character) => index(n, c)
     case (n, dc: DigitalContainer) => index(n, dc)
     case (n, m: MotionPicture) => index(n, m)
@@ -41,11 +39,11 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case (n, s: Subtitle) => index(n, s)
   }
 
-  private def index(n: Node, ac: AbstractCast) {
+  private def index(n: Node, c: Cast) {
     CastIndex.remove(n)
-    CastIndex.add(n, CastPerson, lookUpExact(ac.person).get.getId)
-    CastIndex.add(n, CastCharacter, lookUpExact(ac.character).get.getId)
-    CastIndex.add(n, CastMotionPicture, lookUpExact(ac.motionPicture).get.getId)
+    CastIndex.add(n, CastPerson, lookUpExact(c.person).get.getId)
+    CastIndex.add(n, CastCharacter, lookUpExact(c.character).get.getId)
+    CastIndex.add(n, CastMotionPicture, lookUpExact(c.motionPicture).get.getId)
   }
 
   private def index(n: Node, c: Character) {
@@ -99,7 +97,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   }
 
   def exists: PartialFunction[VersionedLongIdEntity, Boolean] = {
-    case ac: AbstractCast => exists(ac)
+    case c: Cast => exists(c)
     case c: Character => exists(c)
     case dc: DigitalContainer => exists(dc)
     case m: MotionPicture => exists(m)
@@ -108,7 +106,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case s: Subtitle => exists(s)
   }
 
-  private def exists(ac: AbstractCast): Boolean = lookUpExact(ac).isDefined
+  private def exists(c: Cast): Boolean = lookUpExact(c).isDefined
 
   private def exists(c: Character): Boolean = lookUpExact(c).isDefined
 
@@ -123,7 +121,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private def exists(s: Subtitle): Boolean = lookUpExact(s).isDefined
 
   def lookUpExact: PartialFunction[VersionedLongIdEntity, Option[Node]] = {
-    case ac: AbstractCast => lookUpExact(ac)
+    case c: Cast => lookUpExact(c)
     case c: Character => lookUpExact(c)
     case dc: DigitalContainer => lookUpExact(dc)
     case m: MotionPicture => lookUpExact(m)
@@ -132,10 +130,10 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case s: Subtitle => lookUpExact(s)
   }
 
-  private def lookUpExact(ac: AbstractCast): Option[Node] = {
-    val personNode = lookUpExact(ac.person)
-    val characterNode = lookUpExact(ac.character)
-    val motionPictureNode = lookUpExact(ac.motionPicture)
+  private def lookUpExact(c: Cast): Option[Node] = {
+    val personNode = lookUpExact(c.person)
+    val characterNode = lookUpExact(c.character)
+    val motionPictureNode = lookUpExact(c.motionPicture)
     if (personNode.isEmpty || characterNode.isEmpty || motionPictureNode.isEmpty) return None
     val castsWithSamePerson = CastIndex.get(CastPerson, personNode.get.getId).iterator.asScala.toSet
     val castsWithSameCharacter = CastIndex.get(CastCharacter, characterNode.get.getId).iterator.asScala.toSet

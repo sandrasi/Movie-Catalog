@@ -4,7 +4,7 @@ import java.util.Locale
 import java.util.Locale.US
 import com.github.sandrasi.moviecatalog.common.Validate
 
-class LocalizedText(val text: String)(implicit val locale: Locale = US) {
+case class LocalizedText(text: String)(implicit val locale: Locale = US) {
 
   Validate.notNull(text)
   Validate.notNull(locale)
@@ -14,7 +14,7 @@ class LocalizedText(val text: String)(implicit val locale: Locale = US) {
     case _ => false
   }
   
-  protected def canEqual(o: Any): Boolean = o.isInstanceOf[LocalizedText]
+  def canEqual(o: Any): Boolean = o.isInstanceOf[LocalizedText]
 
   override def hashCode: Int = {
     var result = 3
@@ -28,7 +28,5 @@ class LocalizedText(val text: String)(implicit val locale: Locale = US) {
 
 object LocalizedText {
 
-  def apply(text: String)(implicit locale: Locale = US) = new LocalizedText(text)
-  
   implicit def stringToLocalizedText(str: String)(implicit locale: Locale = US): LocalizedText = LocalizedText(str)
 }

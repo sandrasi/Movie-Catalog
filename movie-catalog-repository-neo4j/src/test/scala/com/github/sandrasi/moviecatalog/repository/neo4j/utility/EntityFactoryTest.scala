@@ -5,7 +5,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
@@ -41,7 +41,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val character = insertEntity(VincentVega)
     val movie = insertEntity(PulpFiction)
     val actorNode = createNodeFrom(Actor(person, character, movie))
-    val abstractCast = subject.createEntityFrom(actorNode, classOf[AbstractCast])
+    val abstractCast = subject.createEntityFrom(actorNode, classOf[Cast])
     abstractCast.person should be(JohnTravolta)
     abstractCast.character should be(VincentVega)
     abstractCast.motionPicture should be(PulpFiction)
@@ -55,7 +55,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val character = insertEntity(MiaWallace)
     val movie = insertEntity(PulpFiction)
     val actressNode = createNodeFrom(Actress(person, character, movie))
-    val abstractCast = subject.createEntityFrom(actressNode, classOf[AbstractCast])
+    val abstractCast = subject.createEntityFrom(actressNode, classOf[Cast])
     abstractCast.person should be(UmaThurman)
     abstractCast.character should be(MiaWallace)
     abstractCast.motionPicture should be(PulpFiction)
@@ -66,9 +66,9 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
 
   test("should not create abstract cast from node of unspecified abstract cast node") {
     val node = createNode()
-    transaction(db) { node.createRelationshipTo(dbMgr.getSubreferenceNode(classOf[AbstractCast]), IsA) }
+    transaction(db) { node.createRelationshipTo(dbMgr.getSubreferenceNode(classOf[Cast]), IsA) }
     intercept[IllegalArgumentException] {
-      subject.createEntityFrom(node, classOf[AbstractCast])
+      subject.createEntityFrom(node, classOf[Cast])
     }
   }
 

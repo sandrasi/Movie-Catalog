@@ -1,12 +1,12 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
 
 private[neo4j] object MovieCatalogDbConstants {
 
-  final val ClassAbstractCast = classOf[AbstractCast]
+  final val ClassCast = classOf[Cast]
   final val ClassActor = classOf[Actor]
   final val ClassActress = classOf[Actress]
   final val ClassCharacter = classOf[Character]

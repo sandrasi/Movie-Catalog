@@ -3,19 +3,14 @@ package com.github.sandrasi.moviecatalog.domain.entities.core
 import org.joda.time.{LocalDate, Duration, ReadableDuration}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
-class Movie(originalTitle: LocalizedText,
-            localizedTitles: Set[LocalizedText],
-            runtime: ReadableDuration,
-            releaseDate: LocalDate,
-            version: Long,
-            _id: Long) extends MotionPicture(originalTitle, localizedTitles, runtime, releaseDate, version, _id) {
+case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedText], runtime: ReadableDuration, releaseDate: LocalDate, version: Long, id: Option[Long]) extends MotionPicture {
 
   override def equals(o: Any): Boolean = o match {
-    case other: Movie => super.equals(o)
+    case other: Movie => other.canEqual(this) && super.equals(o)
     case _ => false
   }
 
-  override protected def canEqual(o: Any) = o.isInstanceOf[Movie]
+  override def canEqual(o: Any) = o.isInstanceOf[Movie]
 }
 
 object Movie {
@@ -25,5 +20,5 @@ object Movie {
             runtime: ReadableDuration = Duration.ZERO,
             releaseDate: LocalDate = new LocalDate(0),
             version: Long = 0,
-            id: Long = 0) = new Movie(originalTitle, localizedTitles, runtime, releaseDate, version, id)
+            id: Long = 0) = new Movie(originalTitle, localizedTitles, runtime, releaseDate, version, if (id == 0) None else Some(id))
 }

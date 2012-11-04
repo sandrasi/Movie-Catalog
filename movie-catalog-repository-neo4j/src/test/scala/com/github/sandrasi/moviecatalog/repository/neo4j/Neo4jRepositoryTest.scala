@@ -12,7 +12,7 @@ import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container._
 import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
@@ -183,7 +183,10 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   
   test("should not insert unsupported entity into the database") {
     intercept[IllegalArgumentException] {
-      subject.save(new VersionedLongIdEntity(0, 0) {})
+      subject.save(new VersionedLongIdEntity() {
+        override def version = 0
+        override def id = None
+      })
     }
   }
 
@@ -255,7 +258,10 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should not update unsupported entity in the database") {
     intercept[IllegalArgumentException] {
-      subject.save(new VersionedLongIdEntity(0, 1) {})
+      subject.save(new VersionedLongIdEntity() {
+        override def version = 0
+        override def id = None
+      })
     }
   }
 
@@ -317,7 +323,10 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should not delete unsupported entity from the database") {
     intercept[IllegalArgumentException] {
-      subject.delete(new VersionedLongIdEntity(0, 1) {})
+      subject.delete(new VersionedLongIdEntity() {
+        override def version = 0
+        override def id = None
+      })
     }
   }
 
@@ -325,8 +334,8 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val movie = insertEntity(PulpFiction)
     val actress = insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
-    val cast = subject.query(classOf[AbstractCast]).toList
-    cast should (contain(actor.asInstanceOf[AbstractCast]) and contain(actress.asInstanceOf[AbstractCast]) and have size(2))
+    val cast = subject.query(classOf[Cast]).toList
+    cast should (contain(actor.asInstanceOf[Cast]) and contain(actress.asInstanceOf[Cast]) and have size(2))
   }
   
   test("should return all actors from the database") {
@@ -375,8 +384,8 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val movie = insertEntity(PulpFiction)
     insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
-    val maleCast = subject.query(classOf[AbstractCast], (ac: AbstractCast) => ac.isInstanceOf[Actor]).toList
-    maleCast should (contain(actor.asInstanceOf[AbstractCast]) and have size(1))
+    val maleCast = subject.query(classOf[Cast], (c: Cast) => c.isInstanceOf[Actor]).toList
+    maleCast should (contain(actor.asInstanceOf[Cast]) and have size(1))
   }
 
   test("should shut down the repository") {

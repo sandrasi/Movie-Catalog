@@ -58,8 +58,4 @@ class CharacterTest extends FunSuite with ShouldMatchers {
 
     character.hashCode should equal(otherCharacter.hashCode)
   }
-
-  test("should convert to string") {
-    Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14)).toString should be("""Character(id: None, version: 0, name: "Vincent Vega", creator: "Quentin Tarantino", creationDate: 1994-10-14)""")
-  }
 }

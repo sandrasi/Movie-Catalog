@@ -9,19 +9,19 @@ import org.scalatest.matchers.ShouldMatchers
 class BaseEntityTest extends FunSuite with ShouldMatchers {
   
   test("should create entity with given id") {
-    TestBaseEntity(1).id should be(Some(1))
+    TestBaseEntity(Some(1)).id should be(Some(1))
   }
 
   test("should should not create entity with null id") {
     intercept[IllegalArgumentException] {
-      new BaseEntity[Long](null) {}
+      TestBaseEntity(null)
     }
   }
   
   test("should compare two objects for equality") {
-    val baseEntity = TestBaseEntity(1)
-    val otherTestBaseEntity = TestBaseEntity(1)
-    val otherTestBaseEntityWithDifferentId = TestBaseEntity(2)
+    val baseEntity = TestBaseEntity(Some(1))
+    val otherTestBaseEntity = TestBaseEntity(Some(1))
+    val otherTestBaseEntityWithDifferentId = TestBaseEntity(Some(2))
 
     baseEntity should not equal(null)
     baseEntity should not equal(new AnyRef)
@@ -31,18 +31,11 @@ class BaseEntityTest extends FunSuite with ShouldMatchers {
   }
 
   test("should calculate hash code") {
-    val baseEntity = TestBaseEntity(1)
-    val otherBaseEntity = TestBaseEntity(1)
+    val baseEntity = TestBaseEntity(Some(1))
+    val otherBaseEntity = TestBaseEntity(Some(1))
 
     baseEntity.hashCode should equal(otherBaseEntity.hashCode)
   }
-
-  test("should convert to string") {
-    TestBaseEntity(1).toString should be("anon$1(id: Some(1))")
-  }
 }
 
-private object TestBaseEntity {
-
-  def apply(id: Int) = new BaseEntity[Int](Some(id)) {}
-}
+private case class TestBaseEntity(id: Option[Int]) extends BaseEntity[Int]

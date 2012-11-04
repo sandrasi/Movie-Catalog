@@ -4,22 +4,18 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import org.joda.time.LocalDate
 
-class Character(val name: String,
-                val creator: String,
-                val creationDate: LocalDate,
-                version: Long,
-                _id: Long) extends VersionedLongIdEntity(version, _id) {
+case class Character(name: String, creator: String, creationDate: LocalDate, version: Long, id: Option[Long]) extends VersionedLongIdEntity {
 
   Validate.notNull(name)
   Validate.notNull(creator)
   Validate.notNull(creationDate)
 
   override def equals(o: Any): Boolean = o match {
-    case other: Character => (name == other.name) && (creator == other.creator) && (creationDate == other.creationDate)
+    case other: Character => other.canEqual(this) && (name == other.name) && (creator == other.creator) && (creationDate == other.creationDate)
     case _ => false
   }
 
-  override protected def canEqual(o: Any) = o.isInstanceOf[Character]
+  override def canEqual(o: Any) = o.isInstanceOf[Character]
 
   override def hashCode: Int = {
     var result = 3
@@ -28,8 +24,6 @@ class Character(val name: String,
     result = 5 * result + creationDate.hashCode
     result
   }
-
-  override def toString: String = """%s(id: %s, version: %d, name: "%s", creator: "%s", creationDate: %s)""".format(getClass.getSimpleName, id, version, name, creator, creationDate)
 }
 
 object Character {
@@ -38,5 +32,5 @@ object Character {
             creator: String = "",
             creationDate: LocalDate = new LocalDate(0),
             version: Long = 0,
-            id: Long = 0) = new Character(name, creator, creationDate, version, id)
+            id: Long = 0) = new Character(name, creator, creationDate, version, if (id == 0) None else Some(id))
 }

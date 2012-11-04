@@ -4,20 +4,16 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.core._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender.Male
 
-class Actor(person: Person,
-            character: Character,
-            motionPicture: MotionPicture,
-            version: Long,
-            _id: Long) extends AbstractCast(person, character, motionPicture, version, _id) {
+case class Actor(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[Long]) extends Cast {
 
   Validate.isTrue(person.gender == Male)
 
-  override def equals(o: Any) = o match {
-    case other: Actor => super.equals(other)
+  override def equals(o: Any): Boolean = o match {
+    case other: Actor => other.canEqual(this) && super.equals(o)
     case _ => false
   }
 
-  override protected def canEqual(o: Any) = o.isInstanceOf[Actor]
+  override def canEqual(o: Any) = o.isInstanceOf[Actor]
 }
 
 object Actor {
@@ -26,5 +22,5 @@ object Actor {
             character: Character,
             motionPicture: MotionPicture,
             version: Long = 0,
-            id: Long = 0) = new Actor(person, character, motionPicture, version, id)
+            id: Long = 0) = new Actor(person, character, motionPicture, version, if (id == 0) None else Some(id))
 }

@@ -8,9 +8,9 @@ import java.util.Locale
 import java.util.Locale._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.AbstractCast
-import com.github.sandrasi.moviecatalog.domain.entities.container.{Subtitle, DigitalContainer, Soundtrack}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Person}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast
+import com.github.sandrasi.moviecatalog.domain.entities.container._
+import com.github.sandrasi.moviecatalog.domain.entities.core._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
@@ -28,7 +28,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
     val n = DbMgr.createNodeFor(e)
     e match {
-      case ac: AbstractCast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(n, ac), ac.getClass), classOf[AbstractCast])
+      case c: Cast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(n, c), c.getClass), classOf[Cast])
       case c: Character => connectNodeToSubreferenceNode(setProperties(n, c), classOf[Character])
       case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(n, dc), classOf[DigitalContainer])
       case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(n, m), m.getClass), classOf[MotionPicture])
@@ -41,7 +41,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
     val n = DbMgr.getNodeOf(e)
     e match {
-      case ac: AbstractCast => setNodePropertiesFrom(n, ac)
+      case c: Cast => setNodePropertiesFrom(n, c)
       case c: Character => setProperties(n, c)
       case dc: DigitalContainer => setProperties(n, dc)
       case m: MotionPicture => setProperties(n, m)
@@ -76,15 +76,15 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
 
   private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
 
-  private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = {
-    n.getRelationships(CrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
+  private def setNodePropertiesFrom(n: Node, c: Cast): Node = {
+    n.getRelationships(CrewRelationshipType.forClass(c.getClass), OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(Played, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(AppearedIn, OUTGOING).asScala.foreach(_.delete())
-    n.createRelationshipTo(DbMgr.getNodeOf(ac.person), CrewRelationshipType.forClass(ac.getClass))
-    n.createRelationshipTo(DbMgr.getNodeOf(ac.character), Played)
-    n.createRelationshipTo(DbMgr.getNodeOf(ac.motionPicture), AppearedIn)
-    setVersion(n, ac)
-    IdxMgr.index(n, ac)
+    n.createRelationshipTo(DbMgr.getNodeOf(c.person), CrewRelationshipType.forClass(c.getClass))
+    n.createRelationshipTo(DbMgr.getNodeOf(c.character), Played)
+    n.createRelationshipTo(DbMgr.getNodeOf(c.motionPicture), AppearedIn)
+    setVersion(n, c)
+    IdxMgr.index(n, c)
     n
   }
 

@@ -5,12 +5,7 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
 
-class Person(val name: String,
-             val gender: Gender,
-             val dateOfBirth: LocalDate,
-             val placeOfBirth: String,
-             version: Long,
-             _id: Long) extends VersionedLongIdEntity(version, _id) {
+case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfBirth: String, version: Long, id: Option[Long]) extends VersionedLongIdEntity {
   
   Validate.notNull(name)
   Validate.notNull(gender)
@@ -18,11 +13,11 @@ class Person(val name: String,
   Validate.notNull(placeOfBirth)
 
   override def equals(o: Any): Boolean = o match {
-    case other: Person => (name == other.name) && (gender == other.gender) && (dateOfBirth == other.dateOfBirth) && (placeOfBirth == other.placeOfBirth)
+    case other: Person => other.canEqual(this) && (name == other.name) && (gender == other.gender) && (dateOfBirth == other.dateOfBirth) && (placeOfBirth == other.placeOfBirth)
     case _ => false
   }
 
-  override protected def canEqual(o: Any) = o.isInstanceOf[Person]
+  override def canEqual(o: Any) = o.isInstanceOf[Person]
 
   override def hashCode: Int = {
     var result = 3
@@ -31,8 +26,6 @@ class Person(val name: String,
     result = 5 * result + gender.hashCode
     result
   }
-
-  override def toString: String = """%s(id: %s, version: %d, name: "%s", gender: %s, dateOfBirth: %s, placeOfBirth: "%s")""".format(getClass.getSimpleName, id, version, name, gender, dateOfBirth, placeOfBirth)
 }
 
 object Person {
@@ -42,5 +35,5 @@ object Person {
             dateOfBirth: LocalDate,
             placeOfBirth: String,
             version: Long = 0,
-            id: Long = 0) = new Person(name, gender, dateOfBirth, placeOfBirth, version, id)
+            id: Long = 0) = new Person(name, gender, dateOfBirth, placeOfBirth, version, if (id == 0) None else Some(id))
 }

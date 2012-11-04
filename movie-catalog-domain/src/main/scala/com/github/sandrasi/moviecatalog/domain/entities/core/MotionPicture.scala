@@ -5,24 +5,24 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
-abstract class MotionPicture(val originalTitle: LocalizedText,
-                             val localizedTitles: Set[LocalizedText],
-                             val runtime: ReadableDuration,
-                             val releaseDate: LocalDate,
-                             version: Long,
-                             _id: Long) extends VersionedLongIdEntity(version, _id) {
+trait MotionPicture extends VersionedLongIdEntity {
 
   Validate.notNull(originalTitle)
   Validate.noNullElements(localizedTitles)
   Validate.notNull(runtime)
   Validate.notNull(releaseDate)
 
+  def originalTitle: LocalizedText
+  def localizedTitles: Set[LocalizedText]
+  def runtime: ReadableDuration
+  def releaseDate: LocalDate
+
   override def equals(o: Any): Boolean = o match {
-    case other: MotionPicture => (originalTitle == other.originalTitle) && (releaseDate == other.releaseDate)
+    case other: MotionPicture => other.canEqual(this) && (originalTitle == other.originalTitle) && (releaseDate == other.releaseDate)
     case _ => false
   }
   
-  override protected def canEqual(o: Any) = o.isInstanceOf[MotionPicture]
+  override def canEqual(o: Any) = o.isInstanceOf[MotionPicture]
 
   override def hashCode: Int = {
     var result = 3
@@ -30,6 +30,4 @@ abstract class MotionPicture(val originalTitle: LocalizedText,
     result = 5 * result + releaseDate.hashCode
     result
   }
-
-  override def toString: String = "%s(id: %s, version: %d, originalTitle: %s, localizedTitles: %s, runtime: %s, releaseDate: %s)".format(getClass.getSimpleName, id, version, originalTitle, localizedTitles, runtime, releaseDate)
 }

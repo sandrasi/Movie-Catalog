@@ -4,8 +4,8 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import org.joda.time.LocalDate
+import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
 @RunWith(classOf[JUnitRunner])
 class PersonTest extends FunSuite with ShouldMatchers {
@@ -67,9 +67,5 @@ class PersonTest extends FunSuite with ShouldMatchers {
     val otherPerson = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
 
     person.hashCode should equal(otherPerson.hashCode)
-  }
-
-  test("should convert to string") {
-    Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.").toString should be("""Person(id: None, version: 0, name: "John Joseph Travolta", gender: Male, dateOfBirth: 1954-02-18, placeOfBirth: "Englewood, New Jersey, U.S.")""")
   }
 }

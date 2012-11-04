@@ -57,13 +57,13 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
 
   test("should not create soundtrack with null language name") {
     intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0, 0)
+      new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0, None)
     }
   }
 
   test("should not create soundtrack with null format name") {
     intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0, 0)
+      new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0, None)
     }
   }
 
@@ -96,9 +96,5 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
     val otherSoundtrack = Soundtrack("en", "dts")
 
     soundtrack.hashCode should equal(otherSoundtrack.hashCode)
-  }
-
-  test("should convert to string") {
-    Soundtrack("en", "dts", "English", "DTS").toString should be("""Soundtrack(id: None, version: 0, languageCode: "en", languageName: Some("English" [en_US]), formatCode: "dts", formatName: Some("DTS" [en_US]))""")
   }
 }

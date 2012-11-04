@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
 import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Movie, Person}
@@ -17,7 +17,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Entit
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import org.neo4j.graphdb.NotFoundException
@@ -52,11 +52,11 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movieNode = createNodeFrom(PulpFiction)
     implicit val tx = db.beginTx()
     val actorNode = transaction(tx) { subject.createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode))) }
-    actorNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(personNode)
+    actorNode.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(personNode)
     actorNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(characterNode)
     actorNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(movieNode)
     getLong(actorNode, Version) should be(0)
-    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[AbstractCast])) and contain(dbMgr.getSubreferenceNode(classOf[Actor])))
+    actorNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[Cast])) and contain(dbMgr.getSubreferenceNode(classOf[Actor])))
   }
 
   test("should not create node from actor if a node already exists for that actor") {
@@ -488,7 +488,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should not create node from unsupported entity") {
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.createNodeFrom(new VersionedLongIdEntity(0, 0) {}) }
+      transaction(tx) {
+        subject.createNodeFrom(new VersionedLongIdEntity() {
+          override def version = 0
+          override def id = None
+        })
+      }
     }
   }
 
@@ -500,7 +505,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.version, actor.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedActor) }
-    updatedNode.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
+    updatedNode.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
     updatedNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(anotherCharacterNode)
     updatedNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(anotherMovieNode)
     getLong(updatedNode, Version) should be (actor.version + 1)
@@ -769,7 +774,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should not update node of unsupported entity") {
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(new VersionedLongIdEntity(0, 0) {}) }
+      transaction(tx) {
+        subject.updateNodeOf(new VersionedLongIdEntity() {
+          override def version = 0
+          override def id = None
+        })
+      }
     }
   }
 
@@ -778,14 +788,14 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val characterNode = createNodeFrom(VincentVega)
     val movieNode = createNodeFrom(PulpFiction)
     val actorNode = createNodeFrom(Actor(createPersonFrom(personNode), createCharacterFrom(characterNode), createMovieFrom(movieNode)))
-    assert(dbMgr.getSubreferenceNode(classOf[AbstractCast]).hasRelationship(INCOMING, IsA))
+    assert(dbMgr.getSubreferenceNode(classOf[Cast]).hasRelationship(INCOMING, IsA))
     assert(dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA))
     implicit val tx = db.beginTx()
     transaction(tx) { subject.deleteNodeOf(createActorFrom(actorNode)) }
     assert(!personNode.hasRelationship(INCOMING))
     assert(!characterNode.hasRelationship(INCOMING))
     assert(!movieNode.hasRelationship(INCOMING))
-    assert(!dbMgr.getSubreferenceNode(classOf[AbstractCast]).hasRelationship(INCOMING, IsA))
+    assert(!dbMgr.getSubreferenceNode(classOf[Cast]).hasRelationship(INCOMING, IsA))
     assert(!dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA))
     intercept[NotFoundException] {
       db.getNodeById(actorNode.getId)
@@ -887,7 +897,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should not delete unsupported entity") {
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.deleteNodeOf(new VersionedLongIdEntity(0, 1) {}) }
+      transaction(tx) {
+        subject.deleteNodeOf(new VersionedLongIdEntity() {
+          override def version = 0
+          override def id = None
+        })
+      }
     }
   }
 
@@ -895,7 +910,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
     val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
-    val abstractCastNodes = subject.getNodesOfType(classOf[AbstractCast]).toList
+    val abstractCastNodes = subject.getNodesOfType(classOf[Cast]).toList
     abstractCastNodes should (contain(actorNode) and contain(actressNode) and have size(2))
   }
 

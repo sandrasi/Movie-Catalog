@@ -4,12 +4,7 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
 
-class Soundtrack(val languageCode: String,
-                 val formatCode: String,
-                 val languageName: Option[LocalizedText],
-                 val formatName: Option[LocalizedText],
-                 version: Long,
-                 _id: Long) extends VersionedLongIdEntity(version, _id) {
+case class Soundtrack(languageCode: String, formatCode: String, languageName: Option[LocalizedText], formatName: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
 
   Validate.notBlank(languageCode)
   Validate.notBlank(formatCode)
@@ -18,11 +13,11 @@ class Soundtrack(val languageCode: String,
   if (languageName.isDefined && formatName.isDefined) Validate.isTrue(languageName.get.locale == formatName.get.locale)
 
   override def equals(o: Any): Boolean = o match {
-    case other: Soundtrack => (languageCode == other.languageCode) && (formatCode == other.formatCode)
+    case other: Soundtrack => other.canEqual(this) && (languageCode == other.languageCode) && (formatCode == other.formatCode)
     case _ => false
   }
 
-  override protected def canEqual(o: Any) = o.isInstanceOf[Soundtrack]
+  override def canEqual(o: Any) = o.isInstanceOf[Soundtrack]
 
   override def hashCode: Int = {
     var result = 3
@@ -30,8 +25,6 @@ class Soundtrack(val languageCode: String,
     result = 5 * result + formatCode.hashCode
     result
   }
-
-  override def toString: String = """%s(id: %s, version: %d, languageCode: "%s", languageName: %s, formatCode: "%s", formatName: %s)""".format(getClass.getSimpleName, id, version, languageCode, languageName, formatCode, formatName)
 }
 
 object Soundtrack {
@@ -41,5 +34,5 @@ object Soundtrack {
             languageName: LocalizedText = null,
             formatName: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0) = new Soundtrack(languageCode, formatCode, Option(languageName), Option(formatName), version, id)
+            id: Long = 0) = new Soundtrack(languageCode, formatCode, Option(languageName), Option(formatName), version, if (id == 0) None else Some(id))
 }

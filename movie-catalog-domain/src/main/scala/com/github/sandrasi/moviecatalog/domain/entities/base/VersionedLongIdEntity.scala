@@ -2,9 +2,7 @@ package com.github.sandrasi.moviecatalog.domain.entities.base
 
 import com.github.sandrasi.moviecatalog.common.Validate
 
-abstract class VersionedLongIdEntity(override val version: Long, _id: Long) extends BaseEntity[Long](if (_id != 0) Some(_id) else None) with VersionSupport {
+trait VersionedLongIdEntity extends BaseEntity[Long] with VersionSupport {
 
-  Validate.isTrue(_id >= 0)
-
-  override def toString: String = "%s(id: %s, version: %d)".format(getClass.getSimpleName, id, version)
+  Validate.isTrue(id.getOrElse(0l) >= 0l)
 }

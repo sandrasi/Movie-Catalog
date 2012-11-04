@@ -9,15 +9,14 @@ import org.scalatest.matchers.ShouldMatchers
 class VersionSupportTest extends FunSuite with ShouldMatchers {
   
   test("should create entity with given version") {
-    val subject = new TestBaseEntityWithVersionSupport(1, 1)
-    subject.version should be(1)
+    TestBaseEntityWithVersionSupport(1, Some(1)).version should be(1)
   }
 
   test("should not create entity with negative version") {
     intercept[IllegalArgumentException] {
-      new TestBaseEntityWithVersionSupport(-1, 0)
+      TestBaseEntityWithVersionSupport(-1, None)
     }
   }
 }
 
-private class TestBaseEntityWithVersionSupport(val version: Long, id: Int) extends BaseEntity[Int](Some(id)) with VersionSupport
+private case class TestBaseEntityWithVersionSupport(version: Long, id: Option[Int]) extends BaseEntity[Int] with VersionSupport

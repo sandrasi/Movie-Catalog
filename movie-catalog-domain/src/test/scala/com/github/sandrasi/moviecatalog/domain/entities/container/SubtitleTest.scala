@@ -36,7 +36,7 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
 
   test("should not create subtitle with null language name") {
     intercept[IllegalArgumentException] {
-      new Subtitle("en", null, 0, 0)
+      new Subtitle("en", null, 0, None)
     }
   }
 
@@ -59,9 +59,5 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
     val otherSubtitle = Subtitle("en")
 
     subtitle.hashCode should equal(otherSubtitle.hashCode)
-  }
-
-  test("should convert to string") {
-    Subtitle("en", "English").toString should be("""Subtitle(id: None, version: 0, languageCode: "en", languageName: Some("English" [en_US]))""")
   }
 }
