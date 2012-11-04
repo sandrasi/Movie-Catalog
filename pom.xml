@@ -87,6 +87,24 @@
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jvmArgs>
+                        <arg>-XX:+TieredCompilation</arg>
+                        <arg>-XX:CICompilerCount=1</arg>
+                    </jvmArgs>
+                    <args>
+                        <arg>-deprecation</arg>
+                        <arg>-unchecked</arg>
+                    </args>
+                </configuration>
             </plugin>
         </plugins>
     </build>
