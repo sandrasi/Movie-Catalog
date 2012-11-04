@@ -9,7 +9,7 @@ class MovieCatalogServiceFilter extends ScalatraFilter with MovieCatalogResource
 
   override protected val movieCatalogRepository = new Neo4jRepository(new EmbeddedGraphDatabase("foo.db"))
 
-  override protected def contextPath = applicationContext.getContextPath
+  override protected def contextPath = servletContext.getContextPath
 
   override def destroy() {
     super.destroy()
