@@ -1,9 +1,11 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-private[neo4j] object CharacterRelationshipType extends AbstractRelationshipType {
+sealed trait CharacterRelationshipType extends CharacterRelationshipType.RelationshipType
 
-  type CharacterRelationshipType = RelationshipTypeValue
+case object CharacterRelationshipType extends AbstractRelationshipType[CharacterRelationshipType] {
 
-  final val Played = relationshipTypeValue("playedBy")
-  final val AppearedIn = relationshipTypeValue("appearedIn")
+  case object Played extends CharacterRelationshipType
+  case object AppearedIn extends CharacterRelationshipType
+
+  Played; AppearedIn
 }

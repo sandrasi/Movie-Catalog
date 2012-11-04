@@ -4,62 +4,63 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType._
 
 @RunWith(classOf[JUnitRunner])
 class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
-  
-  test("should return subreference relationship type for the class AbstractCast") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[AbstractCast])
-    relType.name should be (classOf[AbstractCast].getName)
+
+  test("should list all subreference relationship type values") {
+    SubreferenceRelationshipType.values should be(List(Actor, Actress, Cast, Character, DigitalContainer, MotionPicture, Movie, Person, Soundtrack, Subtitle))
   }
 
-  test("should return subreference relationship type for the class Actor") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Actor])
-    relType.name should be (classOf[Actor].getName)
+  test("should create subreference relationship type values from string matching enum names") {
+    SubreferenceRelationshipType.valueOf("Actor") should be(Actor)
+    SubreferenceRelationshipType.valueOf("Actress") should be(Actress)
+    SubreferenceRelationshipType.valueOf("Cast") should be(Cast)
+    SubreferenceRelationshipType.valueOf("Character") should be(Character)
+    SubreferenceRelationshipType.valueOf("DigitalContainer") should be(DigitalContainer)
+    SubreferenceRelationshipType.valueOf("MotionPicture") should be(MotionPicture)
+    SubreferenceRelationshipType.valueOf("Movie") should be(Movie)
+    SubreferenceRelationshipType.valueOf("Person") should be(Person)
+    SubreferenceRelationshipType.valueOf("Soundtrack") should be(Soundtrack)
+    SubreferenceRelationshipType.valueOf("Subtitle") should be(Subtitle)
   }
 
-  test("should return subreference relationship type for the class Actress") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Actress])
-    relType.name should be (classOf[Actress].getName)
-  }
-
-  test("should return subreference relationship type for the class Character") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Character])
-    relType.name should be (classOf[Character].getName)
-  }
-
-  test("should return subreference relationship type for the class DigitalContainer") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[DigitalContainer])
-    relType.name should be (classOf[DigitalContainer].getName)
-  }
-
-  test("should return subreference relationship type for the class Movie") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Movie])
-    relType.name should be (classOf[Movie].getName)
-  }
-
-  test("should return subreference relationship type for the class Person") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Person])
-    relType.name should be (classOf[Person].getName)
-  }
-
-  test("should return subreference relationship type for the class Soundtrack") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Soundtrack])
-    relType.name should be (classOf[Soundtrack].getName)
-  }
-
-  test("should return subreference relationship type for the class Subtitle") {
-    val relType = SubreferenceRelationshipType.forClass(classOf[Subtitle])
-    relType.name should be (classOf[Subtitle].getName)
-  }
-  
-  test("should not return subreference relationship type for an unsupported class") {
+  test("should not create subreference type value from string not matching any of the enums' name") {
     intercept[NoSuchElementException] {
-      SubreferenceRelationshipType.forClass(classOf[VersionedLongIdEntity])
+      SubreferenceRelationshipType.valueOf("does not match")
+    }
+  }
+
+  test("should retrieve the name of the subreference relationship type") {
+    Actor.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor].getName)
+    Actress.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress].getName)
+    Cast.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast].getName)
+    Character.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Character].getName)
+    DigitalContainer.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer].getName)
+    MotionPicture.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.MotionPicture].getName)
+    Movie.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Movie].getName)
+    Person.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Person].getName)
+    Soundtrack.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Soundtrack].getName)
+    Subtitle.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Subtitle].getName)
+  }
+
+  test("should create subreference relationship type from bound classes") {
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor]) should be(Actor)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress]) should be(Actress)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast]) should be(Cast)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Character]) should be(Character)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer]) should be(DigitalContainer)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.MotionPicture]) should be(MotionPicture)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Movie]) should be(Movie)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Person]) should be(Person)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Soundtrack]) should be(Soundtrack)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Subtitle]) should be(Subtitle)
+  }
+
+  test("should not create subreference relationship type from unsupported an class") {
+    intercept[NoSuchElementException] {
+      SubreferenceRelationshipType.forClass(classOf[Any])
     }
   }
 }

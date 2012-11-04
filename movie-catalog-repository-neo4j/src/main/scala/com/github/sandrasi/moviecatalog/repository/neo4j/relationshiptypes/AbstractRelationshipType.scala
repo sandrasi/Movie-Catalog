@@ -1,15 +1,11 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-import org.neo4j.graphdb.{Relationship, RelationshipType}
+import com.github.sandrasi.moviecatalog.common.Enum
 
-private[neo4j] abstract class AbstractRelationshipType extends Enumeration {
+trait AbstractRelationshipType[A] extends Enum[A] {
 
-  protected def relationshipTypeValue(name: String): RelationshipTypeValue = new RelationshipTypeValue(name)
+  trait RelationshipType extends Value with org.neo4j.graphdb.RelationshipType { self: A =>
 
-  class RelationshipTypeValue(override val name: String) extends Val(name) with RelationshipType
-}
-
-private[neo4j] object AbstractRelationshipType {
-
-  def isRelationshipOfType(r: Relationship, relationshipType: RelationshipType) = r.getType == relationshipType
+    override def name = toString
+  }
 }

@@ -13,7 +13,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.container.{Subtitle, Dig
 import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Person}
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
@@ -77,10 +77,10 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
 
   private def setNodePropertiesFrom(n: Node, ac: AbstractCast): Node = {
-    n.getRelationships(FilmCrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
+    n.getRelationships(CrewRelationshipType.forClass(ac.getClass), OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(Played, OUTGOING).asScala.foreach(_.delete())
     n.getRelationships(AppearedIn, OUTGOING).asScala.foreach(_.delete())
-    n.createRelationshipTo(DbMgr.getNodeOf(ac.person), FilmCrewRelationshipType.forClass(ac.getClass))
+    n.createRelationshipTo(DbMgr.getNodeOf(ac.person), CrewRelationshipType.forClass(ac.getClass))
     n.createRelationshipTo(DbMgr.getNodeOf(ac.character), Played)
     n.createRelationshipTo(DbMgr.getNodeOf(ac.motionPicture), AppearedIn)
     setVersion(n, ac)

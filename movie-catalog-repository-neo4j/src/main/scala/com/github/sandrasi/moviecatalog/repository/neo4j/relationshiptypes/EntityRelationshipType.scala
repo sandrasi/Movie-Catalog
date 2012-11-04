@@ -1,8 +1,10 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-private[neo4j] object EntityRelationshipType extends AbstractRelationshipType {
+sealed trait EntityRelationshipType extends EntityRelationshipType.RelationshipType
 
-  type EntityRelationshipType = RelationshipTypeValue
+case object EntityRelationshipType extends AbstractRelationshipType[EntityRelationshipType] {
 
-  final val IsA = relationshipTypeValue("isA")
+  case object IsA extends EntityRelationshipType
+
+  IsA
 }

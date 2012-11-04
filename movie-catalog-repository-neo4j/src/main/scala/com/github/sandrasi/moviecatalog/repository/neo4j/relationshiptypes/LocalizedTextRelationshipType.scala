@@ -1,8 +1,10 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-private[neo4j] object LocalizedTextRelationshipType extends AbstractRelationshipType {
+sealed trait LocalizedTextRelationshipType extends LocalizedTextRelationshipType.RelationshipType
 
-  type LocalizedTextRelationshipType = RelationshipTypeValue
+case object LocalizedTextRelationshipType extends AbstractRelationshipType[LocalizedTextRelationshipType] {
 
-  final val Locale = relationshipTypeValue("locale")
+  case object Locale extends LocalizedTextRelationshipType
+
+  Locale
 }

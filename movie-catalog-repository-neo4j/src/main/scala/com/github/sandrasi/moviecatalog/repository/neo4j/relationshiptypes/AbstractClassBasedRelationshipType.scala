@@ -1,8 +1,19 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-private[neo4j] abstract class AbstractClassBasedRelationshipType[A] extends AbstractRelationshipType {
+import collection.immutable.ListMap
 
-  def forClass[B <: A](c: Class[B]): RelationshipTypeValue = withName(c.getName).asInstanceOf[RelationshipTypeValue]
+trait AbstractClassBasedRelationshipType[A] extends AbstractRelationshipType[A] {
 
-  protected def relationshipTypeValue[B <: A](c: Class[B]): RelationshipTypeValue = relationshipTypeValue(c.getName)
+  private var _values = ListMap.empty[Class[_], A]
+
+  def forClass[B](c: Class[B]): A = if (_values.contains(c)) _values(c) else throw new NoSuchElementException("%s is not bound to any value".format(c.getName))
+
+  trait ClassBasedRelationshipType extends RelationshipType { self: A =>
+
+    if (!_values.contains(forClass)) _values += forClass -> this else throw new IllegalStateException("%s is already bound to %s".format(forClass.getName, _values(forClass)))
+
+    def forClass: Class[_]
+
+    override def name = forClass.getName
+  }
 }

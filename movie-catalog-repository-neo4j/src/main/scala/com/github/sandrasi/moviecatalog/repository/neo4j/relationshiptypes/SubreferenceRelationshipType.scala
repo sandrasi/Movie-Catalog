@@ -1,22 +1,19 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.container._
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, MotionPicture, Person}
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{AbstractCast, Actor, Actress}
+sealed trait SubreferenceRelationshipType extends SubreferenceRelationshipType.ClassBasedRelationshipType
 
-private[neo4j] object SubreferenceRelationshipType extends AbstractClassBasedRelationshipType[VersionedLongIdEntity] {
+case object SubreferenceRelationshipType extends AbstractClassBasedRelationshipType[SubreferenceRelationshipType] {
 
-  type SubreferenceRelationshipType = RelationshipTypeValue
+  case object Actor extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor] }
+  case object Actress extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress] }
+  case object Cast extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast] }
+  case object Character extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Character] }
+  case object DigitalContainer extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer] }
+  case object MotionPicture extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.core.MotionPicture] }
+  case object Movie extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Movie] }
+  case object Person extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Person] }
+  case object Soundtrack extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Soundtrack] }
+  case object Subtitle extends SubreferenceRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Subtitle] }
 
-  final val AbstractCast = relationshipTypeValue(classOf[AbstractCast])
-  final val Actor = relationshipTypeValue(classOf[Actor])
-  final val Actress = relationshipTypeValue(classOf[Actress])
-  final val Character = relationshipTypeValue(classOf[Character])
-  final val DigitalContainer = relationshipTypeValue(classOf[DigitalContainer])
-  final val MotionPicture = relationshipTypeValue(classOf[MotionPicture])
-  final val Movie = relationshipTypeValue(classOf[Movie])
-  final val Person = relationshipTypeValue(classOf[Person])
-  final val Soundtrack = relationshipTypeValue(classOf[Soundtrack])
-  final val Subtitle = relationshipTypeValue(classOf[Subtitle])
+  Actor; Actress; Cast; Character; DigitalContainer; MotionPicture; Movie; Person; Soundtrack; Subtitle
 }

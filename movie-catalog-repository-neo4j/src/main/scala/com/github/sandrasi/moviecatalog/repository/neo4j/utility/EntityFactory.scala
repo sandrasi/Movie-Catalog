@@ -14,7 +14,7 @@ import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, 
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.FilmCrewRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 
@@ -45,9 +45,9 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
     else if (DbMgr.isNodeOfType(n, classOf[Actress])) createActressFrom(n)
     else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassAbstractCast.getName, n.getId))
 
-  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
+  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
-  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(FilmCrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
+  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
 
   private def createCharacterFrom(n: Node) = new Character(getString(n, CharacterName), getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), n.getId)
 

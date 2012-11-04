@@ -1,10 +1,12 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-object DigitalContainerRelationshipType extends AbstractRelationshipType {
+sealed trait DigitalContainerRelationshipType extends DigitalContainerRelationshipType.RelationshipType
 
-  type DigitalContainerRelationshipType = RelationshipTypeValue
+case object DigitalContainerRelationshipType extends AbstractRelationshipType[DigitalContainerRelationshipType] {
 
-  final val WithContent = relationshipTypeValue("withContent")
-  final val WithSoundtrack = relationshipTypeValue("withSoundtrack")
-  final val WithSubtitle = relationshipTypeValue("withSubtitle")
+  case object WithContent extends DigitalContainerRelationshipType
+  case object WithSoundtrack extends DigitalContainerRelationshipType
+  case object WithSubtitle extends DigitalContainerRelationshipType
+
+  WithContent; WithSoundtrack; WithSubtitle
 }
