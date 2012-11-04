@@ -59,7 +59,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate), getLong(n, Version), n.getId)
 
-  private def createPersonFrom(n: Node) = Person(getString(n, PersonName), Gender.withName(getString(n, PersonGender)), getLocalDate(n, PersonDateOfBirth), getString(n, PersonPlaceOfBirth), getLong(n, Version), n.getId)
+  private def createPersonFrom(n: Node) = Person(getString(n, PersonName), Gender.valueOf(getString(n, PersonGender)), getLocalDate(n, PersonDateOfBirth), getString(n, PersonPlaceOfBirth), getLong(n, Version), n.getId)
 
   private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getString(n, SoundtrackLanguageCode), getString(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), getLong(n, Version), n.getId)
 

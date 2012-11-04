@@ -3,7 +3,7 @@ package com.github.sandrasi.moviecatalog.domain.entities.core
 import org.joda.time.LocalDate
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.utility.Gender._
+import com.github.sandrasi.moviecatalog.domain.utility.Gender
 
 class Person(val name: String,
              val gender: Gender,

@@ -1,8 +1,13 @@
 package com.github.sandrasi.moviecatalog.domain.utility
 
-object Gender extends Enumeration {
+import com.github.sandrasi.moviecatalog.common.Enum
 
-  type Gender = Value
+sealed trait Gender extends Gender.Value
 
-  val Male, Female = Value
+case object Gender extends Enum[Gender] {
+
+  case object Male extends Gender
+  case object Female extends Gender
+
+  Male; Female
 }
