@@ -7,13 +7,11 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatra._
 import org.scalatra.test.scalatest.ScalatraFunSuite
-import com.github.sandrasi.moviecatalog.service.testutils.MovieCatalogServletTester
 
 @RunWith(classOf[JUnitRunner])
 class RestSupportTest extends ScalatraFunSuite with ShouldMatchers {
 
-  override lazy val tester: MovieCatalogServletTester = new MovieCatalogServletTester
-  tester.setBaseResource(new ResourceCollection(Resource.newResource("src/main/webapp"), Resource.newResource("src/test/test-webapp")))
+  servletContextHandler.setBaseResource(new ResourceCollection(Resource.newResource("src/main/webapp"), Resource.newResource("src/test/test-webapp")))
   addFilter(TestRestSupport, "/*")
 
   test("should parse specified optional parameter") {
