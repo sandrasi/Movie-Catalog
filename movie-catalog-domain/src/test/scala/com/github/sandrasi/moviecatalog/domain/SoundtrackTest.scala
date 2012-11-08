@@ -1,4 +1,4 @@
-package com.github.sandrasi.moviecatalog.domain.entities.container
+package com.github.sandrasi.moviecatalog.domain
 
 import java.util.Locale
 import java.util.Locale.US
@@ -6,7 +6,7 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
+import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
 class SoundtrackTest extends FunSuite with ShouldMatchers {
@@ -70,6 +70,18 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
   test("should not create soundtrack with language and format names having different locale") {
     intercept[IllegalArgumentException] {
       Soundtrack("en", "dts", LocalizedText("English")(US), LocalizedText("DTS")(new Locale("hu", "HU")))
+    }
+  }
+
+  test("should not create soundtrack with negative version") {
+    intercept[IllegalArgumentException] {
+      Soundtrack("en", "dts", version = -1)
+    }
+  }
+
+  test("should not create soundtrack with null id") {
+    intercept[IllegalArgumentException] {
+      new Soundtrack("en", "dts", Some("English"), Some("DTS"), 0, id = null)
     }
   }
 

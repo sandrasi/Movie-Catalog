@@ -1,4 +1,4 @@
-package com.github.sandrasi.moviecatalog.domain.entities.core
+package com.github.sandrasi.moviecatalog.domain
 
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
@@ -41,6 +41,18 @@ class PersonTest extends FunSuite with ShouldMatchers {
   test("should not create person with null place of birth") {
     intercept[IllegalArgumentException] {
       Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), null)
+    }
+  }
+
+  test("should not create person with negative version") {
+    intercept[IllegalArgumentException] {
+      Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", version = -1)
+    }
+  }
+
+  test("should not create person with null id") {
+    intercept[IllegalArgumentException] {
+      Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", 0, id = null)
     }
   }
 

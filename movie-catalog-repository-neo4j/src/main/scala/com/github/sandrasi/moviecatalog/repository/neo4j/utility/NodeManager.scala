@@ -7,10 +7,7 @@ import org.neo4j.graphdb.Direction._
 import java.util.Locale
 import java.util.Locale._
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast
-import com.github.sandrasi.moviecatalog.domain.entities.container._
-import com.github.sandrasi.moviecatalog.domain.entities.core._
+import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType

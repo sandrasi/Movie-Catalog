@@ -2,9 +2,10 @@ package com.github.sandrasi.moviecatalog.repository.neo4j
 
 import java.util.Locale
 import java.util.Locale.US
+import org.neo4j.cypher.ExecutionEngine
 import org.neo4j.graphdb.{GraphDatabaseService, NotFoundException}
 import org.neo4j.kernel.EmbeddedGraphDatabase
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
+import com.github.sandrasi.moviecatalog.domain.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.repository.{Repository, RepositoryFactory}
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.{EntityFactory, NodeManager}
@@ -13,6 +14,7 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
 
   private final val EntityFact = EntityFactory(db)
   private final val NodeMgr = NodeManager(db)
+  private final val ExecutionEngine = new ExecutionEngine(db)
 
   override def get[A <: VersionedLongIdEntity](id: Long, entityType: Class[A])(implicit locale: Locale = US): Option[A] = try {
     Some(EntityFact.createEntityFrom(db.getNodeById(id), entityType))
@@ -34,7 +36,13 @@ class Neo4jRepository(db: GraphDatabaseService) extends Repository with Transact
 
   override def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A] = NodeMgr.getNodesOfType(entityType).map(EntityFact.createEntityFrom(_, entityType)).filter(predicate(_))
 
-  override def search(text: String)(implicit locale: Locale = US): Iterator[VersionedLongIdEntity] = throw new UnsupportedOperationException("Not yet implemented")
+  override def search(text: String)(implicit locale: Locale = US): Iterator[VersionedLongIdEntity] = {
+
+    val result = ExecutionEngine.execute("START nodes=node:MotionPicture(%s) RETURN nodes".format(text))
+    println(result.dumpToString())
+
+    throw new UnsupportedOperationException("Not yet implemented")
+  }
 
   def shutdown() {
     db.shutdown()

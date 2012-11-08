@@ -1,8 +1,7 @@
-package com.github.sandrasi.moviecatalog.domain.entities.common
+package com.github.sandrasi.moviecatalog.common
 
 import java.util.Locale
 import java.util.Locale.US
-import com.github.sandrasi.moviecatalog.common.Validate
 
 case class LocalizedText(text: String)(implicit val locale: Locale = US) {
 

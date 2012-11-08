@@ -4,14 +4,13 @@ import scala.collection.JavaConverters._
 import java.util.Locale
 import org.joda.time.{Duration, LocalDate}
 import org.neo4j.graphdb.Direction._
+import org.neo4j.graphdb.NotFoundException
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{MotionPicture, Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.common.LocalizedText
+import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
@@ -20,8 +19,6 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
-import org.neo4j.graphdb.NotFoundException
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
 
 @RunWith(classOf[JUnitRunner])
 class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -485,18 +482,6 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
-  test("should not create node from unsupported entity") {
-    implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) {
-        subject.createNodeFrom(new VersionedLongIdEntity() {
-          override def version = 0
-          override def id = None
-        })
-      }
-    }
-  }
-
   test("should update actor node") {
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     val anotherPersonNode = createNodeFrom(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."))
@@ -771,18 +756,6 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
-  test("should not update node of unsupported entity") {
-    implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) {
-        subject.updateNodeOf(new VersionedLongIdEntity() {
-          override def version = 0
-          override def id = None
-        })
-      }
-    }
-  }
-
   test("should delete actor node") {
     val personNode = createNodeFrom(JohnTravolta)
     val characterNode = createNodeFrom(VincentVega)
@@ -890,18 +863,6 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
       node.createRelationshipTo(characterNode, new TestRelationshipType("test"))
       intercept[IllegalStateException] {
         subject.deleteNodeOf(createCharacterFrom(characterNode))
-      }
-    }
-  }
-
-  test("should not delete unsupported entity") {
-    implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) {
-        subject.deleteNodeOf(new VersionedLongIdEntity() {
-          override def version = 0
-          override def id = None
-        })
       }
     }
   }

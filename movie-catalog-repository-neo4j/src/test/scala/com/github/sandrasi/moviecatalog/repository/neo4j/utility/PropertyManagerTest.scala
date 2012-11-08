@@ -3,7 +3,7 @@ package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 import org.joda.time.{Duration, LocalDate}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
+import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 

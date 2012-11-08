@@ -10,11 +10,8 @@ import java.util.{Locale, UUID}
 import org.joda.time.{Duration, LocalDate}
 import org.neo4j.graphdb.{GraphDatabaseService, Node, Relationship, RelationshipType}
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll}
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
-import com.github.sandrasi.moviecatalog.domain.entities.container._
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.common.LocalizedText
+import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility._

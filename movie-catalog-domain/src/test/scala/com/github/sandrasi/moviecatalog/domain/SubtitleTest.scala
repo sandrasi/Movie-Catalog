@@ -1,10 +1,10 @@
-package com.github.sandrasi.moviecatalog.domain.entities.container
+package com.github.sandrasi.moviecatalog.domain
 
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
+import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
 class SubtitleTest extends FunSuite with ShouldMatchers {
@@ -37,6 +37,18 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
   test("should not create subtitle with null language name") {
     intercept[IllegalArgumentException] {
       new Subtitle("en", null, 0, None)
+    }
+  }
+
+  test("should not create subtitle with negative version") {
+    intercept[IllegalArgumentException] {
+      Subtitle("en", version = -1)
+    }
+  }
+
+  test("should not create subtitle with null id") {
+    intercept[IllegalArgumentException] {
+      new Subtitle("en", Some("English"), 0, id = null)
     }
   }
 

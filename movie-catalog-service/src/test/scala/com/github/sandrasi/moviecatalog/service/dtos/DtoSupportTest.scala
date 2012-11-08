@@ -6,10 +6,8 @@ import org.scalatest.matchers.ShouldMatchers
 import java.util.Locale
 import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.entities.common.LocalizedText
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
+import com.github.sandrasi.moviecatalog.common.LocalizedText
+import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.service.dtos.DtoSupport._
 

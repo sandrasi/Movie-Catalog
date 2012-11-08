@@ -1,4 +1,4 @@
-package com.github.sandrasi.moviecatalog.domain.entities.core
+package com.github.sandrasi.moviecatalog.domain
 
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -33,6 +33,18 @@ class CharacterTest extends FunSuite with ShouldMatchers {
   test("should not create character with null creationDate") {
     intercept[IllegalArgumentException] {
       Character("Vincent Vega", "Quentin Tarantino", null, 0, 0)
+    }
+  }
+
+  test("should not create character with negative version") {
+    intercept[IllegalArgumentException] {
+      Character("Vincent Vega", version = -1)
+    }
+  }
+
+  test("should not create character with negative id") {
+    intercept[IllegalArgumentException] {
+      new Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14), 0, id = null)
     }
   }
 

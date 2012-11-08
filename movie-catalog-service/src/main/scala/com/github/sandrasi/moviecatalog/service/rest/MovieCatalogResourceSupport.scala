@@ -2,10 +2,10 @@ package com.github.sandrasi.moviecatalog.service.rest
 
 import scala.collection.mutable.{Map => MutableMap}
 import org.fusesource.scalate.Template
-import com.github.sandrasi.moviecatalog.domain.entities.core.Movie
 import com.github.sandrasi.moviecatalog.repository.Repository
 import com.github.sandrasi.moviecatalog.service.dtos.DtoSupport._
 import com.github.sandrasi.moviecatalog.service.dtos.MotionPictureDto
+import com.github.sandrasi.moviecatalog.domain.Movie
 
 trait MovieCatalogResourceSupport extends RestSupport { outer =>
 

@@ -5,10 +5,9 @@ import scala.collection.mutable.{Map => MutableMap}
 import org.neo4j.graphdb.{GraphDatabaseService, Node, NotFoundException}
 import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.common.Validate
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
+import com.github.sandrasi.moviecatalog.domain.VersionedLongIdEntity
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 

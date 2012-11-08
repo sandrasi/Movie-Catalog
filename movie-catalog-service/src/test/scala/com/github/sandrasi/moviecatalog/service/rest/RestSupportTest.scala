@@ -56,19 +56,19 @@ class RestSupportTest extends ScalatraFunSuite with ShouldMatchers {
     }
   }
 
-  test("should accept json as value for the format parameter") {
+  ignore("should accept json as value for the format parameter") {
     get("/test-resource?format=json") {
       response.getContentType should equal("application/json;charset=UTF-8")
     }
   }
 
-  test("should accept xml as value for the format parameter") {
+  ignore("should accept xml as value for the format parameter") {
     get("/test-resource?format=xml") {
       response.getContentType should equal("application/xml;charset=UTF-8")
     }
   }
 
-  test("should use json as default value for the format parameter") {
+  ignore("should use json as default value for the format parameter") {
     get("/test-resource") {
       response.getContentType should equal("application/json;charset=UTF-8")
     }

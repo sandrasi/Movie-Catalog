@@ -28,11 +28,14 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
       format match {
         case "json" => JsonResponse(result)
         case "xml" => XmlResponse(result)
-        case unsupported => result.actionResult.status.message
+        case unsupported => result.actionResult
       }
     case json @ JsonResponse(_) => write(json)
     case xml @ XmlResponse(_) => write(xml)
-    case any => super.renderPipeline(any)
+    case any => {
+      response.contentType = Some(formats("html"))
+      super.renderPipeline(any)
+    }
   }
 
   private def write(jsonResponse: JsonResponse[_]) = Serialization.write(jsonResponse)
@@ -144,7 +147,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
   trait GetSupport[+A] { self: RestResource[A] =>
 
-    private[this] final val getRoute = outer.get(path) {
+    private[this] final val route = outer.get(path) {
       try {
         outer.format = format.parse.get
         getRestResponse
@@ -155,7 +158,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
     protected def get: Result[A]
 
-    final def getUrl(params: (String, String)*): String = UrlGenerator.url(getRoute, params: _*)
+    final def getUrl(params: (String, String)*): String = UrlGenerator.url(route, params: _*)
 
     protected[RestSupport] final def getRestResponse: RestResponse[A] = {
       val result = try {

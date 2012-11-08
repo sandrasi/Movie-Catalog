@@ -2,7 +2,7 @@ package com.github.sandrasi.moviecatalog.repository
 
 import scala.collection.mutable.{Map => MutableMap}
 import java.util.Locale
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
+import com.github.sandrasi.moviecatalog.domain.VersionedLongIdEntity
 
 trait Repository {
 

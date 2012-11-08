@@ -1,4 +1,4 @@
-package com.github.sandrasi.moviecatalog.domain.entities.common
+package com.github.sandrasi.moviecatalog.common
 
 import java.util.Locale
 import java.util.Locale.ENGLISH

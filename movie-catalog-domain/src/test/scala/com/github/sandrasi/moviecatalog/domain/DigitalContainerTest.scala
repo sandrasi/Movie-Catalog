@@ -1,10 +1,9 @@
-package com.github.sandrasi.moviecatalog.domain.entities.container
+package com.github.sandrasi.moviecatalog.domain
 
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.entities.core.Movie
 
 @RunWith(classOf[JUnitRunner])
 class DigitalContainerTest extends FunSuite with ShouldMatchers {
@@ -61,6 +60,18 @@ class DigitalContainerTest extends FunSuite with ShouldMatchers {
   test("should not create digital container with null subtitle") {
     intercept[IllegalArgumentException] {
       DigitalContainer(PulpFiction, subtitles = Set(null))
+    }
+  }
+
+  test("should not create digital container with negative version") {
+    intercept[IllegalArgumentException] {
+      DigitalContainer(PulpFiction, version = -1)
+    }
+  }
+
+  test("should not create digital container with null id") {
+    intercept[IllegalArgumentException] {
+      new DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle), 0, id = null)
     }
   }
 

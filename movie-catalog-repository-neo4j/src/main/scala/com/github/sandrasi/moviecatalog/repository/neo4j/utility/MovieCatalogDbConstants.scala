@@ -1,8 +1,6 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress, Cast}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, Movie, Person}
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
+import com.github.sandrasi.moviecatalog.domain._
 
 private[neo4j] object MovieCatalogDbConstants {
 

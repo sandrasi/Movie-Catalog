@@ -33,29 +33,29 @@ class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
   }
 
   test("should retrieve the name of the subreference relationship type") {
-    Actor.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor].getName)
-    Actress.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress].getName)
-    Cast.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast].getName)
-    Character.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Character].getName)
-    DigitalContainer.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer].getName)
-    MotionPicture.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.MotionPicture].getName)
-    Movie.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Movie].getName)
-    Person.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Person].getName)
-    Soundtrack.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Soundtrack].getName)
-    Subtitle.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Subtitle].getName)
+    Actor.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Actor].getName)
+    Actress.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Actress].getName)
+    Cast.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Cast].getName)
+    Character.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Character].getName)
+    DigitalContainer.name should be(classOf[com.github.sandrasi.moviecatalog.domain.DigitalContainer].getName)
+    MotionPicture.name should be(classOf[com.github.sandrasi.moviecatalog.domain.MotionPicture].getName)
+    Movie.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Movie].getName)
+    Person.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Person].getName)
+    Soundtrack.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Soundtrack].getName)
+    Subtitle.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Subtitle].getName)
   }
 
   test("should create subreference relationship type from bound classes") {
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor]) should be(Actor)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress]) should be(Actress)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast]) should be(Cast)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Character]) should be(Character)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.DigitalContainer]) should be(DigitalContainer)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.MotionPicture]) should be(MotionPicture)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Movie]) should be(Movie)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.core.Person]) should be(Person)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Soundtrack]) should be(Soundtrack)
-    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.container.Subtitle]) should be(Subtitle)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Actor]) should be(Actor)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Actress]) should be(Actress)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Cast]) should be(Cast)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Character]) should be(Character)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.DigitalContainer]) should be(DigitalContainer)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.MotionPicture]) should be(MotionPicture)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Movie]) should be(Movie)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Person]) should be(Person)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Soundtrack]) should be(Soundtrack)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Subtitle]) should be(Subtitle)
   }
 
   test("should not create subreference relationship type from unsupported an class") {

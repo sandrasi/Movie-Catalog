@@ -25,13 +25,13 @@ class CrewRelationshipTypeTest extends FunSuite with ShouldMatchers {
   }
 
   test("should retrieve the name of the crew relationship type") {
-    Actor.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor].getName)
-    Actress.name should be(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress].getName)
+    Actor.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Actor].getName)
+    Actress.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Actress].getName)
   }
 
   test("should create crew relationship type from bound classes") {
-    CrewRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actor]) should be(Actor)
-    CrewRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Actress]) should be(Actress)
+    CrewRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Actor]) should be(Actor)
+    CrewRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Actress]) should be(Actress)
   }
 
   test("should not create crew relationship type from unsupported an class") {

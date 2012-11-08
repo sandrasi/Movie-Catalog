@@ -2,19 +2,16 @@ package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
-import org.neo4j.graphdb.{GraphDatabaseService, Node}
-import com.github.sandrasi.moviecatalog.common.Validate
-import org.neo4j.graphdb.Direction._
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Person, Character, MotionPicture}
 import org.neo4j.index.lucene.ValueContext
+import org.neo4j.graphdb.{GraphDatabaseService, Node}
+import org.neo4j.graphdb.Direction._
+import com.github.sandrasi.moviecatalog.common.Validate
+import com.github.sandrasi.moviecatalog.domain._
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import org.apache.lucene.search.{NumericRangeQuery, TermQuery, BooleanQuery}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search.BooleanClause.Occur._
-import com.github.sandrasi.moviecatalog.domain.entities.base.VersionedLongIdEntity
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.Cast
 
 private[utility] class IndexManager(db: GraphDatabaseService) {
 

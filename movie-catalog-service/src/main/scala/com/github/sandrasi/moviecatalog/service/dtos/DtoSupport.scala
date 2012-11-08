@@ -2,9 +2,7 @@ package com.github.sandrasi.moviecatalog.service.dtos
 
 import java.util.Locale
 import java.util.Locale.US
-import com.github.sandrasi.moviecatalog.domain.entities.castandcrew.{Actor, Actress}
-import com.github.sandrasi.moviecatalog.domain.entities.container.{DigitalContainer, Soundtrack, Subtitle}
-import com.github.sandrasi.moviecatalog.domain.entities.core.{Character, MotionPicture, Movie, Person}
+import com.github.sandrasi.moviecatalog.domain._
 
 sealed trait BaseEntityDto {
 
