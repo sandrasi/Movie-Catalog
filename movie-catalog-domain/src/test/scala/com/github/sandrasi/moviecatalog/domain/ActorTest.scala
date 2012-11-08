@@ -61,10 +61,10 @@ class ActorTest extends FunSuite with ShouldMatchers {
   
   test("should compare two objects for equality") {
     val actor = Actor(JohnTravolta, VincentVega, PulpFiction)
-    val otherActor = Actor(JohnTravolta, VincentVega, PulpFiction)
-    val otherActorWithDifferentPerson = Actor(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."), VincentVega, PulpFiction)
-    val otherActorWithDifferentCharacter = Actor(JohnTravolta, Character("Jules Winnfield"), PulpFiction)
-    val otherActorWithDifferentMotionPicture = Actor(JohnTravolta, VincentVega, Movie("Die hard: With a vengeance"))
+    val otherActor = actor.copy()
+    val otherActorWithDifferentPerson = actor.copy(person = Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."))
+    val otherActorWithDifferentCharacter = actor.copy(character = Character("Jules Winnfield"))
+    val otherActorWithDifferentMotionPicture = actor.copy(motionPicture = Movie("Die hard: With a vengeance"))
 
     actor should not equal(null)
     actor should not equal(new AnyRef)
@@ -77,7 +77,7 @@ class ActorTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val actor = Actor(JohnTravolta, VincentVega, PulpFiction)
-    val otherActor = Actor(JohnTravolta, VincentVega, PulpFiction)
+    val otherActor = actor.copy()
 
     actor.hashCode should equal(otherActor.hashCode)
   }

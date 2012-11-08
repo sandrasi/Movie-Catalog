@@ -54,9 +54,9 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val subtitle = Subtitle("en")
-    val otherSubtitle = Subtitle("en")
-    val otherSubtitleWithDifferentLanguageCode = Subtitle("hu")
-    val otherSubtitleWithDifferentLanguageName = Subtitle("en", "English")
+    val otherSubtitle = subtitle.copy()
+    val otherSubtitleWithDifferentLanguageCode = subtitle.copy(languageCode = "hu")
+    val otherSubtitleWithDifferentLanguageName = subtitle.copy(languageName = Some("English"))
 
     subtitle should not equal(null)
     subtitle should not equal(new AnyRef)
@@ -68,7 +68,7 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val subtitle = Subtitle("en")
-    val otherSubtitle = Subtitle("en")
+    val otherSubtitle = subtitle.copy()
 
     subtitle.hashCode should equal(otherSubtitle.hashCode)
   }

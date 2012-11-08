@@ -50,10 +50,10 @@ class CharacterTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val character = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    val otherCharacter = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    val otherCharacterWithDifferentName = Character("Mia Wallace", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    val otherCharacterWithDifferentCreator = Character("Vincent Vega", "Robert Rodriguez", new LocalDate(1994, 10, 14))
-    val otherCharacterWithDifferentCreationDate = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(2000, 1, 1))
+    val otherCharacter = character.copy()
+    val otherCharacterWithDifferentName = character.copy(name = "Mia Wallace")
+    val otherCharacterWithDifferentCreator = character.copy(creator = "Robert Rodriguez")
+    val otherCharacterWithDifferentCreationDate = character.copy(creationDate = new LocalDate(2000, 1, 1))
 
     character should not equal(null)
     character should not equal(new AnyRef)
@@ -66,7 +66,7 @@ class CharacterTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val character = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    val otherCharacter = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
+    val otherCharacter = character.copy()
 
     character.hashCode should equal(otherCharacter.hashCode)
   }

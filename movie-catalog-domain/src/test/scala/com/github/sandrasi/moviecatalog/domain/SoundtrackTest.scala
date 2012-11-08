@@ -87,11 +87,11 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val soundtrack = Soundtrack("en", "dts")
-    val otherSoundtrack = Soundtrack("en", "dts")
-    val otherSoundtrackWithDifferentLanguageCode = Soundtrack("hu", "dts")
-    val otherSoundtrackWithDifferentFormatCode = Soundtrack("en", "dd51")
-    val otherSoundtrackWithDifferentLanguageName = Soundtrack("en", "dts", languageName = "English")
-    val otherSoundtrackWithDifferentFormatName = Soundtrack("en", "dts", formatName = "DTS")
+    val otherSoundtrack = soundtrack.copy()
+    val otherSoundtrackWithDifferentLanguageCode = soundtrack.copy(languageCode = "hu")
+    val otherSoundtrackWithDifferentFormatCode = soundtrack.copy(formatCode = "dd51")
+    val otherSoundtrackWithDifferentLanguageName = soundtrack.copy(languageName = Some("English"))
+    val otherSoundtrackWithDifferentFormatName = soundtrack.copy(formatName = Some("DTS"))
 
     soundtrack should not equal(null)
     soundtrack should not equal(new AnyRef)
@@ -105,7 +105,7 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val soundtrack = Soundtrack("en", "dts")
-    val otherSoundtrack = Soundtrack("en", "dts")
+    val otherSoundtrack = soundtrack.copy()
 
     soundtrack.hashCode should equal(otherSoundtrack.hashCode)
   }

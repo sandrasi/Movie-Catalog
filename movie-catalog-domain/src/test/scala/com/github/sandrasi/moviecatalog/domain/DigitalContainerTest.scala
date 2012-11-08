@@ -77,10 +77,10 @@ class DigitalContainerTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val digitalContainer = DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle))
-    val otherDigitalContainer = DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle))
-    val otherDigitalContainerWithDifferentMotionPicture = DigitalContainer(Movie("Die hard: With a vengeance"), Set(EnglishSoundtrack), Set(EnglishSubtitle))
-    val otherDigitalContainerWithDifferentSoundtracks = DigitalContainer(PulpFiction, Set(HungarianSoundtrack), Set(EnglishSubtitle))
-    val otherDigitalContainerWithDifferentSubtitles = DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(HungarianSubtitle))
+    val otherDigitalContainer = digitalContainer.copy()
+    val otherDigitalContainerWithDifferentMotionPicture = digitalContainer.copy(motionPicture = Movie("Die hard: With a vengeance"))
+    val otherDigitalContainerWithDifferentSoundtracks = digitalContainer.copy(soundtracks = Set(HungarianSoundtrack))
+    val otherDigitalContainerWithDifferentSubtitles = digitalContainer.copy(subtitles = Set(HungarianSubtitle))
 
     digitalContainer should not equal(null)
     digitalContainer should not equal(new AnyRef)
@@ -93,7 +93,7 @@ class DigitalContainerTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val digitalContainer = DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle))
-    val otherDigitalContainer = DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle))
+    val otherDigitalContainer = digitalContainer.copy()
 
     digitalContainer.hashCode should equal(otherDigitalContainer.hashCode)
   }

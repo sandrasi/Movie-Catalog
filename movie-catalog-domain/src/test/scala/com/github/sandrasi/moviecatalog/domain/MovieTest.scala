@@ -84,11 +84,11 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val movie = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val otherMovie = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val otherMovieWithDifferentOriginalTitle = Movie("Die hard: With a vengeance", Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val otherMovieWithDifferentLocalizedTitles = Movie(EnglishMovieTitle, Set(ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val otherMovieWithDifferentRuntime = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(1), new LocalDate(1994, 10, 14))
-    val otherMovieWithDifferentReleaseDate = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(2000, 1, 1))
+    val otherMovie = movie.copy()
+    val otherMovieWithDifferentOriginalTitle = movie.copy(originalTitle = "Die hard: With a vengeance")
+    val otherMovieWithDifferentLocalizedTitles = movie.copy(localizedTitles = Set(ItalianMovieTitle))
+    val otherMovieWithDifferentRuntime = movie.copy(runtime = Duration.standardMinutes(1))
+    val otherMovieWithDifferentReleaseDate = movie.copy(releaseDate = new LocalDate(2000, 1, 1))
 
     movie should not equal(null)
     movie should not equal(new AnyRef)
@@ -102,7 +102,7 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val movie = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val otherMovie = Movie(EnglishMovieTitle, Set(ItalianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val otherMovie = movie.copy()
 
     movie.hashCode should equal(otherMovie.hashCode)
   }

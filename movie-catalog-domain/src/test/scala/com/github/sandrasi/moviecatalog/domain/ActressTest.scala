@@ -61,10 +61,10 @@ class ActressTest extends FunSuite with ShouldMatchers {
 
   test("should compare two objects for equality") {
     val actress = Actress(UmaThurman, MiaWallace, PulpFiction)
-    val otherActress = Actress(UmaThurman, MiaWallace, PulpFiction)
-    val otherActressWithDifferentPerson = Actress(Person("Amanda Plummer", Female, new LocalDate(1957, 3, 23), "New York City, New York, U.S."), MiaWallace, PulpFiction)
-    val otherActressWithDifferentCharacter = Actress(UmaThurman, Character("Yolanda"), PulpFiction)
-    val otherActressWithDifferentMotionPicture = Actress(UmaThurman, MiaWallace, Movie("Die hard: With a vengeance"))
+    val otherActress = actress.copy()
+    val otherActressWithDifferentPerson = actress.copy(person = Person("Amanda Plummer", Female, new LocalDate(1957, 3, 23), "New York City, New York, U.S."))
+    val otherActressWithDifferentCharacter = actress.copy(character = Character("Yolanda"))
+    val otherActressWithDifferentMotionPicture = actress.copy(motionPicture = Movie("Die hard: With a vengeance"))
 
     actress should not equal(null)
     actress should not equal(new AnyRef)
@@ -77,7 +77,7 @@ class ActressTest extends FunSuite with ShouldMatchers {
 
   test("should calculate hash code") {
     val actress = Actress(UmaThurman, MiaWallace, PulpFiction)
-    val otherActress = Actress(UmaThurman, MiaWallace, PulpFiction)
+    val otherActress = actress.copy()
 
     actress.hashCode should equal(otherActress.hashCode)
   }
