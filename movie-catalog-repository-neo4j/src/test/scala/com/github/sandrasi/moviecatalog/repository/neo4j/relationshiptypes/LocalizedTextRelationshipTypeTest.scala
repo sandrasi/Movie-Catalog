@@ -2,7 +2,7 @@ package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.LocalizedTextRelationshipType.Locale
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.LocalizedTextRelationshipType._
 
 class LocalizedTextRelationshipTypeTest extends FunSuite with ShouldMatchers {
 
