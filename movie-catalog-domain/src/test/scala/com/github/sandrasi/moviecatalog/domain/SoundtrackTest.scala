@@ -61,9 +61,21 @@ class SoundtrackTest extends FunSuite with ShouldMatchers {
     }
   }
 
+  test("should not create soundtrack with blank language name") {
+    intercept[IllegalArgumentException] {
+      Soundtrack("en", "dts", languageName = "  ")
+    }
+  }
+
   test("should not create soundtrack with null format name") {
     intercept[IllegalArgumentException] {
       new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0, None)
+    }
+  }
+
+  test("should not create soundtrack with blank format name") {
+    intercept[IllegalArgumentException] {
+      Soundtrack("en", "dts", formatName = "  ")
     }
   }
 

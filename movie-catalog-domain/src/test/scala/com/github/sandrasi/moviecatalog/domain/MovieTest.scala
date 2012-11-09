@@ -40,6 +40,30 @@ class MovieTest extends FunSuite with ShouldMatchers {
     subject.releaseDate should be(new LocalDate(1994, 10, 14))
   }
 
+  test("should not create movie with null original title") {
+    intercept[IllegalArgumentException] {
+      Movie(originalTitle = null)
+    }
+  }
+
+  test("should not create movie with blank original title") {
+    intercept[IllegalArgumentException] {
+      Movie(originalTitle = "  ")
+    }
+  }
+
+  test("should not create movie with null localized titles") {
+    intercept[IllegalArgumentException] {
+      Movie(EnglishMovieTitle, localizedTitles = null)
+    }
+  }
+
+  test("should not create movie with null localized title") {
+    intercept[IllegalArgumentException] {
+      Movie(EnglishMovieTitle, localizedTitles = Set(null))
+    }
+  }
+
   test("should not create motion picture with null original title") {
     intercept[IllegalArgumentException] {
       Movie(null, Set(HungarianMovieTitle), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))

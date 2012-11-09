@@ -40,6 +40,12 @@ class SubtitleTest extends FunSuite with ShouldMatchers {
     }
   }
 
+  test("should not create subtitle with blank language name") {
+    intercept[IllegalArgumentException] {
+      Subtitle("en", languageName = "  ")
+    }
+  }
+
   test("should not create subtitle with negative version") {
     intercept[IllegalArgumentException] {
       Subtitle("en", version = -1)
