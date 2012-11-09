@@ -131,8 +131,8 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     if (s.formatName.isDefined && (s.formatName.get.locale != l)) throw new IllegalStateException("Soundtrack format name locale %s does not match the current locale %s".format(s.formatName.get.locale, l))
     setString(n, SoundtrackLanguageCode, s.languageCode)
     setString(n, SoundtrackFormatCode, s.formatCode)
-    if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SoundtrackLanguageNames, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageNames, l)
-    if (s.formatName.isDefined) addOrReplaceLocalizedText(n, SoundtrackFormatNames, s.formatName.get) else deleteLocalizedText(n, SoundtrackFormatNames, l)
+    if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SoundtrackLanguageName, s.languageName.get) else deleteLocalizedText(n, SoundtrackLanguageName, l)
+    if (s.formatName.isDefined) addOrReplaceLocalizedText(n, SoundtrackFormatName, s.formatName.get) else deleteLocalizedText(n, SoundtrackFormatName, l)
     setVersion(n, s)
     IdxMgr.index(n, s)
     n
@@ -141,7 +141,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   private def setProperties(n: Node, s: Subtitle, l: Locale): Node = {
     if (s.languageName.isDefined && (s.languageName.get.locale != l)) throw new IllegalStateException("Subtitle language name locale %s does not match the current locale %s".format(s.languageName.get.locale, l))
     setString(n, SubtitleLanguageCode, s.languageCode)
-    if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SubtitleLanguageNames, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageNames, l)
+    if (s.languageName.isDefined) addOrReplaceLocalizedText(n, SubtitleLanguageName, s.languageName.get) else deleteLocalizedText(n, SubtitleLanguageName, l)
     setVersion(n, s)
     IdxMgr.index(n, s)
     n

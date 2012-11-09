@@ -369,8 +369,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(EnglishSoundtrack) }
     getString(soundtrackNode, SoundtrackLanguageCode) should be(EnglishSoundtrack.languageCode)
     getString(soundtrackNode, SoundtrackFormatCode) should be(EnglishSoundtrack.formatCode)
-    Some(getLocalizedText(soundtrackNode, SoundtrackLanguageNames)) should be(EnglishSoundtrack.languageName)
-    Some(getLocalizedText(soundtrackNode, SoundtrackFormatNames)) should be(EnglishSoundtrack.formatName)
+    Some(getLocalizedText(soundtrackNode, SoundtrackLanguageName)) should be(EnglishSoundtrack.languageName)
+    Some(getLocalizedText(soundtrackNode, SoundtrackFormatName)) should be(EnglishSoundtrack.formatName)
     getLong(soundtrackNode, Version) should be(EnglishSoundtrack.version)
     soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Soundtrack]))
   }
@@ -379,7 +379,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = "DTS")) }
     intercept[NotFoundException] {
-      soundtrackNode.getProperty(SoundtrackLanguageNames)
+      soundtrackNode.getProperty(SoundtrackLanguageName)
     }
   }
 
@@ -387,7 +387,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", "English")) }
     intercept[NotFoundException] {
-      soundtrackNode.getProperty(SoundtrackFormatNames)
+      soundtrackNode.getProperty(SoundtrackFormatName)
     }
   }
 
@@ -441,7 +441,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val subtitleNode = transaction(tx) { subject.createNodeFrom(EnglishSubtitle) }
     getString(subtitleNode, SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
-    Some(getLocalizedText(subtitleNode, SubtitleLanguageNames)) should be(EnglishSubtitle.languageName)
+    Some(getLocalizedText(subtitleNode, SubtitleLanguageName)) should be(EnglishSubtitle.languageName)
     getLong(subtitleNode, Version) should be(EnglishSubtitle.version)
     subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Subtitle]))
   }
@@ -450,7 +450,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val subtitleNode = transaction(tx) { subject.createNodeFrom(Subtitle("en")) }
     intercept[NotFoundException] {
-      subtitleNode.getProperty(SubtitleLanguageNames)
+      subtitleNode.getProperty(SubtitleLanguageName)
     }
   }
 
@@ -650,8 +650,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
     getString(updatedNode, SoundtrackLanguageCode) should be("it")
     getString(updatedNode, SoundtrackFormatCode) should be("dd5.1")
-    getLocalizedText(updatedNode, SoundtrackLanguageNames) should be(LocalizedText("Italian"))
-    getLocalizedText(updatedNode, SoundtrackFormatNames) should be(LocalizedText("Dolby Digital 5.1"))
+    getLocalizedText(updatedNode, SoundtrackLanguageName) should be(LocalizedText("Italian"))
+    getLocalizedText(updatedNode, SoundtrackFormatName) should be(LocalizedText("Dolby Digital 5.1"))
     getLong(updatedNode, Version) should be(modifiedSoundtrack.version + 1)
     updatedNode.getId should be(soundtrack.id.get)
   }
@@ -662,8 +662,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
-    getLocalizedTextSet(updatedNode, SoundtrackLanguageNames) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
-    getLocalizedTextSet(updatedNode, SoundtrackFormatNames) should be(Set(LocalizedText("DTS")(AmericanLocale), LocalizedText("DTS")(HungarianLocale)))
+    getLocalizedTextSet(updatedNode, SoundtrackLanguageName) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
+    getLocalizedTextSet(updatedNode, SoundtrackFormatName) should be(Set(LocalizedText("DTS")(AmericanLocale), LocalizedText("DTS")(HungarianLocale)))
   }
 
   test("should remove the soundtrack language and format names from the node properties") {
@@ -671,8 +671,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, null, null, soundtrack.version, soundtrack.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
-    assert(!hasLocalizedText(updatedNode, SoundtrackLanguageNames))
-    assert(!hasLocalizedText(updatedNode, SoundtrackFormatNames))
+    assert(!hasLocalizedText(updatedNode, SoundtrackLanguageName))
+    assert(!hasLocalizedText(updatedNode, SoundtrackFormatName))
   }
 
   test("should not update soundtrack node if a different node already exists for the modified soundtrack") {
@@ -707,7 +707,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
     getString(updatedNode, SubtitleLanguageCode) should be("it")
-    getLocalizedText(updatedNode, SubtitleLanguageNames) should be(LocalizedText("Italian"))
+    getLocalizedText(updatedNode, SubtitleLanguageName) should be(LocalizedText("Italian"))
     getLong(updatedNode, Version) should be(modifiedSubtitle.version + 1)
     updatedNode.getId should be(subtitle.id.get)
   }
@@ -718,7 +718,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
-    getLocalizedTextSet(updatedNode, SubtitleLanguageNames) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
+    getLocalizedTextSet(updatedNode, SubtitleLanguageName) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
   }
 
   test("should remove the subtitle language name from the node properties") {
@@ -726,7 +726,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedSubtitle = Subtitle(subtitle.languageCode, null, subtitle.version, subtitle.id.get)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
-    assert(!hasLocalizedText(updatedNode, SubtitleLanguageNames))
+    assert(!hasLocalizedText(updatedNode, SubtitleLanguageName))
   }
 
   test("should not update subtitle node if a different node already exists for the modified subtitle") {

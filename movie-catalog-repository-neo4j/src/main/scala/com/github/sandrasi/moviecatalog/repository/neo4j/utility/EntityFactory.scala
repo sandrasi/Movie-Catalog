@@ -60,13 +60,13 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getString(n, SoundtrackLanguageCode), getString(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), getLong(n, Version), n.getId)
 
-  private def getSoundtrackLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackLanguageNames, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
+  private def getSoundtrackLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackLanguageName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
   
-  private def getSoundtrackFormatName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackFormatNames, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
+  private def getSoundtrackFormatName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackFormatName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
 
   private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getString(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), getLong(n, Version), n.getId)
 
-  private def getSubtitleLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SubtitleLanguageNames, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
+  private def getSubtitleLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SubtitleLanguageName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
 }
 
 private[neo4j] object EntityFactory {

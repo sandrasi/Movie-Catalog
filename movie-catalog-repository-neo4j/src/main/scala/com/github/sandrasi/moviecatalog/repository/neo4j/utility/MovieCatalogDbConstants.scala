@@ -41,12 +41,12 @@ private[neo4j] object MovieCatalogDbConstants {
   final val PersonPlaceOfBirth = "placeOfBirth"
 
   final val SoundtrackFormatCode = "formatCode"
-  final val SoundtrackFormatNames = "formatName"
+  final val SoundtrackFormatName = "formatName"
   final val SoundtrackLanguageCode = "languageCode"
-  final val SoundtrackLanguageNames = "languageName"
+  final val SoundtrackLanguageName = "languageName"
 
   final val SubtitleLanguageCode = "languageCode"
-  final val SubtitleLanguageNames = "languageName"
+  final val SubtitleLanguageName = "languageName"
 
   final val SubreferenceNodeClassName = "className"
 
