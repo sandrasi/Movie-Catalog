@@ -66,18 +66,50 @@ object Character {
             creator: String = "",
             creationDate: LocalDate = new LocalDate(0),
             version: Long = 0,
-            id: Long = 0) = new Character(name, creator, creationDate, version, if (id == 0) None else Some(id))
+            id: Long = 0): Character = Character(name, creator, creationDate, version, if (id == 0) None else Some(id))
+}
+
+case class Genre(code: String, name: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+
+  Validate.notBlank(code)
+  Validate.notNull(name)
+  if (name.isDefined) Validate.notBlank(name.get.text)
+
+  override def equals(o: Any): Boolean = o match {
+    case other: Genre => other.canEqual(this) && code == other.code
+    case _ => false
+  }
+
+  override def canEqual(o: Any): Boolean = o.isInstanceOf[Genre]
+
+  override def hashCode: Int = {
+    var result = 3
+    result = 5 * result + code.hashCode
+    result
+  }
+}
+
+object Genre {
+
+  def apply(code: String,
+            name: LocalizedText = null,
+            version: Long = 0,
+            id: Long = 0): Genre = Genre(code, Option(name), version, if (id == 0) None else Some(id))
 }
 
 sealed trait MotionPicture extends VersionedLongIdEntity {
 
   Validate.notNull(originalTitle)
+  Validate.notBlank(originalTitle.text)
   Validate.noNullElements(localizedTitles)
+  Validate.isTrueForAll(localizedTitles, (lt: LocalizedText) => !lt.text.trim.isEmpty)
+  Validate.noNullElements(genres)
   Validate.notNull(runtime)
   Validate.notNull(releaseDate)
 
   def originalTitle: LocalizedText
   def localizedTitles: Set[LocalizedText]
+  def genres: Set[Genre]
   def runtime: ReadableDuration
   def releaseDate: LocalDate
 
@@ -96,7 +128,7 @@ sealed trait MotionPicture extends VersionedLongIdEntity {
   }
 }
 
-case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedText], runtime: ReadableDuration, releaseDate: LocalDate, version: Long, id: Option[Long]) extends MotionPicture {
+case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedText], genres: Set[Genre], runtime: ReadableDuration, releaseDate: LocalDate, version: Long, id: Option[Long]) extends MotionPicture {
 
   override def equals(o: Any): Boolean = o match {
     case other: Movie => other.canEqual(this) && super.equals(o)
@@ -109,11 +141,12 @@ case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedTex
 object Movie {
 
   def apply(originalTitle: LocalizedText,
-            localizedTitles: Set[LocalizedText] = Set(),
+            localizedTitles: Set[LocalizedText] = Set.empty,
+            genres: Set[Genre] = Set.empty,
             runtime: ReadableDuration = Duration.ZERO,
             releaseDate: LocalDate = new LocalDate(0),
             version: Long = 0,
-            id: Long = 0) = new Movie(originalTitle, localizedTitles, runtime, releaseDate, version, if (id == 0) None else Some(id))
+            id: Long = 0): Movie = Movie(originalTitle, localizedTitles, genres, runtime, releaseDate, version, if (id == 0) None else Some(id))
 }
 
 case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfBirth: String, version: Long, id: Option[Long]) extends VersionedLongIdEntity {
@@ -146,7 +179,7 @@ object Person {
             dateOfBirth: LocalDate,
             placeOfBirth: String,
             version: Long = 0,
-            id: Long = 0) = new Person(name, gender, dateOfBirth, placeOfBirth, version, if (id == 0) None else Some(id))
+            id: Long = 0): Person = Person(name, gender, dateOfBirth, placeOfBirth, version, if (id == 0) None else Some(id))
 }
 
 sealed trait Crew extends VersionedLongIdEntity {
@@ -210,7 +243,7 @@ object Actor {
             character: Character,
             motionPicture: MotionPicture,
             version: Long = 0,
-            id: Long = 0) = new Actor(person, character, motionPicture, version, if (id == 0) None else Some(id))
+            id: Long = 0): Actor = Actor(person, character, motionPicture, version, if (id == 0) None else Some(id))
 }
 
 case class Actress(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[Long]) extends Cast {
@@ -231,7 +264,7 @@ object Actress {
             character: Character,
             motionPicture: MotionPicture,
             version: Long = 0,
-            id: Long = 0) = new Actress(person, character, motionPicture, version, if (id == 0) None else Some(id))
+            id: Long = 0): Actress = Actress(person, character, motionPicture, version, if (id == 0) None else Some(id))
 }
 
 case class Soundtrack(languageCode: String, formatCode: String, languageName: Option[LocalizedText], formatName: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
@@ -240,6 +273,8 @@ case class Soundtrack(languageCode: String, formatCode: String, languageName: Op
   Validate.notBlank(formatCode)
   Validate.notNull(languageName)
   Validate.notNull(formatName)
+  if (languageName.isDefined) Validate.notBlank(languageName.get.text)
+  if (formatName.isDefined) Validate.notBlank(formatName.get.text)
   if (languageName.isDefined && formatName.isDefined) Validate.isTrue(languageName.get.locale == formatName.get.locale)
 
   override def equals(o: Any): Boolean = o match {
@@ -264,13 +299,14 @@ object Soundtrack {
             languageName: LocalizedText = null,
             formatName: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0) = new Soundtrack(languageCode, formatCode, Option(languageName), Option(formatName), version, if (id == 0) None else Some(id))
+            id: Long = 0): Soundtrack = Soundtrack(languageCode, formatCode, Option(languageName), Option(formatName), version, if (id == 0) None else Some(id))
 }
 
 case class Subtitle(languageCode: String, languageName: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
 
   Validate.notBlank(languageCode)
   Validate.notNull(languageName)
+  if (languageName.isDefined) Validate.notBlank(languageName.get.text)
 
   override def equals(o: Any): Boolean = o match {
     case other: Subtitle => other.canEqual(this) && languageCode == other.languageCode
@@ -291,7 +327,7 @@ object Subtitle {
   def apply(languageCode: String,
             languageName: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0) = new Subtitle(languageCode, Option(languageName), version, if (id == 0) None else Some(id))
+            id: Long = 0): Subtitle = Subtitle(languageCode, Option(languageName), version, if (id == 0) None else Some(id))
 }
 
 case class DigitalContainer(motionPicture: MotionPicture, soundtracks: Set[Soundtrack], subtitles: Set[Subtitle], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
@@ -319,8 +355,8 @@ case class DigitalContainer(motionPicture: MotionPicture, soundtracks: Set[Sound
 object DigitalContainer {
 
   def apply(motionPicture: MotionPicture,
-            soundtracks: Set[Soundtrack] = Set(),
-            subtitles: Set[Subtitle] = Set(),
+            soundtracks: Set[Soundtrack] = Set.empty,
+            subtitles: Set[Subtitle] = Set.empty,
             version: Long = 0,
-            id: Long = 0) = new DigitalContainer(motionPicture, soundtracks, subtitles, version, if (id == 0) None else Some(id))
+            id: Long = 0):DigitalContainer = DigitalContainer(motionPicture, soundtracks, subtitles, version, if (id == 0) None else Some(id))
 }

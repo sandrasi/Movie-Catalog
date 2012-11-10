@@ -9,6 +9,7 @@ private[neo4j] object MovieCatalogDbConstants {
   final val ClassActress = classOf[Actress]
   final val ClassCharacter = classOf[Character]
   final val ClassDigitalContainer = classOf[DigitalContainer]
+  final val ClassGenre = classOf[Genre]
   final val ClassMovie = classOf[Movie]
   final val ClassPerson = classOf[Person]
   final val ClassSoundtrack = classOf[Soundtrack]
@@ -30,10 +31,14 @@ private[neo4j] object MovieCatalogDbConstants {
   final val LocaleLanguage = "language"
   final val LocaleVariant = "variant"
 
-  final val MovieRuntime = "runtime"
-  final val MovieOriginalTitle = "originalTitle"
+  final val GenreCode = "code"
+  final val GenreName = "name"
+
+  final val MovieGenres = "genres"
   final val MovieLocalizedTitles = "localizedTitles"
+  final val MovieOriginalTitle = "originalTitle"
   final val MovieReleaseDate = "releaseDate"
+  final val MovieRuntime = "runtime"
 
   final val PersonDateOfBirth = "dateOfBirth"
   final val PersonGender = "gender"

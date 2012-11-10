@@ -17,26 +17,6 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   private final val HungarianLocale = new Locale("hu", "HU")
   private final val ItalianLocale = Locale.ITALY
 
-  test("should convert charater to character dto") {
-    val character = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    toCharacterDto(character) should be(CharacterDto(character.id, character.name, character.creator, character.creationDate.toString))
-  }
-  
-  test("should convert movie to movie dto") {
-    val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, Some(movie.localizedTitles.filter(_.locale == HungarianLocale).head.text), movie.runtime.getMillis, movie.releaseDate.toString))
-  }
-  
-  test("should convert movie to movie dto if no localized title matches the current locale") {
-    val movie = Movie("Pulp fiction", Set(LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, None, movie.runtime.getMillis, movie.releaseDate.toString))
-  }
-  
-  test("should convert person to person dto") {
-    val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
-    toPersonDto(person) should be(PersonDto(person.id, person.name, person.gender.toString, person.dateOfBirth.toString, person.placeOfBirth))
-  }
-  
   test("should convert actor to actor dto") {
     val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     val character = Character("Vincent Vega")
@@ -53,6 +33,41 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
     val actress = Actress(person, character, movie)
     implicit val locale = HungarianLocale
     toActressDto(actress) should be(ActressDto(actress.id, toPersonDto(person), toCharacterDto(character), toMotionPictureDto(movie)))
+  }
+
+  test("should convert charater to character dto") {
+    val character = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
+    toCharacterDto(character) should be(CharacterDto(character.id, character.name, character.creator, character.creationDate.toString))
+  }
+
+  test("should convert digital container to digital container dto") {
+    val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(Genre("crime", "Crime"), Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val englishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
+    val hungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
+    val englishSubtitle = Subtitle("en", "English")
+    val hungarianSubtitle = Subtitle("hu", "Hungarian")
+    val digitalContainer = DigitalContainer(movie, Set(englishSoundtrack, hungarianSoundtrack), Set(englishSubtitle, hungarianSubtitle))
+    toDigitalContainerDto(digitalContainer) should be(DigitalContainerDto(digitalContainer.id, toMotionPictureDto(movie), digitalContainer.soundtracks.map(toSoundtrackDto(_)), digitalContainer.subtitles.map(toSubtitleDto(_))))
+  }
+
+  test("should convert genre to genre dto") {
+    val genre = Genre("crime", "Crime")
+    toGenreDto(genre) should be(GenreDto(genre.id, genre.code, Some(genre.name.get.text)))
+  }
+  
+  test("should convert movie to movie dto") {
+    val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(Genre("crime", "Crime"), Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, Some(movie.localizedTitles.filter(_.locale == HungarianLocale).head.text), movie.genres.map(toGenreDto(_)), movie.runtime.getMillis, movie.releaseDate.toString))
+  }
+  
+  test("should convert movie to movie dto if no localized title matches the current locale") {
+    val movie = Movie("Pulp fiction", Set(LocalizedText("Pulp fiction")(ItalianLocale)), Set(Genre("crime", "Crime"), Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    toMotionPictureDto(movie)(HungarianLocale) should be(MovieDto(movie.id, movie.originalTitle.text, None, movie.genres.map(toGenreDto(_)), movie.runtime.getMillis, movie.releaseDate.toString))
+  }
+  
+  test("should convert person to person dto") {
+    val person = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
+    toPersonDto(person) should be(PersonDto(person.id, person.name, person.gender.toString, person.dateOfBirth.toString, person.placeOfBirth))
   }
   
   test("should convert soundtrack to soundtrack dto") {
@@ -73,15 +88,5 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   test("should convert subtitle to subtitle dto if the language and format names are not defined") {
     val subtitle = Subtitle("en")
     toSubtitleDto(subtitle) should be(SubtitleDto(subtitle.id, subtitle.languageCode, None))
-  }
-  
-  test("should convert digital container to digital container dto") {
-    val movie = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    val englishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
-    val hungarianSoundtrack = Soundtrack("hu", "dts", "Hungarian", "DTS")
-    val englishSubtitle = Subtitle("en", "English")
-    val hungarianSubtitle = Subtitle("hu", "Hungarian")
-    val digitalContainer = DigitalContainer(movie, Set(englishSoundtrack, hungarianSoundtrack), Set(englishSubtitle, hungarianSubtitle))
-    toDigitalContainerDto(digitalContainer) should be(DigitalContainerDto(digitalContainer.id, movie, digitalContainer.soundtracks.map(toSoundtrackDto(_)), digitalContainer.subtitles.map(toSubtitleDto(_))))
   }
 }

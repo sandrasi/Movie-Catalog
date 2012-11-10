@@ -117,7 +117,30 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     digitalContainer.version should be(0)
     digitalContainer.id should be(Some(digitalContainerNode.getId))
   }
-  
+
+  test("should create genre entity from node") {
+    val genreNode = createNodeFrom(Crime)
+    val genre = subject.createEntityFrom(genreNode, classOf[Genre])
+    genre.code should be(Crime.code)
+    genre.name should be(Crime.name)
+    genre.version should be(Crime.version)
+    genre.id should be(Some(genreNode.getId))
+  }
+
+  test("should create genre entity from node with name of which locale matches the given locale") {
+    val ge = insertEntity(Crime)
+    val genreWithDifferentLocale = ge.copy(name = Some(LocalizedText("Krimi")(HungarianLocale)))
+    val genreNode = transaction(db) { updateNodeOf(genreWithDifferentLocale, HungarianLocale) }
+    val genre = subject.createEntityFrom(genreNode, classOf[Genre])(AmericanLocale)
+    genre.name should be(Crime.name)
+  }
+
+  test("should create genre entity from node without name if the locale does not match any of the saved values") {
+    val genreNode = createNodeFrom(Crime)
+    val genre = subject.createEntityFrom(genreNode, classOf[Genre])(HungarianLocale)
+    genre.name should be(None)
+  }
+
   test("should create movie entity from node") {
     val movieNode = createNodeFrom(PulpFiction)
     val movie = subject.createEntityFrom(movieNode, classOf[Movie])
@@ -151,9 +174,9 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     soundtrack.id should be(Some(soundtrackNode.getId))
   }
   
-  test("should create soundtrack entity from node with language and format names of which locale matches the given locale") {
-    val sn = insertEntity(EnglishSoundtrack)
-    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), sn.version, sn.id.get)
+  test("should create soundtrack entity from node with language and format names of which locales match the given locale") {
+    val se = insertEntity(EnglishSoundtrack)
+    val soundtrackWithDifferentLocale = Soundtrack(EnglishSoundtrack.languageCode, EnglishSoundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), se.version, se.id.get)
     val soundtrackNode = transaction(db) { updateNodeOf(soundtrackWithDifferentLocale, HungarianLocale) }
     val soundtrack = subject.createEntityFrom(soundtrackNode, classOf[Soundtrack])(AmericanLocale)
     soundtrack.languageName should be(EnglishSoundtrack.languageName)
@@ -177,8 +200,8 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should create subtitle entity from node with language name of which locale matches the given locale") {
-    val sn = insertEntity(EnglishSubtitle)
-    val subtitleWithDifferentLocale = Subtitle(EnglishSubtitle.languageCode, LocalizedText("Angol")(HungarianLocale), sn.version, sn.id.get)
+    val se = insertEntity(EnglishSubtitle)
+    val subtitleWithDifferentLocale = Subtitle(EnglishSubtitle.languageCode, LocalizedText("Angol")(HungarianLocale), se.version, se.id.get)
     val subtitleNode = transaction(db) { updateNodeOf(subtitleWithDifferentLocale, HungarianLocale) }
     val subtitle = subject.createEntityFrom(subtitleNode, classOf[Subtitle])(AmericanLocale)
     subtitle.languageName should be(EnglishSubtitle.languageName)

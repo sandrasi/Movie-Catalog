@@ -21,6 +21,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private final val CastIndex = IdxMgr.forNodes("Cast")
   private final val CharacterIndex = IdxMgr.forNodes("Characters")
   private final val DigitalContainerIndex = IdxMgr.forNodes("DigitalConainers")
+  private final val GenreIndex = IdxMgr.forNodes("Genres")
   private final val MotionPictureIndex = IdxMgr.forNodes("MotionPicture") // TODO (sandrasi): separate index for movies and tv shows
   private final val PersonIndex = IdxMgr.forNodes("Persons")
   private final val SoundtrackIndex = IdxMgr.forNodes("Soundtracks")
@@ -30,6 +31,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case (n, c: Cast) => index(n, c)
     case (n, c: Character) => index(n, c)
     case (n, dc: DigitalContainer) => index(n, dc)
+    case (n, g: Genre) => index(n, g)
     case (n, m: MotionPicture) => index(n, m)
     case (n, p: Person) => index(n, p)
     case (n, s: Soundtrack) => index(n, s)
@@ -55,6 +57,11 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     DigitalContainerIndex.add(n, DigitalContainerMotionPicture, lookUpExact(dc.motionPicture).get.getId)
     dc.soundtracks.foreach((s: Soundtrack) => DigitalContainerIndex.add(n, DigitalContainerSoundtrack, lookUpExact(s).get.getId))
     dc.subtitles.foreach((s: Subtitle) => DigitalContainerIndex.add(n, DigitalContainerSubtitle, lookUpExact(s).get.getId))
+  }
+
+  private def index(n: Node, g: Genre) {
+    GenreIndex.remove(n)
+    GenreIndex.add(n, GenreCode, g.code)
   }
 
   private def index(n: Node, m: MotionPicture) {
@@ -97,6 +104,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case c: Cast => exists(c)
     case c: Character => exists(c)
     case dc: DigitalContainer => exists(dc)
+    case g: Genre => exists(g)
     case m: MotionPicture => exists(m)
     case p: Person => exists(p)
     case s: Soundtrack => exists(s)
@@ -108,6 +116,8 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private def exists(c: Character): Boolean = lookUpExact(c).isDefined
 
   private def exists(dc: DigitalContainer): Boolean = lookUpExact(dc).isDefined
+
+  private def exists(g: Genre): Boolean = lookUpExact(g).isDefined
 
   private def exists(m: MotionPicture): Boolean = lookUpExact(m).isDefined
 
@@ -121,6 +131,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     case c: Cast => lookUpExact(c)
     case c: Character => lookUpExact(c)
     case dc: DigitalContainer => lookUpExact(dc)
+    case g: Genre => lookUpExact(g)
     case m: MotionPicture => lookUpExact(m)
     case p: Person => lookUpExact(p)
     case s: Soundtrack => lookUpExact(s)
@@ -158,6 +169,12 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     val dcsWithSameSoundtracks = if (dcSetWithSameSoundtracks.isEmpty) Set.empty[Node] else dcSetWithSameSoundtracks.reduce(_ & _)
     val dcsWithSameSubtitles = if (dcSetWithSameSubtitles.isEmpty) Set.empty[Node] else dcSetWithSameSubtitles.reduce(_ & _)
     (dcsWithSameMotionPicture & dcsWithSameSoundtracks & dcsWithSameSubtitles).filter((n: Node) => n.getRelationships(WithSoundtrack, OUTGOING).iterator.asScala.size == dc.soundtracks.size && n.getRelationships(WithSubtitle, OUTGOING).iterator().asScala.size == dc.subtitles.size).headOption
+  }
+
+  private def lookUpExact(g: Genre): Option[Node] = {
+    val query = new BooleanQuery()
+    query.add(new TermQuery(new Term(GenreCode, g.code)), MUST)
+    Option(GenreIndex.query(query).getSingle)
   }
 
   private def lookUpExact(m: MotionPicture): Option[Node] = {

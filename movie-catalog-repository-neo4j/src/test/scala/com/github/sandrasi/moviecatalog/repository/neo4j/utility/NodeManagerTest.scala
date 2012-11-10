@@ -12,13 +12,14 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 
 @RunWith(classOf[JUnitRunner])
 class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -229,11 +230,59 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
-  test("should create node from movie") {
+  test("should create node from genre") {
     implicit val tx = db.beginTx()
-    val movieNode = transaction(tx) { subject.createNodeFrom(PulpFiction) }
+    val genreNode = transaction(tx) { subject.createNodeFrom(Crime) }
+    getString(genreNode, GenreCode) should be(Crime.code)
+    Some(getLocalizedText(genreNode, GenreName)) should be(Crime.name)
+    getLong(genreNode, Version) should be(Crime.version)
+    genreNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Genre]))
+  }
+
+  test("should create node from genre without name") {
+    implicit val tx = db.beginTx()
+    val genreNode = transaction(tx) { subject.createNodeFrom(Genre("crime")) }
+    intercept[NotFoundException] {
+      genreNode.getProperty(GenreName)
+    }
+  }
+
+  test("should not create node from genre if the name locale does not match the current locale") {
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.createNodeFrom(Genre("crime", LocalizedText("Krimi")(HungarianLocale))) }
+    }
+  }
+
+  test("should not create node from genre if a node already exists for that genre") {
+    implicit val tx = db.beginTx()
+    transaction(tx) { subject.createNodeFrom(Crime) }
+
+    intercept[IllegalArgumentException] {
+      implicit val tx = db.beginTx()
+      transaction(tx) { subject.createNodeFrom(Crime) }
+    }
+  }
+
+  test("should create node from genre if the code is different") {
+    val anotherGenre = Crime.copy(code = "thriller")
+    implicit val tx = db.beginTx()
+    transaction(tx) {
+      val genreNode = subject.createNodeFrom(Crime)
+      val anotherGenreNode = subject.createNodeFrom(anotherGenre)
+      genreNode.getId should not equal(anotherGenreNode.getId)
+    }
+  }
+
+  test("should create node from movie") {
+    val crimeGenreNode = createNodeFrom(Crime)
+    val thrillerGenreNode = createNodeFrom(Thriller)
+    implicit val tx = db.beginTx()
+    val movieNode = transaction(tx) { subject.createNodeFrom(PulpFiction.copy(genres = Set(createGenreFrom(crimeGenreNode), createGenreFrom(thrillerGenreNode)))) }
     getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
     getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
+    movieNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crimeGenreNode, thrillerGenreNode))
     getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
     getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLong(movieNode, Version) should be(PulpFiction.version)
@@ -476,9 +525,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val anotherSubtitle = Subtitle("hu", EnglishSubtitle.languageName.get)
     implicit val tx = db.beginTx()
     transaction(tx) {
-      val soundtrackNode = subject.createNodeFrom(EnglishSubtitle)
-      val anotherSoundtrackNode = subject.createNodeFrom(anotherSubtitle)
-      soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
+      val subtitleNode = subject.createNodeFrom(EnglishSubtitle)
+      val anotherSubtitleNode = subject.createNodeFrom(anotherSubtitle)
+      subtitleNode.getId should not equal(anotherSubtitleNode.getId)
     }
   }
 
@@ -583,13 +632,71 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
+  test("should update genre node") {
+    val genre = insertEntity(Crime)
+    val modifiedGenre = genre.copy(code = "thriller", name = Some("Thriller"))
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+    getString(updatedNode, GenreCode) should be("thriller")
+    getLocalizedText(updatedNode, GenreName) should be(LocalizedText("Thriller"))
+    getLong(updatedNode, Version) should be(modifiedGenre.version + 1)
+    updatedNode.getId should be(genre.id.get)
+  }
+
+  test("should add the genre name to the node properties") {
+    val genre = insertEntity(Crime)
+    val modifiedGenre = genre.copy(name = Some(LocalizedText("Krimi")(HungarianLocale)))
+    implicit val tx = db.beginTx()
+    implicit val locale = HungarianLocale
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+    getLocalizedTextSet(updatedNode, GenreName) should be(Set(LocalizedText("Crime")(AmericanLocale), LocalizedText("Krimi")(HungarianLocale)))
+  }
+
+  test("should remove the genre name from the node properties") {
+    val genre = insertEntity(Crime)
+    val modifiedGenre = genre.copy(name = None)
+    implicit val tx = db.beginTx()
+    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+    assert(!hasLocalizedText(updatedNode, GenreName))
+  }
+
+  test("should not update genre node if a different node already exists for the modified genre") {
+    val genre = insertEntity(Crime)
+    insertEntity(Thriller)
+    implicit val tx = db.beginTx()
+    intercept[IllegalArgumentException] {
+      transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", name = Some("Thriller"))) }
+    }
+  }
+
+  test("should not update genre node if the version of the genre does not match the version of the node") {
+    val genre = insertEntity(Crime)
+    val modifiedGenre = genre.copy(code = "thriller", version = genre.version + 1)
+    implicit val tx = db.beginTx()
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+    }
+  }
+
+  test("should not update genre node if the name locale does not match the current locale") {
+    val genre = insertEntity(Crime)
+    implicit val tx = db.beginTx()
+    implicit val locale = AmericanLocale
+    intercept[IllegalStateException] {
+      transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", name = Some(LocalizedText("Krimi")(HungarianLocale)))) }
+    }
+  }
+
   test("should update movie node") {
     val movie = insertEntity(PulpFiction)
-    val modifiedMovie = Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)
+    val crime = createNodeFrom(Crime)
+    val thriller = createNodeFrom(Thriller)
+    val modifiedMovie = movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), genres = Set(createGenreFrom(crime), createGenreFrom(thriller)), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedMovie) }
     getLocalizedText(updatedNode, MovieOriginalTitle) should be(LocalizedText("Die hard: With a vengeance"))
     getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)))
+    updatedNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crime, thriller))
     getDuration(updatedNode, MovieRuntime) should be(Duration.standardMinutes(131))
     getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
@@ -598,10 +705,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update movie node if a different node already exists for the modified movie") {
     val movie = insertEntity(PulpFiction)
-    insertEntity(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
+    insertEntity(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)) }
+      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(Crime, Thriller), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)) }
     }
   }
 
@@ -609,7 +716,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version + 1, movie.id.get)) }
+      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(Crime, Thriller), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version + 1, movie.id.get)) }
     }
   }
 

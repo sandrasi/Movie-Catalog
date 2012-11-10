@@ -10,8 +10,9 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 
@@ -23,12 +24,13 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   def createEntityFrom[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(implicit locale: Locale = US): A = withTypeCheck(n, entityType) {
     entityType match {
-      case ClassCast => createAbstractCastFrom(n)
-      case ClassActor => createActorFrom(n)
-      case ClassActress => createActressFrom(n)
+      case ClassCast => createAbstractCastFrom(n, locale)
+      case ClassActor => createActorFrom(n, locale)
+      case ClassActress => createActressFrom(n, locale)
       case ClassCharacter => createCharacterFrom(n)
       case ClassDigitalContainer => createDigitalContainerFrom(n, locale)
-      case ClassMovie => createMovieFrom(n)
+      case ClassGenre => createGenreFrom(n, locale)
+      case ClassMovie => createMovieFrom(n, locale)
       case ClassPerson => createPersonFrom(n)
       case ClassSoundtrack => createSoundtrackFrom(n, locale)
       case ClassSubtitle => createSubtitleFrom(n, locale)
@@ -38,23 +40,29 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
   
   private def withTypeCheck[A <: VersionedLongIdEntity](n: Node, entityType: Class[A])(op: => VersionedLongIdEntity) = if (DbMgr.isNodeOfType(n, entityType)) entityType.cast(op) else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, entityType.getName))
   
-  private def createAbstractCastFrom(n: Node) = if (DbMgr.isNodeOfType(n, classOf[Actor])) createActorFrom(n)
-    else if (DbMgr.isNodeOfType(n, classOf[Actress])) createActressFrom(n)
+  private def createAbstractCastFrom(n: Node, l: Locale) = if (DbMgr.isNodeOfType(n, classOf[Actor])) createActorFrom(n, l)
+    else if (DbMgr.isNodeOfType(n, classOf[Actress])) createActressFrom(n, l)
     else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassCast.getName, n.getId))
 
-  private def createActorFrom(n: Node) = Actor(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
+  private def createActorFrom(n: Node, l: Locale) = Actor(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode, l), getLong(n, Version), n.getId)
 
-  private def createActressFrom(n: Node) = Actress(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode), getLong(n, Version), n.getId)
+  private def createActressFrom(n: Node, l: Locale) = Actress(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode, l), getLong(n, Version), n.getId)
 
   private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), n.getId)
 
-  private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), n.getId)
+  private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode, l), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), n.getId)
   
   private def getSoundtracks(n: Node, l: Locale) = n.getRelationships(WithSoundtrack, OUTGOING).asScala.map(r => createSoundtrackFrom(r.getEndNode, l)).toSet
 
   private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).asScala.map(r => createSubtitleFrom(r.getEndNode, l)).toSet
 
-  private def createMovieFrom(n: Node) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate), getLong(n, Version), n.getId)
+  private def createGenreFrom(n: Node, l: Locale) = Genre(getString(n, GenreCode), getGenreName(n, l), getLong(n, Version), n.getId)
+
+  private def getGenreName(n: Node, l: Locale) = try { getLocalizedText(n, GenreName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
+
+  private def createMovieFrom(n: Node, l: Locale) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getGenres(n, l), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate), getLong(n, Version), n.getId)
+
+  private def getGenres(n: Node, l: Locale) = n.getRelationships(HasGenre, OUTGOING).asScala.map(r => createGenreFrom(r.getEndNode, l)).toSet
 
   private def createPersonFrom(n: Node) = Person(getString(n, PersonName), Gender.valueOf(getString(n, PersonGender)), getLocalDate(n, PersonDateOfBirth), getString(n, PersonPlaceOfBirth), getLong(n, Version), n.getId)
 

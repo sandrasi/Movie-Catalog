@@ -9,11 +9,12 @@ import java.util.Locale._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 
 private[neo4j] class NodeManager(db: GraphDatabaseService) {
 
@@ -28,6 +29,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
       case c: Cast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(n, c), c.getClass), classOf[Cast])
       case c: Character => connectNodeToSubreferenceNode(setProperties(n, c), classOf[Character])
       case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(n, dc), classOf[DigitalContainer])
+      case g: Genre => connectNodeToSubreferenceNode(setProperties(n, g, l), classOf[Genre])
       case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(n, m), m.getClass), classOf[MotionPicture])
       case p: Person => connectNodeToSubreferenceNode(setProperties(n, p), classOf[Person])
       case s: Soundtrack => connectNodeToSubreferenceNode(setProperties(n, s, l), classOf[Soundtrack])
@@ -41,6 +43,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
       case c: Cast => setNodePropertiesFrom(n, c)
       case c: Character => setProperties(n, c)
       case dc: DigitalContainer => setProperties(n, dc)
+      case g: Genre => setProperties(n, g, l)
       case m: MotionPicture => setProperties(n, m)
       case p: Person => setProperties(n, p)
       case s: Soundtrack => setProperties(n, s, l)
@@ -106,9 +109,20 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     n
   }
 
+  private def setProperties(n: Node, g: Genre, l: Locale): Node = {
+    if (g.name.isDefined && (g.name.get.locale != l)) throw new IllegalStateException("Genre name locale %s does not match the current locale %s".format(g.name.get.locale, l))
+    setString(n, GenreCode, g.code)
+    if (g.name.isDefined) addOrReplaceLocalizedText(n, GenreName, g.name.get) else deleteLocalizedText(n, GenreName, l)
+    setVersion(n, g)
+    IdxMgr.index(n, g)
+    n
+  }
+
   private def setProperties(n: Node, m: MotionPicture): Node = {
+    n.getRelationships(HasGenre, OUTGOING).asScala.foreach(_.delete())
     setLocalizedText(n, MovieOriginalTitle, m.originalTitle)
     setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
+    m.genres.map(DbMgr.getNodeOf(_)).foreach(n.createRelationshipTo(_, HasGenre))
     setDuration(n, MovieRuntime, m.runtime)
     setLocalDate(n, MovieReleaseDate, m.releaseDate)
     setVersion(n, m)

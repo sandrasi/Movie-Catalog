@@ -207,7 +207,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should update movie in the database and return a managed instance") {
     val movieInDb = insertEntity(PulpFiction)
-    val modifiedMovie = Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movieInDb.version, movieInDb.id.get)
+    val modifiedMovie = movieInDb.copy(originalTitle = "Die hard: With a vengeance")
     val updatedMovie = subject.save(modifiedMovie)
     updatedMovie.version should be(movieInDb.version + 1)
     updatedMovie.id should be (movieInDb.id)

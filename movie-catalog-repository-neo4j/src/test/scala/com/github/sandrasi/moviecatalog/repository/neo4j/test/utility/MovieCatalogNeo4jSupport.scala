@@ -27,7 +27,9 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val ItalianLocale = Locale.ITALY
   protected final val VincentVega = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
   protected final val MiaWallace = Character("Mia Wallace", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-  protected final val PulpFiction = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+  protected final val Crime = Genre("crime", "Crime")
+  protected final val Thriller = Genre("thriller", "Thriller")
+  protected final val PulpFiction = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
   protected final val JohnTravolta = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
   protected final val UmaThurman = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
   protected final val EnglishSoundtrack = Soundtrack("en", "dts", "English", "DTS")
@@ -81,6 +83,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
     case a: Actress => createActressFrom(createNodeFrom(a)).asInstanceOf[A]
     case c: Character => createCharacterFrom(createNodeFrom(c)).asInstanceOf[A]
     case dc: DigitalContainer => createDigitalContainerFrom(createNodeFrom(dc)).asInstanceOf[A]
+    case g: Genre => createGenreFrom(createNodeFrom(g)).asInstanceOf[A]
     case m: Movie => createMovieFrom(createNodeFrom(m)).asInstanceOf[A]
     case p: Person => createPersonFrom(createNodeFrom(p)).asInstanceOf[A]
     case s: Soundtrack => createSoundtrackFrom(createNodeFrom(s)).asInstanceOf[A]
@@ -94,6 +97,8 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected def createCharacterFrom(n: Node): Character = EntityFactory(db).createEntityFrom(n, classOf[Character])
 
   protected def createDigitalContainerFrom(n: Node): DigitalContainer = EntityFactory(db).createEntityFrom(n, classOf[DigitalContainer])
+
+  protected def createGenreFrom(n: Node): Genre = EntityFactory(db).createEntityFrom(n, classOf[Genre])
 
   protected def createMovieFrom(n: Node): Movie = EntityFactory(db).createEntityFrom(n, classOf[Movie])
 

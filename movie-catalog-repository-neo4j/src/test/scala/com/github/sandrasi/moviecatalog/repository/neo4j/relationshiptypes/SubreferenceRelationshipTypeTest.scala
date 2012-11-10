@@ -10,7 +10,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Subre
 class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
 
   test("should list all subreference relationship type values") {
-    SubreferenceRelationshipType.values should be(List(Actor, Actress, Cast, Character, DigitalContainer, MotionPicture, Movie, Person, Soundtrack, Subtitle))
+    SubreferenceRelationshipType.values should be(List(Actor, Actress, Cast, Character, DigitalContainer, Genre, MotionPicture, Movie, Person, Soundtrack, Subtitle))
   }
 
   test("should create subreference relationship type values from string matching enum names") {
@@ -19,6 +19,7 @@ class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
     SubreferenceRelationshipType.valueOf("Cast") should be(Cast)
     SubreferenceRelationshipType.valueOf("Character") should be(Character)
     SubreferenceRelationshipType.valueOf("DigitalContainer") should be(DigitalContainer)
+    SubreferenceRelationshipType.valueOf("Genre") should be(Genre)
     SubreferenceRelationshipType.valueOf("MotionPicture") should be(MotionPicture)
     SubreferenceRelationshipType.valueOf("Movie") should be(Movie)
     SubreferenceRelationshipType.valueOf("Person") should be(Person)
@@ -38,6 +39,7 @@ class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
     Cast.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Cast].getName)
     Character.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Character].getName)
     DigitalContainer.name should be(classOf[com.github.sandrasi.moviecatalog.domain.DigitalContainer].getName)
+    Genre.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Genre].getName)
     MotionPicture.name should be(classOf[com.github.sandrasi.moviecatalog.domain.MotionPicture].getName)
     Movie.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Movie].getName)
     Person.name should be(classOf[com.github.sandrasi.moviecatalog.domain.Person].getName)
@@ -51,6 +53,7 @@ class SubreferenceRelationshipTypeTest extends FunSuite with ShouldMatchers {
     SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Cast]) should be(Cast)
     SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Character]) should be(Character)
     SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.DigitalContainer]) should be(DigitalContainer)
+    SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Genre]) should be(Genre)
     SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.MotionPicture]) should be(MotionPicture)
     SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Movie]) should be(Movie)
     SubreferenceRelationshipType.forClass(classOf[com.github.sandrasi.moviecatalog.domain.Person]) should be(Person)

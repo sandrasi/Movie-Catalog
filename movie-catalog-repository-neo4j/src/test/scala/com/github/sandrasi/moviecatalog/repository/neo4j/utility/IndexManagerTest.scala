@@ -100,6 +100,16 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
     assert(!subject.exists(DigitalContainer(PulpFiction, Set(EnglishSoundtrack, HungarianSoundtrack), Set(EnglishSubtitle, HungarianSubtitle))))
   }
 
+  test("should find the same genre") {
+    createNodeFrom(Crime)
+    assert(subject.exists(Crime))
+  }
+
+  test("should not find the genre if it has different code") {
+    createNodeFrom(Crime)
+    assert(!subject.exists(Genre("thriller")))
+  }
+
   test("should find the same motion picture") {
     createNodeFrom(PulpFiction)
     assert(subject.exists(PulpFiction))
