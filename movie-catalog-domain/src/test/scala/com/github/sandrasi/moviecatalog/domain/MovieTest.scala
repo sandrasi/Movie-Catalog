@@ -50,13 +50,13 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should not create movie with null original title") {
     intercept[IllegalArgumentException] {
-      Movie(originalTitle = null)
+      Movie(null)
     }
   }
 
   test("should not create movie with blank original title") {
     intercept[IllegalArgumentException] {
-      Movie(originalTitle = "  ")
+      Movie("  ")
     }
   }
 

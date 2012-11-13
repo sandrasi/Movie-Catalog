@@ -543,7 +543,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     updatedNode.getSingleRelationship(Played, OUTGOING).getEndNode should be(anotherCharacterNode)
     updatedNode.getSingleRelationship(AppearedIn, OUTGOING).getEndNode should be(anotherMovieNode)
     getLong(updatedNode, Version) should be (actor.version + 1)
-    updatedNode.getId should be(actor.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(actor.id.get.toString)
   }
 
   test("should not update actor node if a different node already exists for the modified actor") {
@@ -575,7 +575,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getString(updatedNode, CharacterCreator) should be("Robert Rodriguez")
     getLocalDate(updatedNode, CharacterCreationDate) should be(new LocalDate(2007, 4, 6))
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
-    updatedNode.getId should be(character.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(character.id.get.toString)
   }
 
   test("should not update character node if a different node already exists for the modified character") {
@@ -607,7 +607,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     updatedNode.getRelationships(WithSoundtrack, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(anotherSoundtrackNode))
     updatedNode.getRelationships(WithSubtitle, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(anotherSubtitleNode))
     getLong(updatedNode, Version) should be(modifiedDigitalContainer.version + 1)
-    updatedNode.getId should be(digitalContainer.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(digitalContainer.id.get.toString)
   }
 
   test("should not update digital container node if a different node already exists for the modified digital container") {
@@ -640,7 +640,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getString(updatedNode, GenreCode) should be("thriller")
     getLocalizedText(updatedNode, GenreName) should be(LocalizedText("Thriller"))
     getLong(updatedNode, Version) should be(modifiedGenre.version + 1)
-    updatedNode.getId should be(genre.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(genre.id.get.toString)
   }
 
   test("should add the genre name to the node properties") {
@@ -700,7 +700,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getDuration(updatedNode, MovieRuntime) should be(Duration.standardMinutes(131))
     getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
-    updatedNode.getId should be(movie.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(movie.id.get.toString)
   }
 
   test("should not update movie node if a different node already exists for the modified movie") {
@@ -730,7 +730,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalDate(updatedNode, PersonDateOfBirth) should be(new LocalDate(1970, 4, 29))
     getString(updatedNode, PersonPlaceOfBirth) should be("Boston, Massachusetts, U.S.")
     getLong(updatedNode, Version) should be(modifiedPerson.version + 1)
-    updatedNode.getId should be(person.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(person.id.get.toString)
   }
 
   test("should not update person node if a different node already exists for the modified person") {
@@ -760,7 +760,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalizedText(updatedNode, SoundtrackLanguageName) should be(LocalizedText("Italian"))
     getLocalizedText(updatedNode, SoundtrackFormatName) should be(LocalizedText("Dolby Digital 5.1"))
     getLong(updatedNode, Version) should be(modifiedSoundtrack.version + 1)
-    updatedNode.getId should be(soundtrack.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(soundtrack.id.get.toString)
   }
 
   test("should add the soundtrack language and format names to the node properties") {
@@ -816,7 +816,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getString(updatedNode, SubtitleLanguageCode) should be("it")
     getLocalizedText(updatedNode, SubtitleLanguageName) should be(LocalizedText("Italian"))
     getLong(updatedNode, Version) should be(modifiedSubtitle.version + 1)
-    updatedNode.getId should be(subtitle.id.get)
+    updatedNode.getProperty(Uuid).asInstanceOf[String] should be(subtitle.id.get.toString)
   }
 
   test("should add the subtitle language name to the node properties") {
@@ -974,7 +974,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
-  test("should find all abstract cast nodes") {
+  test("should find all cast nodes") {
     val movie = insertEntity(PulpFiction)
     val actorNode = createNodeFrom(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
     val actressNode = createNodeFrom(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
@@ -1026,7 +1026,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not find nodes of unsupported entity type") {
     intercept[IllegalArgumentException] {
-      subject.getNodesOfType(classOf[VersionedLongIdEntity])
+      subject.getNodesOfType(classOf[Entity])
     }
   }
 }

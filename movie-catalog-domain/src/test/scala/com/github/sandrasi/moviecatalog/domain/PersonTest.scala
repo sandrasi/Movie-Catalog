@@ -52,7 +52,7 @@ class PersonTest extends FunSuite with ShouldMatchers {
 
   test("should not create person with null id") {
     intercept[IllegalArgumentException] {
-      Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", 0, id = null)
+      new Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", 0, id = null)
     }
   }
 

@@ -5,6 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.junit.runner.RunWith
 import org.joda.time.LocalDate
+import java.util.UUID
 
 @RunWith(classOf[JUnitRunner])
 class CharacterTest extends FunSuite with ShouldMatchers {
@@ -26,13 +27,13 @@ class CharacterTest extends FunSuite with ShouldMatchers {
 
   test("should not create character with null creator") {
     intercept[IllegalArgumentException] {
-      Character("Vincent Vega", null, new LocalDate(1994, 10, 14), 0, 0)
+      Character("Vincent Vega", null, new LocalDate(1994, 10, 14))
     }
   }
 
   test("should not create character with null creationDate") {
     intercept[IllegalArgumentException] {
-      Character("Vincent Vega", "Quentin Tarantino", null, 0, 0)
+      Character("Vincent Vega", "Quentin Tarantino", null)
     }
   }
 
@@ -42,7 +43,7 @@ class CharacterTest extends FunSuite with ShouldMatchers {
     }
   }
 
-  test("should not create character with negative id") {
+  test("should not create character with null id") {
     intercept[IllegalArgumentException] {
       new Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14), 0, id = null)
     }

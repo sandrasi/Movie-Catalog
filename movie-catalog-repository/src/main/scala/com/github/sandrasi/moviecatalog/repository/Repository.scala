@@ -2,19 +2,19 @@ package com.github.sandrasi.moviecatalog.repository
 
 import scala.collection.mutable.{Map => MutableMap}
 import java.util.Locale
-import com.github.sandrasi.moviecatalog.domain.VersionedLongIdEntity
+import com.github.sandrasi.moviecatalog.domain.Entity
 
 trait Repository {
 
-  def get[A <: VersionedLongIdEntity](id: Long, entityType: Class[A])(implicit locale: Locale): Option[A]
+  def get[A <: Entity](id: Long, entityType: Class[A])(implicit locale: Locale): Option[A]
 
-  def save[A <: VersionedLongIdEntity](entity: A)(implicit locale: Locale): A
+  def save[A <: Entity](entity: A)(implicit locale: Locale): A
   
-  def delete(entity: VersionedLongIdEntity)
+  def delete(entity: Entity)
 
-  def query[A <: VersionedLongIdEntity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A]
+  def query[A <: Entity](entityType: Class[A], predicate: A => Boolean = (_: A) => true): Iterator[A]
 
-  def search(text: String)(implicit locale: Locale): Iterator[VersionedLongIdEntity]
+  def search(text: String)(implicit locale: Locale): Iterator[Entity]
 
   def shutdown()
 }

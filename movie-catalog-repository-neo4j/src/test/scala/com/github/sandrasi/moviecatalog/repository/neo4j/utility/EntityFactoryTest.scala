@@ -6,9 +6,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain._
-import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
+import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants.Uuid
 
 @RunWith(classOf[JUnitRunner])
 class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -33,35 +34,35 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     }
   }
   
-  test("should create abstract cast entity from actor node") {
+  test("should create cast entity from actor node") {
     val person = insertEntity(JohnTravolta)
     val character = insertEntity(VincentVega)
     val movie = insertEntity(PulpFiction)
     val actorNode = createNodeFrom(Actor(person, character, movie))
-    val abstractCast = subject.createEntityFrom(actorNode, classOf[Cast])
-    abstractCast.person should be(JohnTravolta)
-    abstractCast.character should be(VincentVega)
-    abstractCast.motionPicture should be(PulpFiction)
-    abstractCast.version should be(0)
-    abstractCast.id should be(Some(actorNode.getId))
-    assert(abstractCast.isInstanceOf[Actor])
+    val cast = subject.createEntityFrom(actorNode, classOf[Cast])
+    cast.person should be(JohnTravolta)
+    cast.character should be(VincentVega)
+    cast.motionPicture should be(PulpFiction)
+    cast.version should be(0)
+    cast.id.get.toString should be(actorNode.getProperty(Uuid).asInstanceOf[String])
+    assert(cast.isInstanceOf[Actor])
   }
 
-  test("should create abstract cast entity from actress node") {
+  test("should create cast entity from actress node") {
     val person = insertEntity(UmaThurman)
     val character = insertEntity(MiaWallace)
     val movie = insertEntity(PulpFiction)
     val actressNode = createNodeFrom(Actress(person, character, movie))
-    val abstractCast = subject.createEntityFrom(actressNode, classOf[Cast])
-    abstractCast.person should be(UmaThurman)
-    abstractCast.character should be(MiaWallace)
-    abstractCast.motionPicture should be(PulpFiction)
-    abstractCast.version should be(0)
-    abstractCast.id should be(Some(actressNode.getId))
-    assert(abstractCast.isInstanceOf[Actress])
+    val cast = subject.createEntityFrom(actressNode, classOf[Cast])
+    cast.person should be(UmaThurman)
+    cast.character should be(MiaWallace)
+    cast.motionPicture should be(PulpFiction)
+    cast.version should be(0)
+    cast.id.get.toString should be(actressNode.getProperty(Uuid).asInstanceOf[String])
+    assert(cast.isInstanceOf[Actress])
   }
 
-  test("should not create abstract cast from node of unspecified abstract cast node") {
+  test("should not create cast from node of unspecified cast node") {
     val node = createNode()
     transaction(db) { node.createRelationshipTo(dbMgr.getSubreferenceNode(classOf[Cast]), IsA) }
     intercept[IllegalArgumentException] {
@@ -79,7 +80,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     actor.character should be(VincentVega)
     actor.motionPicture should be(PulpFiction)
     actor.version should be(0)
-    actor.id should be(Some(actorNode.getId))
+    actor.id.get.toString should be(actorNode.getProperty(Uuid).asInstanceOf[String])
   }
 
   test("should create actress entity from node") {
@@ -92,7 +93,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     actress.character should be(MiaWallace)
     actress.motionPicture should be(PulpFiction)
     actress.version should be(0)
-    actress.id should be(Some(actressNode.getId))
+    actress.id.get.toString should be(actressNode.getProperty(Uuid).asInstanceOf[String])
   }
 
   test("should create character entity from node") {
@@ -100,7 +101,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val character = subject.createEntityFrom(characterNode, classOf[Character])
     character.name should be(VincentVega.name)
     character.version should be(VincentVega.version)
-    character.id should be(Some(characterNode.getId))
+    character.id.get.toString should be(characterNode.getProperty(Uuid).asInstanceOf[String])
   }
   
   test("should create digital container entity from node") {
@@ -115,7 +116,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     digitalContainer.soundtracks should be(Set(englishSoundtrack, hungarianSoundtrack))
     digitalContainer.subtitles should be(Set(englishSubtitle, hungarianSubtitle))
     digitalContainer.version should be(0)
-    digitalContainer.id should be(Some(digitalContainerNode.getId))
+    digitalContainer.id.get.toString should be(digitalContainerNode.getProperty(Uuid).asInstanceOf[String])
   }
 
   test("should create genre entity from node") {
@@ -124,7 +125,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     genre.code should be(Crime.code)
     genre.name should be(Crime.name)
     genre.version should be(Crime.version)
-    genre.id should be(Some(genreNode.getId))
+    genre.id.get.toString should be(genreNode.getProperty(Uuid).asInstanceOf[String])
   }
 
   test("should create genre entity from node with name of which locale matches the given locale") {
@@ -149,7 +150,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     movie.runtime should be(PulpFiction.runtime)
     movie.releaseDate should be(PulpFiction.releaseDate)
     movie.version should be(PulpFiction.version)
-    movie.id should be(Some(movieNode.getId))
+    movie.id.get.toString should be(movieNode.getProperty(Uuid).asInstanceOf[String])
   }
 
   test("should create person entity from node") {
@@ -160,7 +161,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     person.dateOfBirth should be(JohnTravolta.dateOfBirth)
     person.placeOfBirth should be(JohnTravolta.placeOfBirth)
     person.version should be(JohnTravolta.version)
-    person.id should be(Some(personNode.getId))
+    person.id.get.toString should be(personNode.getProperty(Uuid).asInstanceOf[String])
   }
   
   test("should create soundtrack entity from node") {
@@ -171,7 +172,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     soundtrack.languageName should be(EnglishSoundtrack.languageName)
     soundtrack.formatName should be(EnglishSoundtrack.formatName)
     soundtrack.version should be(EnglishSoundtrack.version)
-    soundtrack.id should be(Some(soundtrackNode.getId))
+    soundtrack.id.get.toString should be(soundtrackNode.getProperty(Uuid).asInstanceOf[String])
   }
   
   test("should create soundtrack entity from node with language and format names of which locales match the given locale") {
@@ -196,7 +197,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     subtitle.languageCode should be(EnglishSubtitle.languageCode)
     subtitle.languageName should be(EnglishSubtitle.languageName)
     subtitle.version should be(EnglishSubtitle.version)
-    subtitle.id should be(Some(subtitleNode.getId))
+    subtitle.id.get.toString should be(subtitleNode.getProperty(Uuid).asInstanceOf[String])
   }
 
   test("should create subtitle entity from node with language name of which locale matches the given locale") {
@@ -229,7 +230,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     val node = createNode()
     transaction(db) { node.createRelationshipTo(dbMgr.getSubreferenceNode(classOf[DigitalContainer]), EntityRelationshipType.IsA) }
     intercept[IllegalArgumentException] {
-      subject.createEntityFrom(node, classOf[VersionedLongIdEntity])
+      subject.createEntityFrom(node, classOf[Entity])
     }
   }
 }

@@ -1,12 +1,12 @@
 package com.github.sandrasi.moviecatalog.service.dtos
 
-import java.util.Locale
+import java.util.{UUID, Locale}
 import java.util.Locale.US
 import com.github.sandrasi.moviecatalog.domain._
 
 sealed trait BaseEntityDto {
 
-  def id: Option[Long]
+  def id: Option[String]
 }
 
 sealed trait CastDto extends FilmCrewDto {
@@ -29,25 +29,27 @@ sealed trait MotionPictureDto extends BaseEntityDto {
   def releaseDate: String
 }
 
-case class ActorDto(id: Option[Long], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
+case class ActorDto(id: Option[String], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
 
-case class ActressDto(id: Option[Long], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
+case class ActressDto(id: Option[String], person: PersonDto, character: CharacterDto, motionPicture: MotionPictureDto) extends CastDto
 
-case class CharacterDto(id: Option[Long], name: String, creator: String, creationDate: String) extends BaseEntityDto
+case class CharacterDto(id: Option[String], name: String, creator: String, creationDate: String) extends BaseEntityDto
 
-case class DigitalContainerDto(id: Option[Long], motionPicture: MotionPictureDto, soundtracks: Set[SoundtrackDto], subtitles: Set[SubtitleDto]) extends BaseEntityDto
+case class DigitalContainerDto(id: Option[String], motionPicture: MotionPictureDto, soundtracks: Set[SoundtrackDto], subtitles: Set[SubtitleDto]) extends BaseEntityDto
 
-case class GenreDto(id: Option[Long], code: String, name: Option[String]) extends BaseEntityDto
+case class GenreDto(id: Option[String], code: String, name: Option[String]) extends BaseEntityDto
 
-case class MovieDto(id: Option[Long], originalTitle: String, localizedTitle: Option[String], genres: Set[GenreDto], runtime: Long, releaseDate: String) extends MotionPictureDto
+case class MovieDto(id: Option[String], originalTitle: String, localizedTitle: Option[String], genres: Set[GenreDto], runtime: Long, releaseDate: String) extends MotionPictureDto
 
-case class PersonDto(id: Option[Long], name: String, gender: String, dateOfBirth: String, placeOfBirth: String) extends BaseEntityDto
+case class PersonDto(id: Option[String], name: String, gender: String, dateOfBirth: String, placeOfBirth: String) extends BaseEntityDto
 
-case class SoundtrackDto(id: Option[Long], languageCode: String, formatCode: String, languageName: Option[String], formatName: Option[String]) extends BaseEntityDto
+case class SoundtrackDto(id: Option[String], languageCode: String, formatCode: String, languageName: Option[String], formatName: Option[String]) extends BaseEntityDto
 
-case class SubtitleDto(id: Option[Long], languageCode: String, languageName: Option[String]) extends BaseEntityDto
+case class SubtitleDto(id: Option[String], languageCode: String, languageName: Option[String]) extends BaseEntityDto
 
 object DtoSupport {
+
+  private implicit def optionalUuidToOptionalString(id: Option[UUID]) = if (id.isDefined) Some(id.get.toString) else None
 
   implicit def toActorDto(a: Actor)(implicit l: Locale = US): ActorDto = ActorDto(a.id, a.person, a.character, a.motionPicture)
 

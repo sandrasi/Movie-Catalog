@@ -55,5 +55,7 @@ private[neo4j] object MovieCatalogDbConstants {
 
   final val SubreferenceNodeClassName = "className"
 
+  final val Uuid = "uuid"
+
   final val Version = "version"
 }

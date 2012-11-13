@@ -7,6 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
+import java.util.UUID
 
 @RunWith(classOf[JUnitRunner])
 class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
@@ -43,16 +44,9 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     }
   }
 
-  test("should not return anything if the node does not represent the entity") {
-    val n = createNode()
-    intercept[ClassCastException] {
-      subject.getNodeOf(Actor(JohnTravolta, VincentVega, PulpFiction, id = n.getId))
-    }
-  }
-
   test("should not return anything if no node with given id is found in the database") {
     intercept[IllegalStateException] {
-      subject.getNodeOf(Actor(JohnTravolta, VincentVega, PulpFiction, id = getNodeCount + 1))
+      subject.getNodeOf(Actor(JohnTravolta, VincentVega, PulpFiction, id = UUID.randomUUID))
     }
   }
 
@@ -63,7 +57,7 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should not create node from entity with id") {
     intercept[IllegalStateException] {
-      subject.createNodeFor(Actor(JohnTravolta, VincentVega, PulpFiction, id = 1))
+      subject.createNodeFor(Actor(JohnTravolta, VincentVega, PulpFiction, id = UUID.randomUUID))
     }
   }
 
@@ -99,7 +93,7 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should not return a subreference node id for unsupported types") {
     intercept[IllegalArgumentException] {
-      subject.getSubreferenceNode(classOf[VersionedLongIdEntity])
+      subject.getSubreferenceNode(classOf[Entity])
     }
   }
 
@@ -144,7 +138,7 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val n = createNode()
     transaction(db) { n.createRelationshipTo(subject.getSubreferenceNode(classOf[Cast]), IsA) }
     intercept[IllegalArgumentException] {
-      subject.isNodeOfType(n, classOf[VersionedLongIdEntity])
+      subject.isNodeOfType(n, classOf[Entity])
     }
   }
 }

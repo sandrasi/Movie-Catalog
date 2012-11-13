@@ -4,7 +4,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import org.neo4j.graphdb._
 import org.neo4j.graphdb.Direction._
-import java.util.Locale
+import java.util.{UUID, Locale}
 import java.util.Locale._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
@@ -23,7 +23,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   private final val DbMgr = DatabaseManager(db)
   private final val IdxMgr = IndexManager(db)
 
-  def createNodeFrom(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
+  def createNodeFrom(e: Entity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
     val n = DbMgr.createNodeFor(e)
     e match {
       case c: Cast => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setNodePropertiesFrom(n, c), c.getClass), classOf[Cast])
@@ -37,7 +37,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     }
   }}
 
-  def updateNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
+  def updateNodeOf(e: Entity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
     val n = DbMgr.getNodeOf(e)
     e match {
       case c: Cast => setNodePropertiesFrom(n, c)
@@ -51,7 +51,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     }
   }}
 
-  def deleteNodeOf(e: VersionedLongIdEntity)(implicit tx: Transaction) {
+  def deleteNodeOf(e: Entity)(implicit tx: Transaction) {
     lock(e) {
       val n = DbMgr.getNodeOf(e)
       if (n.hasRelationship(INCOMING)) throw new IllegalStateException("%s is referenced by other entities".format(e))
@@ -62,19 +62,19 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     }
   }
 
-  def getNodesOfType[A <: VersionedLongIdEntity](c: Class[A]): Iterator[Node] = DbMgr.getSubreferenceNode(c).getRelationships(IsA, INCOMING).iterator.asScala.map(_.getStartNode)
+  def getNodesOfType[A <: Entity](c: Class[A]): Iterator[Node] = DbMgr.getSubreferenceNode(c).getRelationships(IsA, INCOMING).iterator.asScala.map(_.getStartNode)
 
-  private def lock(e: VersionedLongIdEntity)(dbOp: => Node)(implicit tx: Transaction): Node = {
+  private def lock(e: Entity)(dbOp: => Node)(implicit tx: Transaction): Node = {
     tx.acquireWriteLock(DbMgr.getSubreferenceNode(e.getClass))
     dbOp
   }
 
-  private def withExistenceCheck(e: VersionedLongIdEntity)(dbOp: => Node) = {
+  private def withExistenceCheck(e: Entity)(dbOp: => Node) = {
     val node = IdxMgr.lookUpExact(e)
-    if (node.isEmpty || Some(node.get.getId) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
+    if (node.isEmpty || Some(getUuid(node.get)) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
   }
 
-  private def connectNodeToSubreferenceNode[A <: VersionedLongIdEntity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
+  private def connectNodeToSubreferenceNode[A <: Entity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
 
   private def setNodePropertiesFrom(n: Node, c: Cast): Node = {
     n.getRelationships(CrewRelationshipType.forClass(c.getClass), OUTGOING).asScala.foreach(_.delete())
@@ -161,7 +161,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     n
   }
 
-  private def setVersion(n: Node, e: VersionedLongIdEntity) {
+  private def setVersion(n: Node, e: Entity) {
     if (e.id.isDefined && !hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
     setLong(n, Version, if (e.id.isEmpty) e.version else e.version + 1)
   }

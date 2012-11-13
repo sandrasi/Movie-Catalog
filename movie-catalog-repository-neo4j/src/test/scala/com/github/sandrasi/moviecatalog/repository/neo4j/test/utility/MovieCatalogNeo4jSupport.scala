@@ -64,21 +64,21 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
     db.db
   }
 
+  protected def getNode(e: Entity): Node = dbMgr.getNodeOf(e)
+
   protected def createNode(): Node = transaction(db) { db.createNode() }
 
-  protected def createNodeFrom(e: VersionedLongIdEntity): Node = {
+  protected def createNodeFrom(e: Entity): Node = {
     implicit val tx = db.beginTx()
     transaction(tx) { NodeManager(db).createNodeFrom(e) }
   }
 
-  protected def updateNodeOf(e: VersionedLongIdEntity, l: Locale = AmericanLocale): Node = {
+  protected def updateNodeOf(e: Entity, l: Locale = AmericanLocale): Node = {
     val tx = db.beginTx()
     transaction(tx) { NodeManager(db).updateNodeOf(e)(tx = tx, l = l) }
   }
 
-  protected def createRelationship(from: Node, to: Node, relType: RelationshipType): Relationship = transaction(db) { from.createRelationshipTo(to, relType) }
-
-  protected def insertEntity[A <: VersionedLongIdEntity]: PartialFunction[A, A] = {
+  protected def insertEntity[A <: Entity]: PartialFunction[A, A] = {
     case a: Actor => createActorFrom(createNodeFrom(a)).asInstanceOf[A]
     case a: Actress => createActressFrom(createNodeFrom(a)).asInstanceOf[A]
     case c: Character => createCharacterFrom(createNodeFrom(c)).asInstanceOf[A]
@@ -145,7 +145,7 @@ private final class Database private (val db: GraphDatabaseService, val storeDir
 
 private object Database {
 
-  def apply(): Database = apply(UUID.randomUUID().toString)
+  def apply(): Database = apply(UUID.randomUUID.toString)
 
   def apply(tempStoreDirPrefix: String, permanent: Boolean = false): Database = {
     val storeDir = Files.createTempDirectory(tempStoreDirPrefix)

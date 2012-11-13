@@ -1,12 +1,14 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import java.util.Locale
+import java.util.{UUID, Locale}
 import org.joda.time.{Duration, LocalDate, ReadableDuration}
 import org.neo4j.graphdb.PropertyContainer
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 
 private[utility] object PropertyManager {
+
+  def getUuid(propCntnt: PropertyContainer): UUID = UUID.fromString(propCntnt.getProperty(Uuid).asInstanceOf[String])
   
   def getString(propCntnr: PropertyContainer, key: String): String = propCntnr.getProperty(key).asInstanceOf[String]
 

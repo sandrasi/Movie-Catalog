@@ -1,23 +1,24 @@
 package com.github.sandrasi.moviecatalog.domain
 
+import java.util.UUID
 import org.joda.time.{Duration, ReadableDuration, LocalDate}
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
-sealed trait BaseEntity[A] extends Equals {
+sealed trait IdSupport[A] extends Equals {
 
   Validate.notNull(id)
 
   def id: Option[A]
 
   override def equals(o: Any): Boolean = o match {
-    case other: BaseEntity[_] => other.canEqual(this) && id == other.id
+    case other: IdSupport[_] => other.canEqual(this) && id == other.id
     case _ => false
   }
 
-  override def canEqual(o: Any): Boolean = o.isInstanceOf[BaseEntity[_]]
+  override def canEqual(o: Any): Boolean = o.isInstanceOf[IdSupport[_]]
 
   override def hashCode: Int = {
     var result = 3
@@ -26,19 +27,16 @@ sealed trait BaseEntity[A] extends Equals {
   }
 }
 
-sealed trait VersionSupport { self: BaseEntity[_] =>
+sealed trait VersionSupport {
 
   Validate.isTrue(version >= 0)
 
   def version: Long
 }
 
-sealed trait VersionedLongIdEntity extends BaseEntity[Long] with VersionSupport {
+sealed trait Entity extends IdSupport[UUID] with VersionSupport
 
-  Validate.isTrue(id.getOrElse(0l) >= 0l)
-}
-
-case class Character(name: String, creator: String, creationDate: LocalDate, version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+case class Character(name: String, creator: String, creationDate: LocalDate, version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notNull(name)
   Validate.notNull(creator)
@@ -66,10 +64,10 @@ object Character {
             creator: String = "",
             creationDate: LocalDate = new LocalDate(0),
             version: Long = 0,
-            id: Long = 0): Character = Character(name, creator, creationDate, version, if (id == 0) None else Some(id))
+            id: UUID = null): Character = Character(name, creator, creationDate, version, Option(id))
 }
 
-case class Genre(code: String, name: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+case class Genre(code: String, name: Option[LocalizedText], version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notBlank(code)
   Validate.notNull(name)
@@ -94,10 +92,10 @@ object Genre {
   def apply(code: String,
             name: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0): Genre = Genre(code, Option(name), version, if (id == 0) None else Some(id))
+            id: UUID = null): Genre = Genre(code, Option(name), version, Option(id))
 }
 
-sealed trait MotionPicture extends VersionedLongIdEntity {
+sealed trait MotionPicture extends Entity {
 
   Validate.notNull(originalTitle)
   Validate.notBlank(originalTitle.text)
@@ -128,7 +126,7 @@ sealed trait MotionPicture extends VersionedLongIdEntity {
   }
 }
 
-case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedText], genres: Set[Genre], runtime: ReadableDuration, releaseDate: LocalDate, version: Long, id: Option[Long]) extends MotionPicture {
+case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedText], genres: Set[Genre], runtime: ReadableDuration, releaseDate: LocalDate, version: Long, id: Option[UUID]) extends MotionPicture {
 
   override def equals(o: Any): Boolean = o match {
     case other: Movie => other.canEqual(this) && super.equals(o)
@@ -146,10 +144,10 @@ object Movie {
             runtime: ReadableDuration = Duration.ZERO,
             releaseDate: LocalDate = new LocalDate(0),
             version: Long = 0,
-            id: Long = 0): Movie = Movie(originalTitle, localizedTitles, genres, runtime, releaseDate, version, if (id == 0) None else Some(id))
+            id: UUID = null): Movie = Movie(originalTitle, localizedTitles, genres, runtime, releaseDate, version, Option(id))
 }
 
-case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfBirth: String, version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfBirth: String, version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notNull(name)
   Validate.notNull(gender)
@@ -179,10 +177,10 @@ object Person {
             dateOfBirth: LocalDate,
             placeOfBirth: String,
             version: Long = 0,
-            id: Long = 0): Person = Person(name, gender, dateOfBirth, placeOfBirth, version, if (id == 0) None else Some(id))
+            id: UUID = null): Person = Person(name, gender, dateOfBirth, placeOfBirth, version, Option(id))
 }
 
-sealed trait Crew extends VersionedLongIdEntity {
+sealed trait Crew extends Entity {
 
   Validate.notNull(person)
   Validate.notNull(motionPicture)
@@ -225,7 +223,7 @@ sealed trait Cast extends Crew {
   }
 }
 
-case class Actor(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[Long]) extends Cast {
+case class Actor(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
 
   Validate.isTrue(person.gender == Male)
 
@@ -243,10 +241,10 @@ object Actor {
             character: Character,
             motionPicture: MotionPicture,
             version: Long = 0,
-            id: Long = 0): Actor = Actor(person, character, motionPicture, version, if (id == 0) None else Some(id))
+            id: UUID = null): Actor = Actor(person, character, motionPicture, version, Option(id))
 }
 
-case class Actress(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[Long]) extends Cast {
+case class Actress(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
 
   Validate.isTrue(person.gender == Female)
 
@@ -264,10 +262,10 @@ object Actress {
             character: Character,
             motionPicture: MotionPicture,
             version: Long = 0,
-            id: Long = 0): Actress = Actress(person, character, motionPicture, version, if (id == 0) None else Some(id))
+            id: UUID = null): Actress = Actress(person, character, motionPicture, version, Option(id))
 }
 
-case class Soundtrack(languageCode: String, formatCode: String, languageName: Option[LocalizedText], formatName: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+case class Soundtrack(languageCode: String, formatCode: String, languageName: Option[LocalizedText], formatName: Option[LocalizedText], version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notBlank(languageCode)
   Validate.notBlank(formatCode)
@@ -299,10 +297,10 @@ object Soundtrack {
             languageName: LocalizedText = null,
             formatName: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0): Soundtrack = Soundtrack(languageCode, formatCode, Option(languageName), Option(formatName), version, if (id == 0) None else Some(id))
+            id: UUID = null): Soundtrack = Soundtrack(languageCode, formatCode, Option(languageName), Option(formatName), version, Option(id))
 }
 
-case class Subtitle(languageCode: String, languageName: Option[LocalizedText], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+case class Subtitle(languageCode: String, languageName: Option[LocalizedText], version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notBlank(languageCode)
   Validate.notNull(languageName)
@@ -327,10 +325,10 @@ object Subtitle {
   def apply(languageCode: String,
             languageName: LocalizedText = null,
             version: Long = 0,
-            id: Long = 0): Subtitle = Subtitle(languageCode, Option(languageName), version, if (id == 0) None else Some(id))
+            id: UUID = null): Subtitle = Subtitle(languageCode, Option(languageName), version, Option(id))
 }
 
-case class DigitalContainer(motionPicture: MotionPicture, soundtracks: Set[Soundtrack], subtitles: Set[Subtitle], version: Long, id: Option[Long]) extends VersionedLongIdEntity {
+case class DigitalContainer(motionPicture: MotionPicture, soundtracks: Set[Soundtrack], subtitles: Set[Subtitle], version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notNull(motionPicture)
   Validate.noNullElements(soundtracks)
@@ -358,5 +356,5 @@ object DigitalContainer {
             soundtracks: Set[Soundtrack] = Set.empty,
             subtitles: Set[Subtitle] = Set.empty,
             version: Long = 0,
-            id: Long = 0):DigitalContainer = DigitalContainer(motionPicture, soundtracks, subtitles, version, if (id == 0) None else Some(id))
+            id: UUID = null):DigitalContainer = DigitalContainer(motionPicture, soundtracks, subtitles, version, Option(id))
 }

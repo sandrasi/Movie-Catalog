@@ -27,7 +27,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   private final val SoundtrackIndex = IdxMgr.forNodes("Soundtracks")
   private final val SubtitleIndex = IdxMgr.forNodes("Subtitles")
 
-  def index: PartialFunction[(Node, VersionedLongIdEntity), Unit] = {
+  def index: PartialFunction[(Node, Entity), Unit] = {
     case (n, c: Cast) => index(n, c)
     case (n, c: Character) => index(n, c)
     case (n, dc: DigitalContainer) => index(n, dc)
@@ -100,7 +100,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
     SubtitleIndex.add(n, SubtitleLanguageCode, s.languageCode)
   }
 
-  def exists: PartialFunction[VersionedLongIdEntity, Boolean] = {
+  def exists: PartialFunction[Entity, Boolean] = {
     case c: Cast => exists(c)
     case c: Character => exists(c)
     case dc: DigitalContainer => exists(dc)
@@ -127,7 +127,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
 
   private def exists(s: Subtitle): Boolean = lookUpExact(s).isDefined
 
-  def lookUpExact: PartialFunction[VersionedLongIdEntity, Option[Node]] = {
+  def lookUpExact: PartialFunction[Entity, Option[Node]] = {
     case c: Cast => lookUpExact(c)
     case c: Character => lookUpExact(c)
     case dc: DigitalContainer => lookUpExact(dc)

@@ -36,7 +36,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should instantiate Neo4jRepository from configuration") {
     val configuration = new Neo4jRepository.RepositoryConfiguration
-    val storeDir = Files.createTempDirectory(UUID.randomUUID().toString).toString
+    val storeDir = Files.createTempDirectory(UUID.randomUUID.toString).toString
     configuration.setFromString("storeDir", storeDir)(Neo4jRepository.configurationMetaData.get("storeDir").get.parameterConverter)
     val subject = Neo4jRepository(configuration)
     subject should not be(null)
@@ -105,9 +105,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedActor.id should not be(None)
     savedActor should equal(actor)
     try {
-      db.getNodeById(savedActor.id.get)
+      getNode(savedActor)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -116,9 +116,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedCharacter.id should not be(None)
     savedCharacter should equal(VincentVega)
     try {
-      db.getNodeById(savedCharacter.id.get)
+      getNode(savedCharacter)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -128,9 +128,20 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedDigitalContainer.id should not be(None)
     savedDigitalContainer should equal(digitalContainer)
     try {
-      db.getNodeById(savedDigitalContainer.id.get)
+      getNode(savedDigitalContainer)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
+    }
+  }
+
+  test("should insert genre into the database and return a managed instance") {
+    val savedGenre = subject.save(Crime)
+    savedGenre.id should not be(None)
+    savedGenre should equal(Crime)
+    try {
+      getNode(savedGenre)
+    } catch {
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -139,9 +150,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedMovie.id should not be(None)
     savedMovie should equal(PulpFiction)
     try {
-      db.getNodeById(savedMovie.id.get)
+      getNode(savedMovie)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -150,9 +161,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedPerson.id should not be(None)
     savedPerson should equal(JohnTravolta)
     try {
-      db.getNodeById(savedPerson.id.get)
+      getNode(savedPerson)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -161,9 +172,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedSoundtrack.id should not be(None)
     savedSoundtrack should equal(EnglishSoundtrack)
     try {
-      db.getNodeById(savedSoundtrack.id.get)
+      getNode(savedSoundtrack)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: IllegalStateException => fail("getNodeById(Long) should have returned a node")
     }
   }
 
@@ -172,9 +183,9 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     savedSubtitle.id should not be(None)
     savedSubtitle should equal(EnglishSubtitle)
     try {
-      db.getNodeById(savedSubtitle.id.get)
+      getNode(savedSubtitle)
     } catch {
-      case e: NotFoundException => fail("getNodeById(Long) should have returned a node")
+      case e: ClassCastException => fail("getNodeById(Long) should have returned a node")
     }
   }
   
@@ -203,6 +214,15 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     updatedDigitalContainer.version should be(digitalContainerInDb.version + 1)
     updatedDigitalContainer.id should be (digitalContainerInDb.id)
     updatedDigitalContainer should equal(modifiedDigitalContainer)
+  }
+
+  test("should update genre in the database and return a managed instance") {
+    val genreInDb = insertEntity(Crime)
+    val modifiedGenre = genreInDb.copy(code = "thriller", name = Some("Thriller"))
+    val updatedGenre = subject.save(modifiedGenre)
+    updatedGenre.version should be(genreInDb.version + 1)
+    updatedGenre.id should be (genreInDb.id)
+    updatedGenre should equal(modifiedGenre)
   }
 
   test("should update movie in the database and return a managed instance") {
@@ -247,60 +267,68 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   test("should delete actor from the database") {
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     subject.delete(actor)
-    intercept[NotFoundException] {
-      db.getNodeById(actor.id.get)
+    intercept[IllegalStateException] {
+      getNode(actor)
     }
   }
 
   test("should delete character from the database") {
     val character = insertEntity(VincentVega)
     subject.delete(character)
-    intercept[NotFoundException] {
-      db.getNodeById(character.id.get)
+    intercept[IllegalStateException] {
+      getNode(character)
     }
   }
   
   test("should delete digital container from the database") {
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     subject.delete(digitalContainer)
-    intercept[NotFoundException] {
-      db.getNodeById(digitalContainer.id.get)
+    intercept[IllegalStateException] {
+      getNode(digitalContainer)
+    }
+  }
+
+  test("should delete genre from the database") {
+    val genre = insertEntity(Crime)
+    subject.delete(genre)
+    intercept[IllegalStateException] {
+      getNode(genre)
     }
   }
 
   test("should delete movie from the database") {
     val movie = insertEntity(PulpFiction)
     subject.delete(movie)
-    intercept[NotFoundException] {
-      db.getNodeById(movie.id.get)
+    intercept[IllegalStateException] {
+      getNode(movie)
     }
   }
   
   test("should delete person from the database") {
     val person = insertEntity(JohnTravolta)
     subject.delete(person)
-    intercept[NotFoundException] {
-      db.getNodeById(person.id.get)
+    intercept[IllegalStateException] {
+      getNode(person)
     }
   }
   
   test("should delete soundtrack from the database") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     subject.delete(soundtrack)
-    intercept[NotFoundException] {
-      db.getNodeById(soundtrack.id.get)
+    intercept[IllegalStateException] {
+      getNode(soundtrack)
     }
   }
 
   test("should delete subtitle from the database") {
     val subtitle = insertEntity(EnglishSubtitle)
     subject.delete(subtitle)
-    intercept[NotFoundException] {
-      db.getNodeById(subtitle.id.get)
+    intercept[IllegalStateException] {
+      getNode(subtitle)
     }
   }
 
-  test("should return all abstract cast from the database") {
+  test("should return all cast from the database") {
     val movie = insertEntity(PulpFiction)
     val actress = insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
@@ -324,6 +352,12 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction)))
     val digitalContainers = subject.query(classOf[DigitalContainer]).toList
     digitalContainers should (contain(digitalContainer) and have size(1))
+  }
+
+  test("should return all genres from the database") {
+    val genre = insertEntity(Crime)
+    val genres = subject.query(classOf[Genre]).toList
+    genres should (contain(genre) and have size(1))
   }
 
   test("should return all movies from the database") {
