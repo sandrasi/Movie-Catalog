@@ -1,19 +1,19 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
+import java.util.UUID
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{Map => MutableMap}
-import org.neo4j.graphdb.{GraphDatabaseService, Node, NotFoundException}
+import org.neo4j.graphdb.{GraphDatabaseService, Node}
 import org.neo4j.graphdb.Direction._
+import org.apache.lucene.search.{TermQuery, BooleanQuery}
+import org.apache.lucene.index.Term
+import org.apache.lucene.search.BooleanClause.Occur._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.Entity
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
-import org.apache.lucene.search.{TermQuery, BooleanQuery}
-import org.apache.lucene.index.Term
-import org.apache.lucene.search.BooleanClause.Occur._
-import java.util.UUID
 
 private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends TransactionSupport {
 
@@ -37,10 +37,10 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
   }
 
   def createNodeFor(e: Entity): Node = if (e.id.isEmpty) {
+    val uuid = UUID.randomUUID
     val node = db.createNode()
-    val uuid = UUID.randomUUID.toString
-    node.setProperty(Uuid, uuid)
-    NodeIdIndex.add(node, Uuid, uuid)
+    PropertyManager.setUuid(node, uuid)
+    NodeIdIndex.add(node, Uuid, uuid.toString)
     node
   } else throw new IllegalStateException("Entity %s already has an id: %s".format(e, e.id.get))
 

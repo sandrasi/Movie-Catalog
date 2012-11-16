@@ -8,7 +8,9 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbC
 
 private[utility] object PropertyManager {
 
-  def getUuid(propCntnt: PropertyContainer): UUID = UUID.fromString(propCntnt.getProperty(Uuid).asInstanceOf[String])
+  def getUuid(propCntnr: PropertyContainer): UUID = UUID.fromString(propCntnr.getProperty(Uuid).asInstanceOf[String])
+
+  def setUuid(propCntnr: PropertyContainer, uuid: UUID) { propCntnr.setProperty(Uuid, uuid.toString) }
   
   def getString(propCntnr: PropertyContainer, key: String): String = propCntnr.getProperty(key).asInstanceOf[String]
 
