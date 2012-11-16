@@ -72,7 +72,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val character = insertEntity(VincentVega)
     val movie = insertEntity(PulpFiction)
     val actor = Actor(insertEntity(JohnTravolta), character, movie)
-    val anotherActor = Actor(insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), character, movie)
+    val anotherActor = actor.copy(person = insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val actorNode = subject.createNodeFrom(actor)
@@ -85,7 +85,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val person = insertEntity(JohnTravolta)
     val movie = insertEntity(PulpFiction)
     val actor = Actor(person, insertEntity(VincentVega), movie)
-    val anotherActor = Actor(person, insertEntity(Character("Jules Winnfield")), movie)
+    val anotherActor = actor.copy(character = insertEntity(Character("Jules Winnfield")))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val actorNode = subject.createNodeFrom(actor)
@@ -94,11 +94,11 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
-  test("should create node from actor if a the same person played the same character in a different movie") {
+  test("should create node from actor if a the same person played the same character in a different motion picture") {
     val person = insertEntity(JohnTravolta)
     val character = insertEntity(VincentVega)
     val actor = Actor(person, character, insertEntity(PulpFiction))
-    val anotherActor = Actor(person, character, insertEntity(Movie("Die hard: With a vengeance")))
+    val anotherActor = actor.copy(motionPicture = insertEntity(Movie("Die hard: With a vengeance")))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val actorNode = subject.createNodeFrom(actor)
@@ -126,11 +126,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from character if the name is different") {
-    val anotherCharacter = Character("Jules Winnfield")
     implicit val tx = db.beginTx()
     transaction(tx) {
       val characterNode = subject.createNodeFrom(VincentVega)
-      val anotherCharacterNode = subject.createNodeFrom(anotherCharacter)
+      val anotherCharacterNode = subject.createNodeFrom(VincentVega.copy(name = "Jules Winnfield"))
       characterNode.getId should not equal(anotherCharacterNode.getId)
     }
   }
@@ -165,7 +164,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtracks = Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack))
     val subtitles = Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))
     val digitalContainer = DigitalContainer(insertEntity(PulpFiction), soundtracks, subtitles)
-    val anotherDigitalContainer = DigitalContainer(insertEntity(Movie("Die hard: With a vengeance")), soundtracks, subtitles)
+    val anotherDigitalContainer = digitalContainer.copy(motionPicture = insertEntity(Movie("Die hard: With a vengeance")))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
@@ -179,7 +178,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val subtitles = Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))
     val soundtrack = insertEntity(EnglishSoundtrack)
     val digitalContainer = DigitalContainer(movie, Set(soundtrack, insertEntity(HungarianSoundtrack)), subtitles)
-    val anotherDigitalContainer = DigitalContainer(movie, Set(soundtrack, insertEntity(ItalianSoundtrack)), subtitles)
+    val anotherDigitalContainer = digitalContainer.copy(soundtracks = Set(soundtrack, insertEntity(ItalianSoundtrack)))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
@@ -193,7 +192,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val subtitles = Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))
     val soundtrack = insertEntity(EnglishSoundtrack)
     val digitalContainer = DigitalContainer(movie, Set(soundtrack, insertEntity(HungarianSoundtrack)), subtitles)
-    val anotherDigitalContainer = DigitalContainer(movie, Set(soundtrack), subtitles)
+    val anotherDigitalContainer = digitalContainer.copy(soundtracks = Set(soundtrack))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
@@ -207,7 +206,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtracks = Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack))
     val subtitle = insertEntity(EnglishSubtitle)
     val digitalContainer = DigitalContainer(movie, soundtracks, Set(subtitle, insertEntity(HungarianSubtitle)))
-    val anotherDigitalContainer = DigitalContainer(movie, soundtracks, Set(subtitle, insertEntity(ItalianSubtitle)))
+    val anotherDigitalContainer = digitalContainer.copy(subtitles = Set(subtitle, insertEntity(ItalianSubtitle)))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
@@ -221,7 +220,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtracks = Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack))
     val subtitle = insertEntity(EnglishSubtitle)
     val digitalContainer = DigitalContainer(movie, soundtracks, Set(subtitle, insertEntity(HungarianSubtitle)))
-    val anotherDigitalContainer = DigitalContainer(movie, soundtracks, Set(subtitle))
+    val anotherDigitalContainer = digitalContainer.copy(subtitles = Set(subtitle))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
@@ -266,11 +265,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from genre if the code is different") {
-    val anotherGenre = Crime.copy(code = "thriller")
     implicit val tx = db.beginTx()
     transaction(tx) {
       val genreNode = subject.createNodeFrom(Crime)
-      val anotherGenreNode = subject.createNodeFrom(anotherGenre)
+      val anotherGenreNode = subject.createNodeFrom(Crime.copy(code = "thriller"))
       genreNode.getId should not equal(anotherGenreNode.getId)
     }
   }
@@ -300,54 +298,49 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from movie if the original title is different") {
-    val anotherMovie = Movie("Die hard: With a vengeance", releaseDate = PulpFiction.releaseDate)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = "Die hard: With a vengeance"))
       movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
 
   test("should create node from movie if the original title's locale's language is different") {
     implicit val locale = new Locale("hu", "US")
-    val anotherMovie = Movie(new LocalizedText(PulpFiction.originalTitle.text), releaseDate = PulpFiction.releaseDate)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = new LocalizedText(PulpFiction.originalTitle.text)))
       movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
 
   test("should create node from movie if the original title's locale's country is different") {
     implicit val locale = new Locale("en", "GB")
-    val anotherMovie = Movie(new LocalizedText(PulpFiction.originalTitle.text), releaseDate = PulpFiction.releaseDate)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = new LocalizedText(PulpFiction.originalTitle.text)))
       movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
 
   test("should create node from movie if the original title's locale's variant is different") {
     implicit val locale = new Locale("en", "US", "California")
-    val anotherMovie = Movie(new LocalizedText(PulpFiction.originalTitle.text), releaseDate = PulpFiction.releaseDate)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = new LocalizedText(PulpFiction.originalTitle.text)))
       movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
 
   test("should create node from movie if the release date is different") {
-    val anotherMovie = Movie(PulpFiction.originalTitle, releaseDate = new LocalDate(1995, 5, 19))
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(anotherMovie)
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(releaseDate = new LocalDate(1995, 5, 19)))
       movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
@@ -374,41 +367,37 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from person if the name is different") {
-    val anotherPerson = Person("Samuel Leroy Jackson", JohnTravolta.gender, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
-      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(name = "Samuel Leroy Jackson"))
       personNode.getId should not equal(anotherPersonNode.getId)
     }
   }
 
   test("should create node from person if the gender is different") {
-    val anotherPerson = Person(JohnTravolta.name, Female, JohnTravolta.dateOfBirth, JohnTravolta.placeOfBirth)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
-      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(gender = Female))
       personNode.getId should not equal(anotherPersonNode.getId)
     }
   }
 
   test("should create node from person if the date of birth is different") {
-    val anotherPerson = Person(JohnTravolta.name, JohnTravolta.gender, new LocalDate(1948, 12, 21), JohnTravolta.placeOfBirth)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
-      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(dateOfBirth = new LocalDate(1948, 12, 21)))
       personNode.getId should not equal(anotherPersonNode.getId)
     }
   }
 
   test("should create node from person if the place of birth is different") {
-    val anotherPerson = Person(JohnTravolta.name, JohnTravolta.gender, JohnTravolta.dateOfBirth, "Washington, D.C., U.S.")
     implicit val tx = db.beginTx()
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
-      val anotherPersonNode = subject.createNodeFrom(anotherPerson)
+      val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(placeOfBirth = "Washington, D.C., U.S."))
       personNode.getId should not equal(anotherPersonNode.getId)
     }
   }
@@ -467,21 +456,19 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from soundtrack if the language code is different") {
-    val anotherSoundtrack = Soundtrack("hu", EnglishSoundtrack.formatCode, EnglishSoundtrack.languageName.get, EnglishSoundtrack.formatName.get)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val soundtrackNode = subject.createNodeFrom(EnglishSoundtrack)
-      val anotherSoundtrackNode = subject.createNodeFrom(anotherSoundtrack)
+      val anotherSoundtrackNode = subject.createNodeFrom(EnglishSoundtrack.copy(languageCode = "hu"))
       soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
     }
   }
 
   test("should create node from soundtrack if the format code is different") {
-    val anotherSoundtrack = Soundtrack(EnglishSoundtrack.languageCode, "dd5.1", EnglishSoundtrack.languageName.get, EnglishSoundtrack.formatName.get)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val soundtrackNode = subject.createNodeFrom(EnglishSoundtrack)
-      val anotherSoundtrackNode = subject.createNodeFrom(anotherSoundtrack)
+      val anotherSoundtrackNode = subject.createNodeFrom(EnglishSoundtrack.copy(formatCode = "dd5.1"))
       soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
     }
   }
@@ -522,11 +509,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should create node from subtitle if the language code is different") {
-    val anotherSubtitle = Subtitle("hu", EnglishSubtitle.languageName.get)
     implicit val tx = db.beginTx()
     transaction(tx) {
       val subtitleNode = subject.createNodeFrom(EnglishSubtitle)
-      val anotherSubtitleNode = subject.createNodeFrom(anotherSubtitle)
+      val anotherSubtitleNode = subject.createNodeFrom(EnglishSubtitle.copy(languageCode = "hu"))
       subtitleNode.getId should not equal(anotherSubtitleNode.getId)
     }
   }
@@ -536,7 +522,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val anotherPersonNode = createNodeFrom(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S."))
     val anotherCharacterNode = createNodeFrom(Character("Zeus Carver"))
     val anotherMovieNode = createNodeFrom(Movie("Die hard: With a vengeance"))
-    val modifiedActor = Actor(createPersonFrom(anotherPersonNode), createCharacterFrom(anotherCharacterNode), createMovieFrom(anotherMovieNode), actor.version, actor.id.get)
+    val modifiedActor = actor.copy(person = createPersonFrom(anotherPersonNode), character = createCharacterFrom(anotherCharacterNode), motionPicture = createMovieFrom(anotherMovieNode))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedActor) }
     updatedNode.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode should be(anotherPersonNode)
@@ -554,7 +540,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     insertEntity(Actor(anotherPerson, anotherCharacter, anotherMovie))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Actor(anotherPerson, anotherCharacter, anotherMovie, actor.version, actor.id.get)) }
+      transaction(tx) { subject.updateNodeOf(actor.copy(person = anotherPerson, character = anotherCharacter, motionPicture = anotherMovie)) }
     }
   }
 
@@ -562,13 +548,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Actor(insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), insertEntity(Character("Zeus Carver")), insertEntity(Movie("Die hard: With a vengeance")), actor.version + 1, actor.id.get)) }
+      transaction(tx) { subject.updateNodeOf(actor.copy(person = insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), character = insertEntity(Character("Zeus Carver")), motionPicture = insertEntity(Movie("Die hard: With a vengeance")), version = actor.version + 1)) }
     }
   }
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = Character("Machete", "Robert Rodriguez", new LocalDate(2007, 4, 6), character.version, character.id.get)
+    val modifiedCharacter = character.copy(name = "Machete", creator = "Robert Rodriguez", creationDate = new LocalDate(2007, 4, 6))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedCharacter) }
     getString(updatedNode, CharacterName) should be("Machete")
@@ -580,10 +566,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update character node if a different node already exists for the modified character") {
     val character = insertEntity(VincentVega)
-    insertEntity(Character("Jules Winnfield"))
+    insertEntity(Character("Jules Winnfield", "Quentin Tarantino", new LocalDate(1994, 10, 14)))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", version = character.version, id = character.id.get)) }
+      transaction(tx) { subject.updateNodeOf(character.copy(name = "Jules Winnfield")) }
     }
   }
 
@@ -591,7 +577,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val character = insertEntity(VincentVega)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Character("Jules Winnfield", version = character.version + 1, id = character.id.get)) }
+      transaction(tx) { subject.updateNodeOf(character.copy(name = "Jules Winnfield", version = character.version + 1)) }
     }
   }
 
@@ -600,7 +586,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val anotherMovieNode = createNodeFrom(Movie("Die hard: With a vengeance"))
     val anotherSoundtrackNode = createNodeFrom(ItalianSoundtrack)
     val anotherSubtitleNode = createNodeFrom(ItalianSubtitle)
-    val modifiedDigitalContainer = DigitalContainer(createMovieFrom(anotherMovieNode), Set(createSoundtrackFrom(anotherSoundtrackNode)), Set(createSubtitleFrom(anotherSubtitleNode)), digitalContainer.version, digitalContainer.id.get)
+    val modifiedDigitalContainer = digitalContainer.copy(motionPicture = createMovieFrom(anotherMovieNode), soundtracks = Set(createSoundtrackFrom(anotherSoundtrackNode)), subtitles = Set(createSubtitleFrom(anotherSubtitleNode)))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedDigitalContainer) }
     updatedNode.getSingleRelationship(WithContent, OUTGOING).getEndNode should be(anotherMovieNode)
@@ -619,7 +605,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
       transaction(tx) {
-        subject.updateNodeOf(DigitalContainer(anotherMovieNode, Set(anotherSoundtrackNode), Set(anotherSubtitleNode), digitalContainer.version, digitalContainer.id.get))
+        subject.updateNodeOf(digitalContainer.copy(motionPicture = anotherMovieNode, soundtracks = Set(anotherSoundtrackNode), subtitles = Set(anotherSubtitleNode)))
       }
     }
   }
@@ -628,7 +614,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(DigitalContainer(insertEntity(Movie("Die hard: With a vengeance")), Set(insertEntity(ItalianSoundtrack)), Set(insertEntity(ItalianSubtitle)), digitalContainer.version + 1, digitalContainer.id.get)) }
+      transaction(tx) { subject.updateNodeOf(digitalContainer.copy(motionPicture = insertEntity(Movie("Die hard: With a vengeance")), soundtracks = Set(insertEntity(ItalianSoundtrack)), subtitles = Set(insertEntity(ItalianSubtitle)), version = digitalContainer.version + 1)) }
     }
   }
 
@@ -645,18 +631,16 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should add the genre name to the node properties") {
     val genre = insertEntity(Crime)
-    val modifiedGenre = genre.copy(name = Some(LocalizedText("Krimi")(HungarianLocale)))
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
-    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+    val updatedNode = transaction(tx) { subject.updateNodeOf(genre.copy(name = Some(LocalizedText("Krimi")(HungarianLocale)))) }
     getLocalizedTextSet(updatedNode, GenreName) should be(Set(LocalizedText("Crime")(AmericanLocale), LocalizedText("Krimi")(HungarianLocale)))
   }
 
   test("should remove the genre name from the node properties") {
     val genre = insertEntity(Crime)
-    val modifiedGenre = genre.copy(name = None)
     implicit val tx = db.beginTx()
-    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+    val updatedNode = transaction(tx) { subject.updateNodeOf(genre.copy(name = None)) }
     assert(!hasLocalizedText(updatedNode, GenreName))
   }
 
@@ -671,10 +655,9 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update genre node if the version of the genre does not match the version of the node") {
     val genre = insertEntity(Crime)
-    val modifiedGenre = genre.copy(code = "thriller", version = genre.version + 1)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(modifiedGenre) }
+      transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", version = genre.version + 1)) }
     }
   }
 
@@ -708,7 +691,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     insertEntity(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(Crime, Thriller), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version, movie.id.get)) }
+      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), genres = Set(Crime, Thriller), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19))) }
     }
   }
 
@@ -716,13 +699,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(Crime, Thriller), Duration.standardMinutes(131), new LocalDate(1995, 5, 19), movie.version + 1, movie.id.get)) }
+      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), genres = Set(Crime, Thriller), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19), version = movie.version + 1)) }
     }
   }
 
   test("should update person node") {
     val person = insertEntity(JohnTravolta)
-    val modifiedPerson = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version, person.id.get)
+    val modifiedPerson = person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.")
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedPerson) }
     getString(updatedNode, PersonName) should be("Uma Karuna Thurman")
@@ -738,7 +721,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     insertEntity(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S."))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version, person.id.get)) }
+      transaction(tx) { subject.updateNodeOf(person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.")) }
     }
   }
 
@@ -746,13 +729,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val person = insertEntity(JohnTravolta)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.", person.version + 1, person.id.get)) }
+      transaction(tx) { subject.updateNodeOf(person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.", version = person.version + 1)) }
     }
   }
 
   test("should update soundtrack node") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version, soundtrack.id.get)
+    val modifiedSoundtrack = soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
     getString(updatedNode, SoundtrackLanguageCode) should be("it")
@@ -765,19 +748,17 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should add the soundtrack language and format names to the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, LocalizedText("Angol")(HungarianLocale), LocalizedText("DTS")(HungarianLocale), soundtrack.version, soundtrack.id.get)
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
-    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
+    val updatedNode = transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageName = Some(LocalizedText("Angol")(HungarianLocale)), formatName = Some(LocalizedText("DTS")(HungarianLocale)))) }
     getLocalizedTextSet(updatedNode, SoundtrackLanguageName) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
     getLocalizedTextSet(updatedNode, SoundtrackFormatName) should be(Set(LocalizedText("DTS")(AmericanLocale), LocalizedText("DTS")(HungarianLocale)))
   }
 
   test("should remove the soundtrack language and format names from the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
-    val modifiedSoundtrack = Soundtrack(soundtrack.languageCode, soundtrack.formatCode, null, null, soundtrack.version, soundtrack.id.get)
     implicit val tx = db.beginTx()
-    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
+    val updatedNode = transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageName = None, formatName = None)) }
     assert(!hasLocalizedText(updatedNode, SoundtrackLanguageName))
     assert(!hasLocalizedText(updatedNode, SoundtrackFormatName))
   }
@@ -787,7 +768,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     insertEntity(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1"))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version, soundtrack.id.get)) }
+      transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"))) }
     }
   }
 
@@ -795,7 +776,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtrack = insertEntity(EnglishSoundtrack)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1", soundtrack.version + 1, soundtrack.id.get)) }
+      transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"), version = soundtrack.version + 1)) }
     }
   }
 
@@ -804,13 +785,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Soundtrack("it", "dd5.1", LocalizedText("Olasz")(HungarianLocale), LocalizedText("Dolby Digital 5.1")(HungarianLocale), soundtrack.version, soundtrack.id.get)) }
+      transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some(LocalizedText("Olasz")(HungarianLocale)), formatName = Some(LocalizedText("Dolby Digital 5.1")(HungarianLocale)))) }
     }
   }
 
   test("should update subtitle node") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle("it", "Italian", subtitle.version, subtitle.id.get)
+    val modifiedSubtitle = subtitle.copy(languageCode = "it", languageName = Some("Italian"))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
     getString(updatedNode, SubtitleLanguageCode) should be("it")
@@ -821,18 +802,16 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should add the subtitle language name to the node properties") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle(subtitle.languageCode, LocalizedText("Angol")(HungarianLocale), subtitle.version, subtitle.id.get)
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
-    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+    val updatedNode = transaction(tx) { subject.updateNodeOf(subtitle.copy(languageName = Some(LocalizedText("Angol")(HungarianLocale)))) }
     getLocalizedTextSet(updatedNode, SubtitleLanguageName) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
   }
 
   test("should remove the subtitle language name from the node properties") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle(subtitle.languageCode, null, subtitle.version, subtitle.id.get)
     implicit val tx = db.beginTx()
-    val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+    val updatedNode = transaction(tx) { subject.updateNodeOf(subtitle.copy(languageName = None)) }
     assert(!hasLocalizedText(updatedNode, SubtitleLanguageName))
   }
 
@@ -841,16 +820,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     insertEntity(Subtitle("it", "Italian"))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(Subtitle("it", "Italian", subtitle.version, subtitle.id.get)) }
+      transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some("Italian"))) }
     }
   }
 
   test("should not update subtitle node if the version of the subtitle does not match the version of the node") {
     val subtitle = insertEntity(EnglishSubtitle)
-    val modifiedSubtitle = Subtitle("it", version = subtitle.version + 1, id = subtitle.id.get)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
+      transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some("Italian"), version = subtitle.version + 1)) }
     }
   }
 
@@ -859,7 +837,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(Subtitle("en", LocalizedText("Olasz")(HungarianLocale), subtitle.version, subtitle.id.get)) }
+      transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some(LocalizedText("Olasz")(HungarianLocale)))) }
     }
   }
 
