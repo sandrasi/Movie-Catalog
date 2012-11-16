@@ -6,8 +6,23 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
+import java.util.UUID
 
 class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with ShouldMatchers with MovieCatalogNeo4jSupport {
+  
+  test("should get the uuid property") {
+    val uuid = UUID.randomUUID()
+    val node = createNode()
+    transaction(db) { node.setProperty(Uuid, uuid.toString)}
+    PropertyManager.getUuid(node) should be(uuid)
+  }
+
+  test("should set the uuid property") {
+    val uuid = UUID.randomUUID()
+    val node = createNode()
+    transaction(db) { PropertyManager.setUuid(node, uuid) }
+    node.getProperty(Uuid) should be(uuid.toString)
+  }
 
   test("should get the string property") {
     val node = createNode()
