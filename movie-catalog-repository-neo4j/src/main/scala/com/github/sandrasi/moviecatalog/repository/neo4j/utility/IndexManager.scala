@@ -13,7 +13,7 @@ import org.apache.lucene.search.{NumericRangeQuery, TermQuery, BooleanQuery}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search.BooleanClause.Occur._
 
-private[utility] class IndexManager(db: GraphDatabaseService) {
+private[neo4j] class IndexManager(db: GraphDatabaseService) {
 
   Validate.notNull(db)
 
@@ -212,7 +212,7 @@ private[utility] class IndexManager(db: GraphDatabaseService) {
   }
 }
 
-private[utility] object IndexManager {
+private[neo4j] object IndexManager {
 
   private final val Instances = MutableMap.empty[GraphDatabaseService, IndexManager]
 
