@@ -4,8 +4,8 @@ import scala.collection.mutable.{Map => MutableMap}
 import org.fusesource.scalate.Template
 import com.github.sandrasi.moviecatalog.repository.Repository
 import com.github.sandrasi.moviecatalog.service.dtos.DtoSupport._
-import com.github.sandrasi.moviecatalog.service.dtos.MotionPictureDto
-import com.github.sandrasi.moviecatalog.domain.Movie
+import com.github.sandrasi.moviecatalog.service.dtos.MotionPicture
+import com.github.sandrasi.moviecatalog.domain
 
 trait MovieCatalogResourceSupport extends RestSupport { outer =>
 
@@ -17,14 +17,14 @@ trait MovieCatalogResourceSupport extends RestSupport { outer =>
     Result.empty(Link(rel = "movies", href = MoviesResource.getUrl()))
   }
 
-  private final val MoviesResource = get[MotionPictureDto]("/movies", "movies-resource") {
+  private final val MoviesResource = get[MotionPicture]("/movies", "movies-resource") {
     QueryResult(
       pageNumber = 1,
       pageSize = 0,
       pageCount = 1,
       startIndex = 1,
       totalSize = 0,
-      results = movieCatalogRepository.query(classOf[Movie]).map(toMotionPictureDto(_)).toSeq
+      results = movieCatalogRepository.query(classOf[domain.Movie]).map(toMotionPictureDto(_)).toSeq
     )
   }
 
