@@ -699,7 +699,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), genres = Set(Crime, Thriller), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19), version = movie.version + 1)) }
+      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19), version = movie.version + 1)) }
     }
   }
 

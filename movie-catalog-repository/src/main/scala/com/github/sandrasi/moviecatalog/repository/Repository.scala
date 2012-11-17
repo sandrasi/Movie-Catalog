@@ -1,12 +1,12 @@
 package com.github.sandrasi.moviecatalog.repository
 
 import scala.collection.mutable.{Map => MutableMap}
-import java.util.Locale
+import java.util.{Locale, UUID}
 import com.github.sandrasi.moviecatalog.domain.Entity
 
 trait Repository {
 
-  def get[A <: Entity](id: Long, entityType: Class[A])(implicit locale: Locale): Option[A]
+  def get[A <: Entity](id: UUID, entityType: Class[A])(implicit locale: Locale): Option[A]
 
   def save[A <: Entity](entity: A)(implicit locale: Locale): A
   

@@ -39,13 +39,13 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should not return anything if the entity is not yet persisted") {
-    intercept[IllegalStateException] {
+    intercept[NoSuchElementException] {
       subject.getNodeOf(VincentVega)
     }
   }
 
   test("should not return anything if no node with given id is found in the database") {
-    intercept[IllegalStateException] {
+    intercept[NoSuchElementException] {
       subject.getNodeOf(Actor(JohnTravolta, VincentVega, PulpFiction, id = UUID.randomUUID))
     }
   }

@@ -23,6 +23,11 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   private final val DbMgr = DatabaseManager(db)
   private final val IdxMgr = IndexManager(db)
 
+  def getNode(uuid: UUID): Node = DbMgr.getNodeById(uuid) match {
+    case Some(n) => n
+    case _ => throw new NoSuchElementException("No node has the id %s".format(uuid))
+  }
+
   def createNodeFrom(e: Entity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
     val n = DbMgr.createNodeFor(e)
     e match {

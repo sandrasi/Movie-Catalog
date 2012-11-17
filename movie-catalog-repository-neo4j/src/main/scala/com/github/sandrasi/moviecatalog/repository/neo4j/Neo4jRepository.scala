@@ -1,26 +1,26 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 
-import java.util.Locale
+import java.util.{UUID, Locale}
 import java.util.Locale.US
 import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.{GraphDatabaseService, NotFoundException}
+import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.kernel.EmbeddedGraphDatabase
 import com.github.sandrasi.moviecatalog.domain.Entity
 import com.github.sandrasi.moviecatalog.repository.{Repository, RepositoryFactory}
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.{EntityFactory, NodeManager}
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.{EntityFactory, IndexManager, NodeManager}
 
 class Neo4jRepository(db: GraphDatabaseService) extends Repository with TransactionSupport {
 
   private final val EntityFact = EntityFactory(db)
   private final val NodeMgr = NodeManager(db)
+  private final val IdxMgr = IndexManager(db)
   private final val ExecutionEngine = new ExecutionEngine(db)
 
-  override def get[A <: Entity](id: Long, entityType: Class[A])(implicit locale: Locale = US): Option[A] = try {
-    Some(EntityFact.createEntityFrom(db.getNodeById(id), entityType))
+  override def get[A <: Entity](uuid: UUID, entityType: Class[A])(implicit locale: Locale = US): Option[A] = try {
+    Some(EntityFact.createEntityFrom(NodeMgr.getNode(uuid), entityType))
   } catch {
-    // TODO (sandrasi): NoSucheElementException instead of NotFoundException?
-    case _: NotFoundException | _: ClassCastException | _: IllegalArgumentException => None
+    case _: ClassCastException | _: IllegalArgumentException | _: NoSuchElementException => None
   }
 
   override def save[A <: Entity](entity: A)(implicit locale: Locale = US): A = {

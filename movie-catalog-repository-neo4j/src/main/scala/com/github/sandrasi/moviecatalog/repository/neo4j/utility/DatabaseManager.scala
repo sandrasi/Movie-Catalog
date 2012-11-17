@@ -19,28 +19,24 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
 
   Validate.notNull(db)
 
-  private final val IdxMgr = db.index()
-  private final val NodeIdIndex = IdxMgr.forNodes("Node")
+  private final val EntityIdIndex = db.index().forNodes("Node")
 
-  def getNodeOf(e: Entity) = try {
-    def lookUpNode(id: UUID) = {
-      val query = new BooleanQuery()
-      query.add(new TermQuery(new Term(Uuid, id.toString)), MUST)
-      Option(NodeIdIndex.query(query).getSingle)
-    }
-    e.id.flatMap(lookUpNode(_)) match {
-      case Some(n) => if (isNodeOfType(n, e.getClass)) n else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, e.getClass.getName))
-      case None => throw new IllegalStateException("%s is not in the database".format(e))
-    }
-  } catch {
-    case _: NoSuchElementException => throw new IllegalStateException("more than one node have the id %s".format(e.id.get))
+  def getNodeById(id: UUID): Option[Node] = {
+    val query = new BooleanQuery()
+    query.add(new TermQuery(new Term(Uuid, id.toString)), MUST)
+    Option(EntityIdIndex.query(query).getSingle)
+  }
+
+  def getNodeOf(e: Entity) = e.id.flatMap(getNodeById(_)) match {
+    case Some(n) => if (isNodeOfType(n, e.getClass)) n else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, e.getClass.getName))
+    case None => throw new NoSuchElementException("%s is not in the database".format(e))
   }
 
   def createNodeFor(e: Entity): Node = if (e.id.isEmpty) {
     val uuid = UUID.randomUUID
     val node = db.createNode()
     PropertyManager.setUuid(node, uuid)
-    NodeIdIndex.add(node, Uuid, uuid.toString)
+    EntityIdIndex.add(node, Uuid, uuid.toString)
     node
   } else throw new IllegalStateException("Entity %s already has an id: %s".format(e, e.id.get))
 
@@ -54,11 +50,7 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
     case _: NoSuchElementException => throw new IllegalArgumentException("Unsupported entity type %s".format(c.getName))
   }
 
-  private def getOrCreateSubreferenceNodeId(relType: SubreferenceRelationshipType): Long = {
-    val rel = db.getReferenceNode.getSingleRelationship(relType, OUTGOING)
-    val srn = if (rel == null) createSubreferenceNodeForRelationshipType(relType) else rel.getEndNode
-    srn.getId
-  }
+  private def getOrCreateSubreferenceNodeId(relType: SubreferenceRelationshipType): Long = Option(db.getReferenceNode.getSingleRelationship(relType, OUTGOING)).map(_.getEndNode).getOrElse(createSubreferenceNodeForRelationshipType(relType)).getId
 
   private def createSubreferenceNodeForRelationshipType(relType: SubreferenceRelationshipType) = transaction(db) {
     val srn = db.createNode()
