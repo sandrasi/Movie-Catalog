@@ -110,7 +110,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from character") {
     implicit val tx = db.beginTx()
     val characterNode = transaction(tx) { subject.createNodeFrom(VincentVega) }
-    getString(characterNode, CharacterName) should be(VincentVega.name)
+    getString(characterNode, CharacterName).get should be(VincentVega.name)
     getLong(characterNode, Version) should be(VincentVega.version)
     characterNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Character]))
   }
@@ -232,7 +232,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from genre") {
     implicit val tx = db.beginTx()
     val genreNode = transaction(tx) { subject.createNodeFrom(Crime) }
-    getString(genreNode, GenreCode) should be(Crime.code)
+    getString(genreNode, GenreCode).get should be(Crime.code)
     Some(getLocalizedText(genreNode, GenreName)) should be(Crime.name)
     getLong(genreNode, Version) should be(Crime.version)
     genreNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Genre]))
@@ -281,7 +281,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
     getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
     movieNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crimeGenreNode, thrillerGenreNode))
-    getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
+    getLocalDate(movieNode, MovieReleaseDate).get should be(PulpFiction.releaseDate)
     getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLong(movieNode, Version) should be(PulpFiction.version)
     movieNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[MotionPicture])) and contain(dbMgr.getSubreferenceNode(classOf[Movie])))
@@ -348,10 +348,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from person") {
     implicit val tx = db.beginTx()
     val personNode = transaction(tx) { subject.createNodeFrom(JohnTravolta) }
-    getString(personNode, PersonName) should be(JohnTravolta.name)
-    getString(personNode, PersonGender) should be(JohnTravolta.gender.toString)
-    getLocalDate(personNode, PersonDateOfBirth) should be(JohnTravolta.dateOfBirth)
-    getString(personNode, PersonPlaceOfBirth) should be(JohnTravolta.placeOfBirth)
+    getString(personNode, PersonName).get should be(JohnTravolta.name)
+    getString(personNode, PersonGender).get should be(JohnTravolta.gender.toString)
+    getLocalDate(personNode, PersonDateOfBirth).get should be(JohnTravolta.dateOfBirth)
+    getString(personNode, PersonPlaceOfBirth).get should be(JohnTravolta.placeOfBirth)
     getLong(personNode, Version) should be(JohnTravolta.version)
     personNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Person]))
   }
@@ -405,8 +405,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from soundtrack") {
     implicit val tx = db.beginTx()
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(EnglishSoundtrack) }
-    getString(soundtrackNode, SoundtrackLanguageCode) should be(EnglishSoundtrack.languageCode)
-    getString(soundtrackNode, SoundtrackFormatCode) should be(EnglishSoundtrack.formatCode)
+    getString(soundtrackNode, SoundtrackLanguageCode).get should be(EnglishSoundtrack.languageCode)
+    getString(soundtrackNode, SoundtrackFormatCode).get should be(EnglishSoundtrack.formatCode)
     Some(getLocalizedText(soundtrackNode, SoundtrackLanguageName)) should be(EnglishSoundtrack.languageName)
     Some(getLocalizedText(soundtrackNode, SoundtrackFormatName)) should be(EnglishSoundtrack.formatName)
     getLong(soundtrackNode, Version) should be(EnglishSoundtrack.version)
@@ -476,7 +476,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from subtitle") {
     implicit val tx = db.beginTx()
     val subtitleNode = transaction(tx) { subject.createNodeFrom(EnglishSubtitle) }
-    getString(subtitleNode, SubtitleLanguageCode) should be(EnglishSubtitle.languageCode)
+    getString(subtitleNode, SubtitleLanguageCode).get should be(EnglishSubtitle.languageCode)
     Some(getLocalizedText(subtitleNode, SubtitleLanguageName)) should be(EnglishSubtitle.languageName)
     getLong(subtitleNode, Version) should be(EnglishSubtitle.version)
     subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Subtitle]))
@@ -554,12 +554,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = character.copy(name = "Machete", creator = "Robert Rodriguez", creationDate = new LocalDate(2007, 4, 6))
+    val modifiedCharacter = character.copy(name = "Machete", creator = Some("Robert Rodriguez"), creationDate = Some(new LocalDate(2007, 4, 6)))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedCharacter) }
-    getString(updatedNode, CharacterName) should be("Machete")
-    getString(updatedNode, CharacterCreator) should be("Robert Rodriguez")
-    getLocalDate(updatedNode, CharacterCreationDate) should be(new LocalDate(2007, 4, 6))
+    getString(updatedNode, CharacterName).get should be("Machete")
+    getString(updatedNode, CharacterCreator).get should be("Robert Rodriguez")
+    getLocalDate(updatedNode, CharacterCreationDate).get should be(new LocalDate(2007, 4, 6))
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(character.id.get.toString)
   }
@@ -623,7 +623,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedGenre = genre.copy(code = "thriller", name = Some("Thriller"))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
-    getString(updatedNode, GenreCode) should be("thriller")
+    getString(updatedNode, GenreCode).get should be("thriller")
     getLocalizedText(updatedNode, GenreName) should be(LocalizedText("Thriller"))
     getLong(updatedNode, Version) should be(modifiedGenre.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(genre.id.get.toString)
@@ -681,7 +681,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)))
     updatedNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crime, thriller))
     getDuration(updatedNode, MovieRuntime) should be(Duration.standardMinutes(131))
-    getLocalDate(updatedNode, MovieReleaseDate) should be(new LocalDate(1995, 5, 19))
+    getLocalDate(updatedNode, MovieReleaseDate).get should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(movie.id.get.toString)
   }
@@ -708,10 +708,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedPerson = person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.")
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedPerson) }
-    getString(updatedNode, PersonName) should be("Uma Karuna Thurman")
-    getString(updatedNode, PersonGender) should be(Female.toString)
-    getLocalDate(updatedNode, PersonDateOfBirth) should be(new LocalDate(1970, 4, 29))
-    getString(updatedNode, PersonPlaceOfBirth) should be("Boston, Massachusetts, U.S.")
+    getString(updatedNode, PersonName).get should be("Uma Karuna Thurman")
+    getString(updatedNode, PersonGender).get should be(Female.toString)
+    getLocalDate(updatedNode, PersonDateOfBirth).get should be(new LocalDate(1970, 4, 29))
+    getString(updatedNode, PersonPlaceOfBirth).get should be("Boston, Massachusetts, U.S.")
     getLong(updatedNode, Version) should be(modifiedPerson.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(person.id.get.toString)
   }
@@ -738,8 +738,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedSoundtrack = soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
-    getString(updatedNode, SoundtrackLanguageCode) should be("it")
-    getString(updatedNode, SoundtrackFormatCode) should be("dd5.1")
+    getString(updatedNode, SoundtrackLanguageCode).get should be("it")
+    getString(updatedNode, SoundtrackFormatCode).get should be("dd5.1")
     getLocalizedText(updatedNode, SoundtrackLanguageName) should be(LocalizedText("Italian"))
     getLocalizedText(updatedNode, SoundtrackFormatName) should be(LocalizedText("Dolby Digital 5.1"))
     getLong(updatedNode, Version) should be(modifiedSoundtrack.version + 1)
@@ -794,7 +794,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val modifiedSubtitle = subtitle.copy(languageCode = "it", languageName = Some("Italian"))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
-    getString(updatedNode, SubtitleLanguageCode) should be("it")
+    getString(updatedNode, SubtitleLanguageCode).get should be("it")
     getLocalizedText(updatedNode, SubtitleLanguageName) should be(LocalizedText("Italian"))
     getLong(updatedNode, Version) should be(modifiedSubtitle.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(subtitle.id.get.toString)
@@ -936,7 +936,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val character = insertEntity(VincentVega)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.deleteNodeOf(Character(character.name, character.creator, character.creationDate, character.version + 1, character.id.get)) }
+      transaction(tx) { subject.deleteNodeOf(character.copy(version = character.version + 1)) }
     }
   }
 

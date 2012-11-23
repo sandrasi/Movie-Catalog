@@ -9,8 +9,8 @@ import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
-import org.apache.lucene.search.{NumericRangeQuery, TermQuery, BooleanQuery}
 import org.apache.lucene.index.Term
+import org.apache.lucene.search.{BooleanQuery, NumericRangeQuery, TermQuery, TermRangeQuery}
 import org.apache.lucene.search.BooleanClause.Occur._
 
 private[neo4j] class IndexManager(db: GraphDatabaseService) {
@@ -48,8 +48,8 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
   private def index(n: Node, c: Character) {
     CharacterIndex.remove(n)
     CharacterIndex.add(n, CharacterName, c.name)
-    CharacterIndex.add(n, CharacterCreator, c.creator)
-    CharacterIndex.add(n, CharacterCreationDate, ValueContext.numeric(c.creationDate.toDateTimeAtStartOfDay.getMillis))
+    if (c.creator.isDefined) CharacterIndex.add(n, CharacterCreator, c.creator.get) else CharacterIndex.remove(n, CharacterCreator)
+    if (c.creationDate.isDefined) CharacterIndex.add(n, CharacterCreationDate, ValueContext.numeric(c.creationDate.get.toDateTimeAtStartOfDay.getMillis)) else CharacterIndex.remove(n, CharacterCreationDate)
   }
 
   private def index(n: Node, dc: DigitalContainer) {
@@ -150,11 +150,14 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
   }
 
   private def lookUpExact(c: Character): Option[Node] = {
-    val creationDateMillis = c.creationDate.toDateTimeAtStartOfDay.getMillis
     val query = new BooleanQuery()
     query.add(new TermQuery(new Term(CharacterName, c.name)), MUST)
-    query.add(new TermQuery(new Term(CharacterCreator, c.creator)), MUST)
-    query.add(NumericRangeQuery.newLongRange(CharacterCreationDate, creationDateMillis, creationDateMillis, true, true), MUST)
+    if (c.creator.isDefined) query.add(new TermQuery(new Term(CharacterCreator, c.creator.get)), MUST)
+    else query.add(new TermRangeQuery(CharacterCreator, Char.MinValue.toString, Char.MaxValue.toString, true, true), MUST_NOT)
+    if (c.creationDate.isDefined) {
+      val cdm = c.creationDate.get.toDateTimeAtStartOfDay.getMillis
+      query.add(NumericRangeQuery.newLongRange(CharacterCreationDate, cdm, cdm, true, true), MUST)
+    } else query.add(NumericRangeQuery.newLongRange(CharacterCreationDate, Long.MinValue, Long.MaxValue, true, true), MUST_NOT)
     Option(CharacterIndex.query(query).getSingle)
   }
 

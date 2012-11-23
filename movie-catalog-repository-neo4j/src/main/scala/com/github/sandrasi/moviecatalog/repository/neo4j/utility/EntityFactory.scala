@@ -48,7 +48,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def createActressFrom(n: Node, l: Locale) = Actress(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode, l), getLong(n, Version), getUuid(n))
 
-  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName), getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), getUuid(n))
+  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName).get, getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), Option(getUuid(n)))
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode, l), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), getUuid(n))
   
@@ -56,23 +56,23 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def getSubtitles(n: Node, l: Locale) = n.getRelationships(WithSubtitle, OUTGOING).asScala.map(r => createSubtitleFrom(r.getEndNode, l)).toSet
 
-  private def createGenreFrom(n: Node, l: Locale) = Genre(getString(n, GenreCode), getGenreName(n, l), getLong(n, Version), getUuid(n))
+  private def createGenreFrom(n: Node, l: Locale) = Genre(getString(n, GenreCode).get, getGenreName(n, l), getLong(n, Version), getUuid(n))
 
   private def getGenreName(n: Node, l: Locale) = try { getLocalizedText(n, GenreName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
 
-  private def createMovieFrom(n: Node, l: Locale) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getGenres(n, l), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate), getLong(n, Version), getUuid(n))
+  private def createMovieFrom(n: Node, l: Locale) = Movie(getLocalizedText(n, MovieOriginalTitle), getLocalizedTextSet(n, MovieLocalizedTitles), getGenres(n, l), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate).get, getLong(n, Version), getUuid(n))
 
   private def getGenres(n: Node, l: Locale) = n.getRelationships(HasGenre, OUTGOING).asScala.map(r => createGenreFrom(r.getEndNode, l)).toSet
 
-  private def createPersonFrom(n: Node) = Person(getString(n, PersonName), Gender.valueOf(getString(n, PersonGender)), getLocalDate(n, PersonDateOfBirth), getString(n, PersonPlaceOfBirth), getLong(n, Version), getUuid(n))
+  private def createPersonFrom(n: Node) = Person(getString(n, PersonName).get, Gender.valueOf(getString(n, PersonGender).get), getLocalDate(n, PersonDateOfBirth).get, getString(n, PersonPlaceOfBirth).get, getLong(n, Version), getUuid(n))
 
-  private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getString(n, SoundtrackLanguageCode), getString(n, SoundtrackFormatCode), getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), getLong(n, Version), getUuid(n))
+  private def createSoundtrackFrom(n: Node, l: Locale) = Soundtrack(getString(n, SoundtrackLanguageCode).get, getString(n, SoundtrackFormatCode).get, getSoundtrackLanguageName(n, l), getSoundtrackFormatName(n, l), getLong(n, Version), getUuid(n))
 
   private def getSoundtrackLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackLanguageName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
   
   private def getSoundtrackFormatName(n: Node, l: Locale) = try { getLocalizedText(n, SoundtrackFormatName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
 
-  private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getString(n, SubtitleLanguageCode), getSubtitleLanguageName(n, l), getLong(n, Version), getUuid(n))
+  private def createSubtitleFrom(n: Node, l: Locale) = Subtitle(getString(n, SubtitleLanguageCode).get, getSubtitleLanguageName(n, l), getLong(n, Version), getUuid(n))
 
   private def getSubtitleLanguageName(n: Node, l: Locale) = try { getLocalizedText(n, SubtitleLanguageName, l) } catch { case _: NotFoundException | _: NoSuchElementException => null }
 }

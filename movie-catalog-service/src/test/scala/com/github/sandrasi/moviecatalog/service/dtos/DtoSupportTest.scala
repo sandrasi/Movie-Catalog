@@ -37,7 +37,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
 
   test("should convert charater to character dto") {
     val character = domain.Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    toCharacterDto(character) should be(Character(None, character.name, Some(character.creator), Some(character.creationDate.toString)))
+    toCharacterDto(character) should be(Character(None, character.name, character.creator, character.creationDate.map(_.toString)))
   }
 
   test("should convert digital container to digital container dto") {

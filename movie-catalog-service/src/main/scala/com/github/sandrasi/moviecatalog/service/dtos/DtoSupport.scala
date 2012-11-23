@@ -55,7 +55,7 @@ object DtoSupport {
 
   implicit def toActressDto(a: domain.Actress)(implicit l: Locale = US): Actress = Actress(a.id, toShortPersonDto(a.person), toShortCharacterDto(a.character), toShortMotionPictureDto(a.motionPicture))
 
-  implicit def toCharacterDto(c: domain.Character): Character = Character(c.id, c.name, Option(c.creator), Option(c.creationDate.toString))
+  implicit def toCharacterDto(c: domain.Character): Character = Character(c.id, c.name, c.creator, c.creationDate.map(_.toString))
 
   private def toShortCharacterDto(c: domain.Character): Character = Character(c.id, c.name)
 

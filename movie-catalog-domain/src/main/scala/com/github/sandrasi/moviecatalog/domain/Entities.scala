@@ -36,10 +36,11 @@ sealed trait VersionSupport {
 
 sealed trait Entity extends IdSupport[UUID] with VersionSupport
 
-case class Character(name: String, creator: String, creationDate: LocalDate, version: Long, id: Option[UUID]) extends Entity {
+case class Character(name: String, creator: Option[String], creationDate: Option[LocalDate], version: Long, id: Option[UUID]) extends Entity {
 
-  Validate.notNull(name)
+  Validate.notBlank(name)
   Validate.notNull(creator)
+  if (creator.isDefined) Validate.notBlank(creator.get)
   Validate.notNull(creationDate)
 
   override def equals(o: Any): Boolean = o match {
@@ -61,10 +62,10 @@ case class Character(name: String, creator: String, creationDate: LocalDate, ver
 object Character {
 
   def apply(name: String,
-            creator: String = "",
-            creationDate: LocalDate = new LocalDate(0),
+            creator: String = null,
+            creationDate: LocalDate = null,
             version: Long = 0,
-            id: UUID = null): Character = Character(name, creator, creationDate, version, Option(id))
+            id: UUID = null): Character = Character(name, Option(creator), Option(creationDate), version, Option(id))
 }
 
 case class Genre(code: String, name: Option[LocalizedText], version: Long, id: Option[UUID]) extends Entity {

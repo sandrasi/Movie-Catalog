@@ -11,8 +11,10 @@ private[utility] object PropertyManager {
   def getUuid(propCntnr: PropertyContainer): UUID = UUID.fromString(propCntnr.getProperty(Uuid).asInstanceOf[String])
 
   def setUuid(propCntnr: PropertyContainer, uuid: UUID) { propCntnr.setProperty(Uuid, uuid.toString) }
-  
-  def getString(propCntnr: PropertyContainer, key: String): String = propCntnr.getProperty(key).asInstanceOf[String]
+
+  def hasString(propCntnr: PropertyContainer, key: String): Boolean = hasProperty(propCntnr, key, classOf[String])
+
+  def getString(propCntnr: PropertyContainer, key: String): Option[String] = if (hasString(propCntnr, key)) Some(propCntnr.getProperty(key).asInstanceOf[String]) else None
 
   def setString(propCntnr: PropertyContainer, key: String, str: String) { propCntnr.setProperty(key, str) }
 
@@ -25,8 +27,8 @@ private[utility] object PropertyManager {
   def getDuration(propCntnr: PropertyContainer, key: String): ReadableDuration = Duration.millis(propCntnr.getProperty(key).asInstanceOf[Long])
 
   def setDuration(propCntnr: PropertyContainer, key: String, duration: ReadableDuration) { propCntnr.setProperty(key, duration.getMillis) }
-  
-  def getLocalDate(propCntnr: PropertyContainer, key: String): LocalDate = new LocalDate(propCntnr.getProperty(key).asInstanceOf[Long])
+
+  def getLocalDate(propCntnr: PropertyContainer, key: String): Option[LocalDate] = if (hasLong(propCntnr, key)) Some(new LocalDate(propCntnr.getProperty(key).asInstanceOf[Long])) else None
 
   def setLocalDate(propCntnr: PropertyContainer, key: String, date: LocalDate) { propCntnr.setProperty(key, date.toDateTimeAtStartOfDay.getMillis) }
 
@@ -77,4 +79,6 @@ private[utility] object PropertyManager {
       if (newLts.size == 0) deleteLocalizedText(propCntnr, key) else setLocalizedText(propCntnr, key, newLts)
     }
   }
+
+  def deleteProperty(propCntnr: PropertyContainer, key: String) { propCntnr.removeProperty(key) }
 }

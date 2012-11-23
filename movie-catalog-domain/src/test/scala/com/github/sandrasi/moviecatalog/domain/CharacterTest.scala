@@ -5,7 +5,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.junit.runner.RunWith
 import org.joda.time.LocalDate
-import java.util.UUID
 
 @RunWith(classOf[JUnitRunner])
 class CharacterTest extends FunSuite with ShouldMatchers {
@@ -13,8 +12,8 @@ class CharacterTest extends FunSuite with ShouldMatchers {
   test("should create character with given name, creator and creationDate") {
     val subject = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
     subject.name should be("Vincent Vega")
-    subject.creator should be("Quentin Tarantino")
-    subject.creationDate should be(new LocalDate(1994, 10, 14))
+    subject.creator should be(Some("Quentin Tarantino"))
+    subject.creationDate should be(Some(new LocalDate(1994, 10, 14)))
     subject.version should be(0)
     subject.id should be(None)
   }
@@ -25,15 +24,27 @@ class CharacterTest extends FunSuite with ShouldMatchers {
     }
   }
 
+  test("should not create character with blank name") {
+    intercept[IllegalArgumentException] {
+      Character("  ", "Quentin Tarantino", new LocalDate(1994, 10, 14))
+    }
+  }
+
   test("should not create character with null creator") {
     intercept[IllegalArgumentException] {
-      Character("Vincent Vega", null, new LocalDate(1994, 10, 14))
+      Character("Vincent Vega", null, Some(new LocalDate(1994, 10, 14)), 0, None)
+    }
+  }
+
+  test("should not create character with blank creator") {
+    intercept[IllegalArgumentException] {
+      Character("Vincent Vega", Some("  "), Some(new LocalDate(1994, 10, 14)), 0, None)
     }
   }
 
   test("should not create character with null creationDate") {
     intercept[IllegalArgumentException] {
-      Character("Vincent Vega", "Quentin Tarantino", null)
+      Character("Vincent Vega", Some("Quentin Tarantino"), null, 0, None)
     }
   }
 
@@ -45,7 +56,7 @@ class CharacterTest extends FunSuite with ShouldMatchers {
 
   test("should not create character with null id") {
     intercept[IllegalArgumentException] {
-      new Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14), 0, id = null)
+      Character("Vincent Vega", Some("Quentin Tarantino"), Some(new LocalDate(1994, 10, 14)), 0, null)
     }
   }
 
@@ -53,8 +64,8 @@ class CharacterTest extends FunSuite with ShouldMatchers {
     val character = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
     val otherCharacter = character.copy()
     val otherCharacterWithDifferentName = character.copy(name = "Mia Wallace")
-    val otherCharacterWithDifferentCreator = character.copy(creator = "Robert Rodriguez")
-    val otherCharacterWithDifferentCreationDate = character.copy(creationDate = new LocalDate(2000, 1, 1))
+    val otherCharacterWithDifferentCreator = character.copy(creator = Some("Robert Rodriguez"))
+    val otherCharacterWithDifferentCreationDate = character.copy(creationDate = Some(new LocalDate(2000, 1, 1)))
 
     character should not equal(null)
     character should not equal(new AnyRef)
