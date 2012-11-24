@@ -9,13 +9,23 @@ import org.joda.time.LocalDate
 @RunWith(classOf[JUnitRunner])
 class CharacterTest extends FunSuite with ShouldMatchers {
 
-  test("should create character with given name, creator and creationDate") {
-    val subject = Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
+  test("should create character with specified name and default attributes") {
+    val subject = Character("Vincent Vega")
     subject.name should be("Vincent Vega")
-    subject.creator should be(Some("Quentin Tarantino"))
-    subject.creationDate should be(Some(new LocalDate(1994, 10, 14)))
+    subject.creator should be(None)
+    subject.creationDate should be(None)
     subject.version should be(0)
     subject.id should be(None)
+  }
+
+  test("should create character with specified creator") {
+    val subject = Character("Vincent Vega", creator = "Quentin Tarantino")
+    subject.creator should be(Some("Quentin Tarantino"))
+  }
+
+  test("should create character with specified creation date") {
+    val subject = Character("Vincent Vega", creationDate = new LocalDate(1994, 10, 14))
+    subject.creationDate should be(Some(new LocalDate(1994, 10, 14)))
   }
   
   test("should not create character with null name") {
