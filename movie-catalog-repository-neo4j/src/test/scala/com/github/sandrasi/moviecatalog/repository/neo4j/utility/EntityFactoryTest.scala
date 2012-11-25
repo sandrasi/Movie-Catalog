@@ -144,9 +144,9 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
 
   test("should create movie entity from node") {
     val movieNode = createNodeFrom(PulpFiction)
-    val movie = subject.createEntityFrom(movieNode, classOf[Movie])
+    val movie = subject.createEntityFrom(movieNode, classOf[Movie])(HungarianLocale)
     movie.originalTitle should be(PulpFiction.originalTitle)
-    movie.localizedTitles should be(PulpFiction.localizedTitles)
+    movie.localizedTitle should be(PulpFiction.localizedTitle)
     movie.runtime should be(PulpFiction.runtime)
     movie.releaseDate should be(PulpFiction.releaseDate)
     movie.version should be(PulpFiction.version)

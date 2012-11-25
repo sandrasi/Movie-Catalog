@@ -35,7 +35,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
       case c: Character => connectNodeToSubreferenceNode(setProperties(n, c), classOf[Character])
       case dc: DigitalContainer => connectNodeToSubreferenceNode(setProperties(n, dc), classOf[DigitalContainer])
       case g: Genre => connectNodeToSubreferenceNode(setProperties(n, g, l), classOf[Genre])
-      case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(n, m), m.getClass), classOf[MotionPicture])
+      case m: MotionPicture => connectNodeToSubreferenceNode(connectNodeToSubreferenceNode(setProperties(n, m, l), m.getClass), classOf[MotionPicture])
       case p: Person => connectNodeToSubreferenceNode(setProperties(n, p), classOf[Person])
       case s: Soundtrack => connectNodeToSubreferenceNode(setProperties(n, s, l), classOf[Soundtrack])
       case s: Subtitle => connectNodeToSubreferenceNode(setProperties(n, s, l), classOf[Subtitle])
@@ -49,7 +49,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
       case c: Character => setProperties(n, c)
       case dc: DigitalContainer => setProperties(n, dc)
       case g: Genre => setProperties(n, g, l)
-      case m: MotionPicture => setProperties(n, m)
+      case m: MotionPicture => setProperties(n, m, l)
       case p: Person => setProperties(n, p)
       case s: Soundtrack => setProperties(n, s, l)
       case s: Subtitle => setProperties(n, s, l)
@@ -123,13 +123,13 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     n
   }
 
-  private def setProperties(n: Node, m: MotionPicture): Node = {
+  private def setProperties(n: Node, m: MotionPicture, l: Locale): Node = {
     n.getRelationships(HasGenre, OUTGOING).asScala.foreach(_.delete())
     setLocalizedText(n, MovieOriginalTitle, m.originalTitle)
-    setLocalizedText(n, MovieLocalizedTitles, m.localizedTitles)
+    if (m.localizedTitle.isDefined) addOrReplaceLocalizedText(n, MovieLocalizedTitle, m.localizedTitle.get) else deleteLocalizedText(n, MovieLocalizedTitle, l)
     m.genres.map(DbMgr.getNodeOf(_)).foreach(n.createRelationshipTo(_, HasGenre))
-    setDuration(n, MovieRuntime, m.runtime)
-    setLocalDate(n, MovieReleaseDate, m.releaseDate)
+    if (m.runtime.isDefined) setDuration(n, MovieRuntime, m.runtime.get) else deleteProperty(n, MovieRuntime)
+    if (m.releaseDate.isDefined) setLocalDate(n, MovieReleaseDate, m.releaseDate.get) else deleteProperty(n, MovieReleaseDate)
     setVersion(n, m)
     IdxMgr.index(n, m)
     n

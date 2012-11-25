@@ -29,7 +29,7 @@ private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
   protected final val MiaWallace = Character("Mia Wallace", "Quentin Tarantino", new LocalDate(1994, 10, 14))
   protected final val Crime = Genre("crime", "Crime")
   protected final val Thriller = Genre("thriller", "Thriller")
-  protected final val PulpFiction = Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+  protected final val PulpFiction = Movie("Pulp fiction", LocalizedText("Ponyvaregény")(HungarianLocale), Set(), Duration.standardMinutes(154), new LocalDate(1994, 10, 14)) // TODO (sandrasi): set the genre when it's automatically saved with the movie
   protected final val JohnTravolta = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
   protected final val UmaThurman = Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
   protected final val EnglishSoundtrack = Soundtrack("en", "dts", "English", "DTS")

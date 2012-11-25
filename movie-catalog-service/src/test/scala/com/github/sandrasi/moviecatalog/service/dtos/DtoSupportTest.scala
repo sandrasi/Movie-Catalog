@@ -20,7 +20,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   test("should convert actor to actor dto") {
     val person = domain.Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     val character = domain.Character("Vincent Vega", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    val movie = domain.Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val movie = domain.Movie("Pulp fiction", LocalizedText("Ponyvaregény")(HungarianLocale), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val actor = domain.Actor(person, character, movie)
     implicit val locale = HungarianLocale
     toActorDto(actor) should be(Actor(None, Person(None, "John Joseph Travolta"), Character(None, "Vincent Vega"), Movie(None, "Pulp fiction", Some("Ponyvaregény"))))
@@ -29,7 +29,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   test("should convert actress to actress dto") {
     val person = domain.Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S.")
     val character = domain.Character("Mia Wallace", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    val movie = domain.Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val movie = domain.Movie("Pulp fiction", LocalizedText("Ponyvaregény")(HungarianLocale), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val actress = domain.Actress(person, character, movie)
     implicit val locale = HungarianLocale
     toActressDto(actress) should be(Actress(None, Person(None, "Uma Karuna Thurman"), Character(None, "Mia Wallace"), Movie(None, "Pulp fiction", Some("Ponyvaregény"))))
@@ -41,7 +41,7 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   }
 
   test("should convert digital container to digital container dto") {
-    val movie = domain.Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val movie = domain.Movie("Pulp fiction", LocalizedText("Ponyvaregény")(HungarianLocale), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val englishSoundtrack = domain.Soundtrack("en", "dts", "English", "DTS")
     val hungarianSoundtrack = domain.Soundtrack("hu", "dts", "Hungarian", "DTS")
     val englishSubtitle = domain.Subtitle("en", "English")
@@ -61,13 +61,13 @@ class DtoSupportTest extends FunSuite with ShouldMatchers {
   }
   
   test("should convert movie to movie dto") {
-    val movie = domain.Movie("Pulp fiction", Set(LocalizedText("Ponyvaregény")(HungarianLocale), LocalizedText("Pulp fiction")(ItalianLocale)), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    toMotionPictureDto(movie)(HungarianLocale) should be(Movie(None, movie.originalTitle.text, Some(movie.localizedTitles.filter(_.locale == HungarianLocale).head.text), Some(Set(Genre(None, "crime"), Genre(None, "thriller"))), Some(movie.runtime.getMillis), Some(movie.releaseDate.toString)))
+    val movie = domain.Movie("Pulp fiction", LocalizedText("Ponyvaregény")(HungarianLocale), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    toMotionPictureDto(movie)(HungarianLocale) should be(Movie(None, movie.originalTitle.text, Some(movie.localizedTitle.get.text), Some(Set(Genre(None, "crime"), Genre(None, "thriller"))), Some(movie.runtime.get.getMillis), Some(movie.releaseDate.get.toString)))
   }
   
   test("should convert movie to movie dto if no localized title matches the current locale") {
-    val movie = domain.Movie("Pulp fiction", Set(LocalizedText("Pulp fiction")(ItalianLocale)), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    toMotionPictureDto(movie)(HungarianLocale) should be(Movie(None, movie.originalTitle.text, None, Some(Set(domain.Genre("crime"), domain.Genre("thriller"))), Some(movie.runtime.getMillis), Some(movie.releaseDate.toString)))
+    val movie = domain.Movie("Pulp fiction", LocalizedText("Pulp fiction")(ItalianLocale), Set(domain.Genre("crime", "Crime"), domain.Genre("thriller", "Thriller")), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    toMotionPictureDto(movie)(HungarianLocale) should be(Movie(None, movie.originalTitle.text, None, Some(Set(domain.Genre("crime"), domain.Genre("thriller"))), Some(movie.runtime.get.getMillis), Some(movie.releaseDate.get.toString)))
   }
   
   test("should convert person to person dto") {

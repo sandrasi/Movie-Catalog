@@ -17,20 +17,20 @@ class MovieTest extends FunSuite with ShouldMatchers {
   private final val Crime = Genre("crime", "Crime")
   private final val Thriller = Genre("thriller", "Thriller")
 
-  test("should create movie with given original title and default attributes") {
+  test("should create movie with specified original title and default attributes") {
     val subject = Movie(EnglishMovieTitle)
     subject.originalTitle should be(EnglishMovieTitle)
     subject.genres should be('empty)
-    subject.localizedTitles should be('empty)
-    subject.runtime should be(Duration.ZERO)
-    subject.releaseDate should be(new LocalDate(0))
+    subject.localizedTitle should be('empty)
+    subject.runtime should be(None)
+    subject.releaseDate should be(None)
     subject.version should be(0)
     subject.id should be(None)
   }
 
-  test("should create movie with specified localized titles") {
-    val subject = Movie(EnglishMovieTitle, localizedTitles = Set(HungarianMovieTitle, ItalianMovieTitle))
-    subject.localizedTitles should be(Set(HungarianMovieTitle, ItalianMovieTitle))
+  test("should create movie with specified localized title") {
+    val subject = Movie(EnglishMovieTitle, localizedTitle = HungarianMovieTitle)
+    subject.localizedTitle should be(Some(HungarianMovieTitle))
   }
 
   test("should create movie with specified genres") {
@@ -40,12 +40,12 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should create movie with specified runtime") {
     val subject = Movie(EnglishMovieTitle, runtime = Duration.standardMinutes(154))
-    subject.runtime should be(Duration.standardMinutes(154))
+    subject.runtime should be(Some(Duration.standardMinutes(154)))
   }
 
   test("should create movie with specified release date") {
     val subject = Movie(EnglishMovieTitle, releaseDate = new LocalDate(1994, 10, 14))
-    subject.releaseDate should be(new LocalDate(1994, 10, 14))
+    subject.releaseDate should be(Some(new LocalDate(1994, 10, 14)))
   }
 
   test("should not create movie with null original title") {
@@ -60,21 +60,15 @@ class MovieTest extends FunSuite with ShouldMatchers {
     }
   }
 
-  test("should not create movie with null localized titles") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, localizedTitles = null)
-    }
-  }
-
   test("should not create movie with null localized title") {
     intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, localizedTitles = Set(null))
+      Movie(EnglishMovieTitle, null, Set(Crime, Thriller), Some(Duration.standardMinutes(154)), Some(new LocalDate(1994, 10, 14)), 0, None)
     }
   }
 
   test("should not create movie with blank localized title") {
     intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, localizedTitles = Set("  "))
+      Movie(EnglishMovieTitle, "  ", Set(Crime, Thriller), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     }
   }
 
@@ -92,13 +86,13 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should not create movie with null runtime") {
     intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, runtime = null)
+      Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), null, Some(new LocalDate(1994, 10, 14)), 0, None)
     }
   }
 
   test("should not create movie with null release date") {
     intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, releaseDate = null)
+      Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), null, 0, None)
     }
   }
 
@@ -110,18 +104,18 @@ class MovieTest extends FunSuite with ShouldMatchers {
 
   test("should not create movie with null id") {
     intercept[IllegalArgumentException] {
-      new Movie("Pulp fiction", Set(HungarianMovieTitle), Set(Crime), Duration.standardMinutes(154), new LocalDate(1994, 10, 14), 0, id = null)
+      Movie("Pulp fiction", Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), Some(new LocalDate(1994, 10, 14)), 0, null)
     }
   }
 
   test("should compare two objects for equality") {
-    val movie = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Set(Crime), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val movie = Movie(EnglishMovieTitle, HungarianMovieTitle, Set(Crime, Thriller), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val otherMovie = movie.copy()
     val otherMovieWithDifferentOriginalTitle = movie.copy(originalTitle = "Die hard: With a vengeance")
-    val otherMovieWithDifferentLocalizedTitles = movie.copy(localizedTitles = Set(ItalianMovieTitle))
-    val otherMovieWithDifferentGenres = movie.copy(genres = Set(Thriller))
-    val otherMovieWithDifferentRuntime = movie.copy(runtime = Duration.standardMinutes(1))
-    val otherMovieWithDifferentReleaseDate = movie.copy(releaseDate = new LocalDate(2000, 1, 1))
+    val otherMovieWithDifferentLocalizedTitles = movie.copy(localizedTitle = Some(ItalianMovieTitle))
+    val otherMovieWithDifferentGenres = movie.copy(genres = Set(Genre("action", "Action")))
+    val otherMovieWithDifferentRuntime = movie.copy(runtime = Some(Duration.standardMinutes(131)))
+    val otherMovieWithDifferentReleaseDate = movie.copy(releaseDate = Some(new LocalDate(1995, 5, 19)))
 
     movie should not equal(null)
     movie should not equal(new AnyRef)
@@ -135,7 +129,7 @@ class MovieTest extends FunSuite with ShouldMatchers {
   }
 
   test("should calculate hash code") {
-    val movie = Movie(EnglishMovieTitle, Set(HungarianMovieTitle), Set(Crime), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
+    val movie = Movie(EnglishMovieTitle, HungarianMovieTitle, Set(Crime), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
     val otherMovie = movie.copy()
 
     movie.hashCode should equal(otherMovie.hashCode)

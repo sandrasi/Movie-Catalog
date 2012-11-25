@@ -66,12 +66,12 @@ object DtoSupport {
   private def toShortGenreDto(g: domain.Genre): Genre = Genre(g.id, g.code)
 
   implicit def toMotionPictureDto(m: domain.MotionPicture)(implicit l: Locale = US): MotionPicture = m match {
-    case movie: domain.Movie => Movie(m.id, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None, Option(m.genres.map(toShortGenreDto(_))), Option(m.runtime.getMillis), Option(m.releaseDate.toString))
+    case movie: domain.Movie => Movie(m.id, m.originalTitle.text, m.localizedTitle.find(_.locale == l).map(_.text), Option(m.genres.map(toShortGenreDto(_))), m.runtime.map(_.getMillis), m.releaseDate.map(_.toString))
     case _ => throw new IllegalArgumentException("Unsupported motion picture type: %s".format(m.getClass.getName))
   }
 
   private def toShortMotionPictureDto(m: domain.MotionPicture)(implicit l: Locale = US): MotionPicture = m match {
-    case movie: domain.Movie => Movie(m.id, m.originalTitle.text, if (m.localizedTitles.exists(_.locale == l)) Some(m.localizedTitles.filter(_.locale == l).head.text) else None)
+    case movie: domain.Movie => Movie(m.id, m.originalTitle.text, m.localizedTitle.find(_.locale == l).map(_.text))
     case _ => throw new IllegalArgumentException("Unsupported motion picture type: %s".format(m.getClass.getName))
   }
 

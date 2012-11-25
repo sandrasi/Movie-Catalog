@@ -1,13 +1,16 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
+import java.util.UUID
 import org.joda.time.{Duration, LocalDate}
+import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
-import java.util.UUID
 
+@RunWith(classOf[JUnitRunner])
 class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with ShouldMatchers with MovieCatalogNeo4jSupport {
   
   test("should get the uuid property") {
@@ -27,7 +30,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("should get the string property") {
     val node = createNode()
     transaction(db) { node.setProperty("key", "test") }
-    PropertyManager.getString(node, "key") should be("test")
+    PropertyManager.getString(node, "key") should be(Some("test"))
   }
   
   test("should set the string property") {
@@ -63,7 +66,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("should get the duration property") {
     val node = createNode()
     transaction(db) { node.setProperty("key", Duration.millis(1).getMillis) }
-    PropertyManager.getDuration(node, "key") should be(Duration.millis(1))
+    PropertyManager.getDuration(node, "key") should be(Some(Duration.millis(1)))
   }
 
   test("should set the duration property") {
@@ -76,7 +79,7 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
     val node = createNode()
     val today = new LocalDate
     transaction(db) { node.setProperty("key", today.toDateTimeAtStartOfDay.getMillis) }
-    PropertyManager.getLocalDate(node, "key") should be(today)
+    PropertyManager.getLocalDate(node, "key") should be(Some(today))
   }
 
   test("should set the local date property") {
@@ -85,133 +88,100 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
     transaction(db) { PropertyManager.setLocalDate(node, "key", today) }
     node.getProperty("key") should be(today.toDateTimeAtStartOfDay.getMillis)
   }
-  
-  test("should return true if the property container has the given localized text property") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(PropertyManager.hasLocalizedText(node, "key"))
-  }
 
-  test("should return false if the text is missing from the localized text property") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the text of the localized text property is not a string array") {
+  test("should get the localized text property") {
     val node = createNode()
     transaction(db) {
       node.setProperty("key", "test")
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the locale's language is missing from the localized text property") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the language of the locale of the localized text property is not a string array") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
       node.setProperty("key" + LocaleLanguage, "en")
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the locale's country is missing from the localized text property") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the country of the locale of the localized text property is not a string array") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
       node.setProperty("key" + LocaleCountry, "US")
-      node.setProperty("key" + LocaleVariant, Array(""))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the locale's variant is missing from the localized text property") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-    }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
-  }
-
-  test("should return false if the variant of the locale of the localized text property is not a string array") {
-    val node = createNode()
-    transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, "")
     }
-    assert(!PropertyManager.hasLocalizedText(node, "key"))
+    PropertyManager.getLocalizedText(node, "key") should be(Some(LocalizedText("test")(AmericanLocale)))
   }
 
-  test("should return true if the property container has the given localized text property with the given locale") {
+  test("should not get the localized text property if the text is missing") {
     val node = createNode()
     transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleCountry, "US")
+      node.setProperty("key" + LocaleVariant, "")
     }
-    assert(PropertyManager.hasLocalizedText(node, "key", AmericanLocale))
+    PropertyManager.getLocalizedText(node, "key") should be(None)
   }
 
-  test("should return false if the property container does not have the given localized text property with the given locale") {
+  test("should not get the localized text property if the locale language is missing") {
     val node = createNode()
     transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleCountry, "US")
+      node.setProperty("key" + LocaleVariant, "")
     }
-    assert(!PropertyManager.hasLocalizedText(node, "key", HungarianLocale))
+    PropertyManager.getLocalizedText(node, "key") should be(None)
   }
 
-  test("should get the first localized text property") {
+  test("should not get the localized text property if the locale country is missing") {
     val node = createNode()
     transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleVariant, "")
     }
-    PropertyManager.getLocalizedText(node, "key") should be(LocalizedText("test")(AmericanLocale))
+    PropertyManager.getLocalizedText(node, "key") should be(None)
+  }
+
+  test("should not get the localized text property if the locale variant is missing") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleCountry, "US")
+    }
+    PropertyManager.getLocalizedText(node, "key") should be(None)
+  }
+
+  test("should not get the localized text property if the text is not a string") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", 1)
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleCountry, "US")
+      node.setProperty("key" + LocaleVariant, "")
+    }
+    PropertyManager.getLocalizedText(node, "key") should be(None)
+  }
+
+  test("should not get the localized text property if the locale language is not a string") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleLanguage, 1)
+      node.setProperty("key" + LocaleCountry, "US")
+      node.setProperty("key" + LocaleVariant, "")
+    }
+    PropertyManager.getLocalizedText(node, "key") should be(None)
+  }
+
+  test("should not get the localized text property if the locale country is not a string") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleCountry, 1)
+      node.setProperty("key" + LocaleVariant, "")
+    }
+    PropertyManager.getLocalizedText(node, "key") should be(None)
+  }
+
+  test("should not get the localized text property if the locale variant is not a string") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleCountry, "US")
+      node.setProperty("key" + LocaleVariant, 1)
+    }
+    PropertyManager.getLocalizedText(node, "key") should be(None)
   }
 
   test("should get the localized text property with the given locale") {
@@ -222,10 +192,10 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US", "HU"))
       node.setProperty("key" + LocaleVariant, Array("", ""))
     }
-    PropertyManager.getLocalizedText(node, "key", HungarianLocale) should be(LocalizedText("teszt")(HungarianLocale))
+    PropertyManager.getLocalizedText(node, "key", HungarianLocale) should be(Some(LocalizedText("teszt")(HungarianLocale)))
   }
-
-  test("should not get the localized text property if it does not match the locale") {
+  
+  test("should not get the localized text property if the locale does not match the given locale") {
     val node = createNode()
     transaction(db) {
       node.setProperty("key", Array("test"))
@@ -233,20 +203,91 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
       node.setProperty("key" + LocaleCountry, Array("US"))
       node.setProperty("key" + LocaleVariant, Array(""))
     }
-    intercept[NoSuchElementException] {
-      PropertyManager.getLocalizedText(node, "key", HungarianLocale)
-    }
+    PropertyManager.getLocalizedText(node, "key", HungarianLocale) should be(None)
   }
 
-  test("should get the localized text properties") {
+  test("should not get the localized text property with the given locale if the text is missing") {
     val node = createNode()
     transaction(db) {
-      node.setProperty("key", Array("test", "teszt"))
-      node.setProperty("key" + LocaleLanguage, Array("en", "hu"))
-      node.setProperty("key" + LocaleCountry, Array("US", "HU"))
-      node.setProperty("key" + LocaleVariant, Array("", ""))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+      node.setProperty("key" + LocaleVariant, Array(""))
     }
-    PropertyManager.getLocalizedTextSet(node, "key") should be(Set(LocalizedText("test")(AmericanLocale), LocalizedText("teszt")(HungarianLocale)))
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the locale language is missing") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+      node.setProperty("key" + LocaleVariant, Array(""))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the locale country is missing") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleVariant, Array(""))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the locale variant is missing") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the text is not a string array") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array(1))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+      node.setProperty("key" + LocaleVariant, Array(""))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the locale language is not a string array") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleLanguage, Array(1))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+      node.setProperty("key" + LocaleVariant, Array(""))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the locale country is not a string array") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleCountry, Array(1))
+      node.setProperty("key" + LocaleVariant, Array(""))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
+  }
+
+  test("should not get the localized text property with the given locale if the locale variant is not a string array") {
+    val node = createNode()
+    transaction(db) {
+      node.setProperty("key", Array("test"))
+      node.setProperty("key" + LocaleLanguage, Array("en"))
+      node.setProperty("key" + LocaleCountry, Array("US"))
+      node.setProperty("key" + LocaleVariant, Array(1))
+    }
+    PropertyManager.getLocalizedText(node, "key", AmericanLocale) should be(None)
   }
 
   test("should set the localized text property") {
@@ -254,27 +295,10 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
     transaction(db) {
       PropertyManager.setLocalizedText(node, "key", LocalizedText("test")(AmericanLocale))
     }
-    node.getProperty("key").asInstanceOf[Array[String]] should be(Array("test"))
-    node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should be(Array("en"))
-    node.getProperty("key" + LocaleCountry).asInstanceOf[Array[String]] should be(Array("US"))
-    node.getProperty("key" + LocaleVariant).asInstanceOf[Array[String]] should be(Array(""))
-  }
-
-  test("should set the localized text property from multiple localized text instances") {
-    val node = createNode()
-    transaction(db) {
-      PropertyManager.setLocalizedText(node, "key", Set(LocalizedText("test")(AmericanLocale), LocalizedText("teszt")(HungarianLocale)))
-    }
-    node.getProperty("key").asInstanceOf[Array[String]] should have size(2)
-    node.getProperty("key").asInstanceOf[Array[String]] should contain("test")
-    node.getProperty("key").asInstanceOf[Array[String]] should contain("teszt")
-    node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should have size(2)
-    node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should contain("en")
-    node.getProperty("key" + LocaleLanguage).asInstanceOf[Array[String]] should contain("hu")
-    node.getProperty("key" + LocaleCountry).asInstanceOf[Array[String]] should have size(2)
-    node.getProperty("key" + LocaleCountry).asInstanceOf[Array[String]] should contain("US")
-    node.getProperty("key" + LocaleCountry).asInstanceOf[Array[String]] should contain("HU")
-    node.getProperty("key" + LocaleVariant).asInstanceOf[Array[String]] should be(Array("", ""))
+    node.getProperty("key").asInstanceOf[String] should be("test")
+    node.getProperty("key" + LocaleLanguage).asInstanceOf[String] should be("en")
+    node.getProperty("key" + LocaleCountry).asInstanceOf[String] should be("US")
+    node.getProperty("key" + LocaleVariant).asInstanceOf[String] should be("")
   }
 
   test("should add the localized text to the existing localized text properties") {
@@ -316,10 +340,10 @@ class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("should delete the localized text property") {
     val node = createNode()
     transaction(db) {
-      node.setProperty("key", Array("test"))
-      node.setProperty("key" + LocaleLanguage, Array("en"))
-      node.setProperty("key" + LocaleCountry, Array("US"))
-      node.setProperty("key" + LocaleVariant, Array(""))
+      node.setProperty("key", "test")
+      node.setProperty("key" + LocaleLanguage, "en")
+      node.setProperty("key" + LocaleCountry, "US")
+      node.setProperty("key" + LocaleVariant, "")
       PropertyManager.deleteLocalizedText(node, "key")
     }
     assert(!node.hasProperty("key"))

@@ -100,17 +100,17 @@ sealed trait MotionPicture extends Entity {
 
   Validate.notNull(originalTitle)
   Validate.notBlank(originalTitle.text)
-  Validate.noNullElements(localizedTitles)
-  Validate.isTrueForAll(localizedTitles, (lt: LocalizedText) => !lt.text.trim.isEmpty)
+  Validate.notNull(localizedTitle)
+  if (localizedTitle.isDefined) Validate.notBlank(localizedTitle.get.text)
   Validate.noNullElements(genres)
   Validate.notNull(runtime)
   Validate.notNull(releaseDate)
 
   def originalTitle: LocalizedText
-  def localizedTitles: Set[LocalizedText]
+  def localizedTitle: Option[LocalizedText]
   def genres: Set[Genre]
-  def runtime: ReadableDuration
-  def releaseDate: LocalDate
+  def runtime: Option[ReadableDuration]
+  def releaseDate: Option[LocalDate]
 
   override def equals(o: Any): Boolean = o match {
     case other: MotionPicture => other.canEqual(this) && (originalTitle == other.originalTitle) && (releaseDate == other.releaseDate)
@@ -127,7 +127,7 @@ sealed trait MotionPicture extends Entity {
   }
 }
 
-case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedText], genres: Set[Genre], runtime: ReadableDuration, releaseDate: LocalDate, version: Long, id: Option[UUID]) extends MotionPicture {
+case class Movie(originalTitle: LocalizedText, localizedTitle: Option[LocalizedText], genres: Set[Genre], runtime: Option[ReadableDuration], releaseDate: Option[LocalDate], version: Long, id: Option[UUID]) extends MotionPicture {
 
   override def equals(o: Any): Boolean = o match {
     case other: Movie => other.canEqual(this) && super.equals(o)
@@ -140,12 +140,12 @@ case class Movie(originalTitle: LocalizedText, localizedTitles: Set[LocalizedTex
 object Movie {
 
   def apply(originalTitle: LocalizedText,
-            localizedTitles: Set[LocalizedText] = Set.empty,
+            localizedTitle: LocalizedText = null,
             genres: Set[Genre] = Set.empty,
-            runtime: ReadableDuration = Duration.ZERO,
-            releaseDate: LocalDate = new LocalDate(0),
+            runtime: ReadableDuration = null,
+            releaseDate: LocalDate = null,
             version: Long = 0,
-            id: UUID = null): Movie = Movie(originalTitle, localizedTitles, genres, runtime, releaseDate, version, Option(id))
+            id: UUID = null): Movie = Movie(originalTitle, Option(localizedTitle), genres, Option(runtime), Option(releaseDate), version, Option(id))
 }
 
 case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfBirth: String, version: Long, id: Option[UUID]) extends Entity {

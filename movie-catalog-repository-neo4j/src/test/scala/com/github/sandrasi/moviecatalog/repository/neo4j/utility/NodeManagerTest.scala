@@ -21,6 +21,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
 
+// TODO (sandrasi): use the genres in the movie entities as soon as the genres are saved with the movie
 @RunWith(classOf[JUnitRunner])
 class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
 
@@ -233,7 +234,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val genreNode = transaction(tx) { subject.createNodeFrom(Crime) }
     getString(genreNode, GenreCode).get should be(Crime.code)
-    Some(getLocalizedText(genreNode, GenreName)) should be(Crime.name)
+    getLocalizedText(genreNode, GenreName, AmericanLocale) should be(Crime.name)
     getLong(genreNode, Version) should be(Crime.version)
     genreNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Genre]))
   }
@@ -278,10 +279,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val thrillerGenreNode = createNodeFrom(Thriller)
     implicit val tx = db.beginTx()
     val movieNode = transaction(tx) { subject.createNodeFrom(PulpFiction.copy(genres = Set(createGenreFrom(crimeGenreNode), createGenreFrom(thrillerGenreNode)))) }
-    getLocalizedText(movieNode, MovieOriginalTitle) should be(PulpFiction.originalTitle)
-    getLocalizedTextSet(movieNode, MovieLocalizedTitles) should be(PulpFiction.localizedTitles)
+    getLocalizedText(movieNode, MovieOriginalTitle).get should be(PulpFiction.originalTitle)
+    getLocalizedText(movieNode, MovieLocalizedTitle, HungarianLocale) should be(PulpFiction.localizedTitle)
     movieNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crimeGenreNode, thrillerGenreNode))
-    getLocalDate(movieNode, MovieReleaseDate).get should be(PulpFiction.releaseDate)
+    getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
     getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLong(movieNode, Version) should be(PulpFiction.version)
     movieNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[MotionPicture])) and contain(dbMgr.getSubreferenceNode(classOf[Movie])))
@@ -340,7 +341,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(releaseDate = new LocalDate(1995, 5, 19)))
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(releaseDate = Some(new LocalDate(1995, 5, 19))))
       movieNode.getId should not equal(anotherMovieNode.getId)
     }
   }
@@ -407,8 +408,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(EnglishSoundtrack) }
     getString(soundtrackNode, SoundtrackLanguageCode).get should be(EnglishSoundtrack.languageCode)
     getString(soundtrackNode, SoundtrackFormatCode).get should be(EnglishSoundtrack.formatCode)
-    Some(getLocalizedText(soundtrackNode, SoundtrackLanguageName)) should be(EnglishSoundtrack.languageName)
-    Some(getLocalizedText(soundtrackNode, SoundtrackFormatName)) should be(EnglishSoundtrack.formatName)
+    getLocalizedText(soundtrackNode, SoundtrackLanguageName, AmericanLocale) should be(EnglishSoundtrack.languageName)
+    getLocalizedText(soundtrackNode, SoundtrackFormatName, AmericanLocale) should be(EnglishSoundtrack.formatName)
     getLong(soundtrackNode, Version) should be(EnglishSoundtrack.version)
     soundtrackNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Soundtrack]))
   }
@@ -477,7 +478,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val subtitleNode = transaction(tx) { subject.createNodeFrom(EnglishSubtitle) }
     getString(subtitleNode, SubtitleLanguageCode).get should be(EnglishSubtitle.languageCode)
-    Some(getLocalizedText(subtitleNode, SubtitleLanguageName)) should be(EnglishSubtitle.languageName)
+    getLocalizedText(subtitleNode, SubtitleLanguageName, AmericanLocale) should be(EnglishSubtitle.languageName)
     getLong(subtitleNode, Version) should be(EnglishSubtitle.version)
     subtitleNode.getSingleRelationship(IsA, OUTGOING).getEndNode should be(dbMgr.getSubreferenceNode(classOf[Subtitle]))
   }
@@ -624,7 +625,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedGenre) }
     getString(updatedNode, GenreCode).get should be("thriller")
-    getLocalizedText(updatedNode, GenreName) should be(LocalizedText("Thriller"))
+    getLocalizedText(updatedNode, GenreName, AmericanLocale).get should be(LocalizedText("Thriller"))
     getLong(updatedNode, Version) should be(modifiedGenre.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(genre.id.get.toString)
   }
@@ -634,14 +635,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
     val updatedNode = transaction(tx) { subject.updateNodeOf(genre.copy(name = Some(LocalizedText("Krimi")(HungarianLocale)))) }
-    getLocalizedTextSet(updatedNode, GenreName) should be(Set(LocalizedText("Crime")(AmericanLocale), LocalizedText("Krimi")(HungarianLocale)))
+    getLocalizedText(updatedNode, GenreName, AmericanLocale).get should be(LocalizedText("Crime")(AmericanLocale))
+    getLocalizedText(updatedNode, GenreName, HungarianLocale).get should be(LocalizedText("Krimi")(HungarianLocale))
   }
 
   test("should remove the genre name from the node properties") {
     val genre = insertEntity(Crime)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(genre.copy(name = None)) }
-    assert(!hasLocalizedText(updatedNode, GenreName))
+    getLocalizedText(updatedNode, GenreName, AmericanLocale) should be(None)
   }
 
   test("should not update genre node if a different node already exists for the modified genre") {
@@ -674,13 +676,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     val crime = createNodeFrom(Crime)
     val thriller = createNodeFrom(Thriller)
-    val modifiedMovie = movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), genres = Set(createGenreFrom(crime), createGenreFrom(thriller)), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19))
+    val modifiedMovie = movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), genres = Set(createGenreFrom(crime), createGenreFrom(thriller)), runtime = Some(Duration.standardMinutes(131)), releaseDate = Some(new LocalDate(1995, 5, 19)))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedMovie) }
-    getLocalizedText(updatedNode, MovieOriginalTitle) should be(LocalizedText("Die hard: With a vengeance"))
-    getLocalizedTextSet(updatedNode, MovieLocalizedTitles) should be(Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)))
+    getLocalizedText(updatedNode, MovieOriginalTitle).get should be(LocalizedText("Die hard: With a vengeance"))
+    getLocalizedText(updatedNode, MovieLocalizedTitle, HungarianLocale).get should be(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale))
     updatedNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crime, thriller))
-    getDuration(updatedNode, MovieRuntime) should be(Duration.standardMinutes(131))
+    getDuration(updatedNode, MovieRuntime).get should be(Duration.standardMinutes(131))
     getLocalDate(updatedNode, MovieReleaseDate).get should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(movie.id.get.toString)
@@ -688,10 +690,10 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should not update movie node if a different node already exists for the modified movie") {
     val movie = insertEntity(PulpFiction)
-    insertEntity(Movie("Die hard: With a vengeance", Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), Set(), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
+    insertEntity(Movie("Die hard: With a vengeance", LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), Set(), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
     implicit val tx = db.beginTx()
     intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), genres = Set(Crime, Thriller), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19))) }
+      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), runtime = Some(Duration.standardMinutes(131)), releaseDate = Some(new LocalDate(1995, 5, 19)))) }
     }
   }
 
@@ -699,7 +701,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     implicit val tx = db.beginTx()
     intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitles = Set(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), LocalizedText("Die hard: Duri a morire")(ItalianLocale)), runtime = Duration.standardMinutes(131), releaseDate = new LocalDate(1995, 5, 19), version = movie.version + 1)) }
+      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), runtime = Some(Duration.standardMinutes(131)), releaseDate = Some(new LocalDate(1995, 5, 19)), version = movie.version + 1)) }
     }
   }
 
@@ -740,8 +742,8 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSoundtrack) }
     getString(updatedNode, SoundtrackLanguageCode).get should be("it")
     getString(updatedNode, SoundtrackFormatCode).get should be("dd5.1")
-    getLocalizedText(updatedNode, SoundtrackLanguageName) should be(LocalizedText("Italian"))
-    getLocalizedText(updatedNode, SoundtrackFormatName) should be(LocalizedText("Dolby Digital 5.1"))
+    getLocalizedText(updatedNode, SoundtrackLanguageName, AmericanLocale).get should be(LocalizedText("Italian"))
+    getLocalizedText(updatedNode, SoundtrackFormatName, AmericanLocale).get should be(LocalizedText("Dolby Digital 5.1"))
     getLong(updatedNode, Version) should be(modifiedSoundtrack.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(soundtrack.id.get.toString)
   }
@@ -751,16 +753,18 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
     val updatedNode = transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageName = Some(LocalizedText("Angol")(HungarianLocale)), formatName = Some(LocalizedText("DTS")(HungarianLocale)))) }
-    getLocalizedTextSet(updatedNode, SoundtrackLanguageName) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
-    getLocalizedTextSet(updatedNode, SoundtrackFormatName) should be(Set(LocalizedText("DTS")(AmericanLocale), LocalizedText("DTS")(HungarianLocale)))
+    getLocalizedText(updatedNode, SoundtrackLanguageName, AmericanLocale).get should be(LocalizedText("English")(AmericanLocale))
+    getLocalizedText(updatedNode, SoundtrackLanguageName, HungarianLocale).get should be(LocalizedText("Angol")(HungarianLocale))
+    getLocalizedText(updatedNode, SoundtrackFormatName, AmericanLocale).get should be(LocalizedText("DTS")(AmericanLocale))
+    getLocalizedText(updatedNode, SoundtrackFormatName, HungarianLocale).get should be(LocalizedText("DTS")(HungarianLocale))
   }
 
   test("should remove the soundtrack language and format names from the node properties") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageName = None, formatName = None)) }
-    assert(!hasLocalizedText(updatedNode, SoundtrackLanguageName))
-    assert(!hasLocalizedText(updatedNode, SoundtrackFormatName))
+    getLocalizedText(updatedNode, SoundtrackLanguageName, AmericanLocale) should be(None)
+    getLocalizedText(updatedNode, SoundtrackFormatName, AmericanLocale) should be(None)
   }
 
   test("should not update soundtrack node if a different node already exists for the modified soundtrack") {
@@ -795,7 +799,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedSubtitle) }
     getString(updatedNode, SubtitleLanguageCode).get should be("it")
-    getLocalizedText(updatedNode, SubtitleLanguageName) should be(LocalizedText("Italian"))
+    getLocalizedText(updatedNode, SubtitleLanguageName, AmericanLocale).get should be(LocalizedText("Italian"))
     getLong(updatedNode, Version) should be(modifiedSubtitle.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(subtitle.id.get.toString)
   }
@@ -805,14 +809,15 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     implicit val locale = HungarianLocale
     val updatedNode = transaction(tx) { subject.updateNodeOf(subtitle.copy(languageName = Some(LocalizedText("Angol")(HungarianLocale)))) }
-    getLocalizedTextSet(updatedNode, SubtitleLanguageName) should be(Set(LocalizedText("English")(AmericanLocale), LocalizedText("Angol")(HungarianLocale)))
+    getLocalizedText(updatedNode, SubtitleLanguageName, AmericanLocale).get should be(LocalizedText("English")(AmericanLocale))
+    getLocalizedText(updatedNode, SubtitleLanguageName, HungarianLocale).get should be(LocalizedText("Angol")(HungarianLocale))
   }
 
   test("should remove the subtitle language name from the node properties") {
     val subtitle = insertEntity(EnglishSubtitle)
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(subtitle.copy(languageName = None)) }
-    assert(!hasLocalizedText(updatedNode, SubtitleLanguageName))
+    getLocalizedText(updatedNode, SubtitleLanguageName, AmericanLocale) should be(None)
   }
 
   test("should not update subtitle node if a different node already exists for the modified subtitle") {

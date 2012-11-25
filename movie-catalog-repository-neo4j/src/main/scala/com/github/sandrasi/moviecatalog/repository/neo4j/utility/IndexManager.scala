@@ -70,15 +70,7 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
     MotionPictureIndex.add(n, MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)
     MotionPictureIndex.add(n, MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)
     MotionPictureIndex.add(n, MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)
-    // TODO (sandrasi): Index the motion picture by localized titles and runtime when needed
-    //for (lt <- m.localizedTitles) {
-    //  MovieIndex.add(n, MovieLocalizedTitles, lt.text)
-    //  MovieIndex.add(n, MovieLocalizedTitles + LocaleLanguage, lt.locale.getLanguage)
-    //  MovieIndex.add(n, MovieLocalizedTitles + LocaleCountry, lt.locale.getCountry)
-    //  MovieIndex.add(n, MovieLocalizedTitles + LocaleVariant, lt.locale.getVariant)
-    //}
-    //MovieIndex.add(n, MovieRuntime, ValueContext.numeric(m.runtime.getMillis))
-    MotionPictureIndex.add(n, MovieReleaseDate, ValueContext.numeric(m.releaseDate.toDateTimeAtStartOfDay.getMillis))
+    if (m.releaseDate.isDefined) MotionPictureIndex.add(n, MovieReleaseDate, ValueContext.numeric(m.releaseDate.get.toDateTimeAtStartOfDay.getMillis)) else MotionPictureIndex.remove(n, MovieReleaseDate)
   }
 
   private def index(n: Node, p: Person) {
@@ -181,13 +173,15 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
   }
 
   private def lookUpExact(m: MotionPicture): Option[Node] = {
-    val releaseDateMillis = m.releaseDate.toDateTimeAtStartOfDay.getMillis
     val query = new BooleanQuery()
     query.add(new TermQuery(new Term(MovieOriginalTitle, m.originalTitle.text)), MUST)
     query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)), MUST)
     query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)), MUST)
     query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)), MUST)
-    query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, releaseDateMillis, releaseDateMillis, true, true), MUST)
+    if (m.releaseDate.isDefined) {
+      val rdm = m.releaseDate.get.toDateTimeAtStartOfDay.getMillis
+      query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, rdm, rdm, true, true), MUST)
+    } else query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, Long.MinValue, Long.MaxValue, true, true), MUST_NOT)
     Option(MotionPictureIndex.query(query).getSingle)
   }
 
