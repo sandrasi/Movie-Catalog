@@ -38,5 +38,12 @@
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.library.version}</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>movie-catalog-common</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

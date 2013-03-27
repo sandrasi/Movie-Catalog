@@ -21,7 +21,7 @@
     </properties>
 
     <dependencies>
-       <dependency>
+        <dependency>
             <groupId>com.github.sandrasi</groupId>
             <artifactId>movie-catalog-repository</artifactId>
             <version>${project.version}</version>
@@ -48,6 +48,13 @@
             <artifactId>neo4j-kernel</artifactId>
             <version>${org.neo4j.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>movie-catalog-common</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,5 +1,6 @@
 package com.github.sandrasi.moviecatalog.service.dtos
 
+import scala.language.implicitConversions
 import java.util.{Locale, UUID}
 import java.util.Locale.US
 import com.github.sandrasi.moviecatalog.domain

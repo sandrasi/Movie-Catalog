@@ -28,19 +28,6 @@ class LocalizedTextTest extends FunSuite with ShouldMatchers {
     subject.locale should be(hungarianLocale)
   }
 
-  test("should create localized text from string with default locale using implicit conversion") {
-    val subject: LocalizedText = "localized text"
-    subject.text should be("localized text")
-    subject.locale should be(US)
-  }
-
-  test("should create localized text from string with implicit locale using implicit conversion") {
-    implicit val hungarianLocale = new Locale("hu", "HU")
-    val subject: LocalizedText = "honosított szöveg"
-    subject.text should be("honosított szöveg")
-    subject.locale should be(hungarianLocale)
-  }
-
   test("should not create localized text with null text") {
     intercept[IllegalArgumentException] {
       LocalizedText(null)

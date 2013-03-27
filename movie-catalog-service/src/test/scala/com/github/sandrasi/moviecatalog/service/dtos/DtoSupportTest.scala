@@ -1,4 +1,5 @@
-package com.github.sandrasi.moviecatalog.service.dtos
+package com.github.sandrasi.moviecatalog.service
+package dtos
 
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner

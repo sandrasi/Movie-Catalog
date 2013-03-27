@@ -1,4 +1,5 @@
-package com.github.sandrasi.moviecatalog.repository.neo4j.utility
+package com.github.sandrasi.moviecatalog.repository.neo4j
+package utility
 
 import org.joda.time.LocalDate
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}

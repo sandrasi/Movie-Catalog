@@ -24,8 +24,3 @@ case class LocalizedText(text: String)(implicit val locale: Locale = US) {
 
   override def toString: String = """"%s" [%s]""".format(text, locale)
 }
-
-object LocalizedText {
-
-  implicit def stringToLocalizedText(str: String)(implicit locale: Locale = US): LocalizedText = LocalizedText(str)
-}

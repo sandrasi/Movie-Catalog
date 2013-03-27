@@ -1,4 +1,5 @@
-package com.github.sandrasi.moviecatalog.repository.neo4j.test.utility
+package com.github.sandrasi.moviecatalog.repository.neo4j
+package test.utility
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
