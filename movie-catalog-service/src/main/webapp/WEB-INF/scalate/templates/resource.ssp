@@ -1,4 +1,5 @@
-<% import net.liftweb.json.{NoTypeHints, Serialization} %>
+<% import org.json4s.NoTypeHints %>
+<% import org.json4s.native.Serialization %>
 <% import com.github.sandrasi.moviecatalog.service.rest.JsonResponse %>
 <% import com.github.sandrasi.moviecatalog.service.rest.RestResponse %>
 

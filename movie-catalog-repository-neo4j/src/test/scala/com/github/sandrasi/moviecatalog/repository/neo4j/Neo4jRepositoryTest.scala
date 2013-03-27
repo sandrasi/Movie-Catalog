@@ -395,11 +395,4 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val maleCast = subject.query(classOf[Cast], (c: Cast) => c.isInstanceOf[Actor]).toList
     maleCast should (contain(actor.asInstanceOf[Cast]) and have size(1))
   }
-
-  test("should shut down the repository") {
-    subject.shutdown()
-    intercept[Exception] {
-      subject.save(VincentVega)
-    }
-  }
 }

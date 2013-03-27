@@ -1,10 +1,10 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
 import scala.collection.mutable.ArrayBuffer
-import net.liftweb.json.Extraction.decompose
-import net.liftweb.json.{NoTypeHints, Serialization}
-import net.liftweb.json.Xml.toXml
 import org.fusesource.scalate.Template
+import org.json4s.native.Serialization
+import org.json4s.Extraction.decompose
+import org.json4s.{NoTypeHints, Xml}
 import org.scalatra._
 import org.scalatra.scalate.ScalateSupport
 
@@ -40,7 +40,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
 
   private def write(jsonResponse: JsonResponse[_]) = Serialization.write(jsonResponse)
 
-  private def write(xmlResponse: XmlResponse[_]) = toXml(decompose(xmlResponse))
+  private def write(xmlResponse: XmlResponse[_]) = Xml.toXml(decompose(xmlResponse))
 
   private def layoutTemplate(template: Template, attributes: Map[String, Any] = Map()) = templateEngine.layout(template.source.uri, template, attributes)
 

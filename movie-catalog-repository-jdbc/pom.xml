@@ -33,12 +33,12 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.version}</artifactId>
+            <artifactId>scalatest_${scala.library.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.3.168</version>
+            <version>1.3.171</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

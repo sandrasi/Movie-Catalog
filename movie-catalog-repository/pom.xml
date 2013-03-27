@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.version}</artifactId>
+            <artifactId>scalatest_${scala.library.version}</artifactId>
         </dependency>
     </dependencies>
 </project>
