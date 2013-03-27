@@ -1,6 +1,7 @@
 package com.github.sandrasi.moviecatalog.service.rest
 
 import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
 import org.fusesource.scalate.Template
 import org.json4s.native.Serialization
 import org.json4s.Extraction.decompose
@@ -165,7 +166,7 @@ trait RestSupport extends ScalateSupport with ApiFormats { outer =>
         get
       } catch {
         case e: ParameterException => ErrorResult(BadRequest(reason = e.getMessage))
-        case e => ErrorResult(InternalServerError(reason = e.getMessage))
+        case e: Exception => ErrorResult(InternalServerError(reason = e.getMessage))
       }
       RestResponse(this, result)
     }
