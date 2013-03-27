@@ -1,6 +1,5 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.transaction
 
-import scala.collection.JavaConverters._
 import org.junit.runner.RunWith
 import org.neo4j.graphdb.NotInTransactionException
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
