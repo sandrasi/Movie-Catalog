@@ -27,7 +27,7 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
     Option(EntityIdIndex.query(query).getSingle)
   }
 
-  def getNodeOf(e: Entity) = e.id.flatMap(getNodeById(_)) match {
+  def getNodeOf(e: Entity): Node = e.id.flatMap(getNodeById(_)) match {
     case Some(n) => if (isNodeOfType(n, e.getClass)) n else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, e.getClass.getName))
     case None => throw new NoSuchElementException("%s is not in the database".format(e))
   }
@@ -40,7 +40,7 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
     node
   } else throw new IllegalStateException("Entity %s already has an id: %s".format(e, e.id.get))
 
-  def getSubreferenceNode[A <: Entity](c: Class[A]) = db.getNodeById(getSubreferenceNodeId(c))
+  def getSubreferenceNode[A <: Entity](c: Class[A]): Node = db.getNodeById(getSubreferenceNodeId(c))
 
   def isSubreferenceNode(n: Node): Boolean = SubreferenceRelationshipType.values.exists(v => getOrCreateSubreferenceNodeId(v) == n.getId)
 
@@ -59,7 +59,7 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
     srn
   }
 
-  def isNodeOfType[A <: Entity](n: Node, entityType: Class[A]) = n.getRelationships(IsA, OUTGOING).asScala.view.map(_.getEndNode.getId).exists(_ == getSubreferenceNodeId(entityType))
+  def isNodeOfType[A <: Entity](n: Node, entityType: Class[A]): Boolean = n.getRelationships(IsA, OUTGOING).asScala.view.map(_.getEndNode.getId).exists(_ == getSubreferenceNodeId(entityType))
 }
 
 private[neo4j] object DatabaseManager {
