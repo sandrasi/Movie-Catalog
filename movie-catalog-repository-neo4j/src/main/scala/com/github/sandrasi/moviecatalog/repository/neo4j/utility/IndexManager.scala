@@ -20,7 +20,7 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
   private final val IdxMgr = db.index()
   private final val CastIndex = IdxMgr.forNodes("Cast")
   private final val CharacterIndex = IdxMgr.forNodes("Characters")
-  private final val DigitalContainerIndex = IdxMgr.forNodes("DigitalConainers")
+  private final val DigitalContainerIndex = IdxMgr.forNodes("DigitalContainers")
   private final val GenreIndex = IdxMgr.forNodes("Genres")
   private final val MotionPictureIndex = IdxMgr.forNodes("MotionPicture") // TODO (sandrasi): separate index for movies and tv shows
   private final val PersonIndex = IdxMgr.forNodes("Persons")
