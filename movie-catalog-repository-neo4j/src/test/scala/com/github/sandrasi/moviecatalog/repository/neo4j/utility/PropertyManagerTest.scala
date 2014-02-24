@@ -1,14 +1,13 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import java.util.UUID
-import org.joda.time.{Duration, LocalDate}
-import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
+import java.util.UUID
+import org.joda.time.{Duration, LocalDate}
+import org.junit.runner.RunWith
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with Matchers with MovieCatalogNeo4jSupport {

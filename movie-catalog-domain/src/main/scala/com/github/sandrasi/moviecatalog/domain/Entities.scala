@@ -1,11 +1,10 @@
 package com.github.sandrasi.moviecatalog.domain
 
-import java.util.UUID
-import org.joda.time.{Duration, ReadableDuration, LocalDate}
-import com.github.sandrasi.moviecatalog.common.LocalizedText
-import com.github.sandrasi.moviecatalog.common.Validate
+import com.github.sandrasi.moviecatalog.common.{LocalizedText, Validate}
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
+import java.util.UUID
+import org.joda.time.{LocalDate, ReadableDuration}
 
 sealed trait IdSupport[A] extends Equals {
 

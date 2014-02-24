@@ -1,11 +1,5 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.{Map => MutableMap}
-import java.util.Locale
-import java.util.Locale.US
-import org.neo4j.graphdb._
-import org.neo4j.graphdb.Direction.OUTGOING
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender
@@ -15,6 +9,12 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.Digit
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
+import java.util.Locale
+import java.util.Locale.US
+import org.neo4j.graphdb.{GraphDatabaseService, Node, NotFoundException}
+import org.neo4j.graphdb.Direction.OUTGOING
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{Map => MutableMap}
 
 private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 

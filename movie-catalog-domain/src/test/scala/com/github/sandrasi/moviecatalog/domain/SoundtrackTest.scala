@@ -1,12 +1,11 @@
 package com.github.sandrasi.moviecatalog.domain
 
+import com.github.sandrasi.moviecatalog.common.LocalizedText
 import java.util.Locale
 import java.util.Locale.US
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
 class SoundtrackTest extends FunSuite with Matchers {

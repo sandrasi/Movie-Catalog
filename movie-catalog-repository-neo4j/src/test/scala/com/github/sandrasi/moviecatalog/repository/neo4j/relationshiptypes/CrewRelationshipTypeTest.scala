@@ -1,10 +1,9 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType._
+import org.junit.runner.RunWith
+import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class CrewRelationshipTypeTest extends FunSuite with Matchers {

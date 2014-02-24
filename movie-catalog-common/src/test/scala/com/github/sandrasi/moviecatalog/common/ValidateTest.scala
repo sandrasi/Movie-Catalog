@@ -1,9 +1,8 @@
 package com.github.sandrasi.moviecatalog.common
 
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
 class ValidateTest extends FunSuite with Matchers {

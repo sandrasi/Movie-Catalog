@@ -1,23 +1,24 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 package test.utility
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import java.io.IOException
-import java.nio.file.FileVisitResult._
-import java.nio.file.{Files, Path, SimpleFileVisitor}
-import java.nio.file.attribute.BasicFileAttributes
-import java.util.{Locale, UUID}
-import org.joda.time.{Duration, LocalDate}
-import org.neo4j.graphdb.{GraphDatabaseService, Node, Relationship, RelationshipType}
-import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll}
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility._
+import java.io.IOException
+import java.nio.file.FileVisitResult.CONTINUE
+import java.nio.file.{Files, Path, SimpleFileVisitor}
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.{Locale, UUID}
+import org.joda.time.{Duration, LocalDate}
+import org.neo4j.graphdb.{GraphDatabaseService, Node, RelationshipType}
+import org.neo4j.kernel.impl.util.TestLogging
 import org.neo4j.test.TestGraphDatabaseFactory
 import org.neo4j.tooling.GlobalGraphOperations
+import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll}
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 private[neo4j] trait MovieCatalogNeo4jSupport extends TransactionSupport {
 

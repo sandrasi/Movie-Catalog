@@ -1,8 +1,7 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
+import org.scalatest.{FunSuite, Matchers}
 
 class MotionPictureRelationshipTypeTest extends FunSuite with Matchers {
 

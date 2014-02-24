@@ -1,8 +1,7 @@
 package com.github.sandrasi.moviecatalog.domain.utility
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
+import org.scalatest.{FunSuite, Matchers}
 
 class GenderTest extends FunSuite with Matchers {
 

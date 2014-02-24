@@ -1,10 +1,10 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
+import com.github.sandrasi.moviecatalog.common.LocalizedText
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import java.util.{UUID, Locale}
 import org.joda.time.{Duration, LocalDate, ReadableDuration}
 import org.neo4j.graphdb.PropertyContainer
-import com.github.sandrasi.moviecatalog.common.LocalizedText
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 
 private[utility] object PropertyManager {
 

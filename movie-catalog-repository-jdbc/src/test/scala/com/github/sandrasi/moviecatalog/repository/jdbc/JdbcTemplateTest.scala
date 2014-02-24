@@ -4,9 +4,8 @@ import java.sql.{SQLException, ResultSet}
 import javax.sql.DataSource
 import org.h2.jdbcx.JdbcDataSource
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
 class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers {

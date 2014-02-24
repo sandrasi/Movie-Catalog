@@ -1,19 +1,19 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 
-import java.io.IOException
-import java.nio.file.{Files, Path, Paths, SimpleFileVisitor}
-import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.FileVisitResult._
-import java.util.UUID
-import org.joda.time.LocalDate
-import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender.Male
+import com.github.sandrasi.moviecatalog.repository.RepositoryFactory
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
+import java.io.IOException
+import java.nio.file.{Files, Path, Paths, SimpleFileVisitor}
+import java.nio.file.FileVisitResult._
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.UUID
+import org.joda.time.LocalDate
+import org.junit.runner.RunWith
+import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with MovieCatalogNeo4jSupport {

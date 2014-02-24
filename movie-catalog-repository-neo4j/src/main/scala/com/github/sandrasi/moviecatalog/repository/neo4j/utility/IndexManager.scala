@@ -1,17 +1,19 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.{Map => MutableMap}
-import org.neo4j.index.lucene.ValueContext
-import org.neo4j.graphdb.{GraphDatabaseService, Node}
-import org.neo4j.graphdb.Direction._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
+import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
+import java.util.UUID
+import org.neo4j.index.lucene.ValueContext
+import org.neo4j.graphdb.Direction.OUTGOING
+import org.neo4j.graphdb.{GraphDatabaseService, Node}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search.{BooleanQuery, NumericRangeQuery, TermQuery, TermRangeQuery}
 import org.apache.lucene.search.BooleanClause.Occur._
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{Map => MutableMap}
 
 private[neo4j] class IndexManager(db: GraphDatabaseService) {
 

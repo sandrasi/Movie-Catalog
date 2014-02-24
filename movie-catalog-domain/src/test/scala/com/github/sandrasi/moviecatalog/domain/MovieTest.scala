@@ -1,12 +1,12 @@
 package com.github.sandrasi.moviecatalog.domain
 
+import com.github.sandrasi.moviecatalog.common.LocalizedText
 import java.util.Locale
+import java.util.Locale.ITALY
 import org.joda.time.{Duration, LocalDate}
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
 class MovieTest extends FunSuite with Matchers {

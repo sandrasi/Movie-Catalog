@@ -1,8 +1,7 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
+import org.scalatest.{FunSuite, Matchers}
 
 class DigitalContainerRelationshipTypeTest extends FunSuite with Matchers {
 

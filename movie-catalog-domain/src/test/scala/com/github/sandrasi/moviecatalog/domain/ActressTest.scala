@@ -1,11 +1,10 @@
 package com.github.sandrasi.moviecatalog.domain
 
+import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import org.joda.time.LocalDate
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
 @RunWith(classOf[JUnitRunner])
 class ActressTest extends FunSuite with Matchers {

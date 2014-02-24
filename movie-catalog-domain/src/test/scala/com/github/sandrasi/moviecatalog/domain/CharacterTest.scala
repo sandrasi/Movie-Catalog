@@ -1,10 +1,9 @@
 package com.github.sandrasi.moviecatalog.domain
 
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.junit.runner.RunWith
 import org.joda.time.LocalDate
+import org.junit.runner.RunWith
+import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class CharacterTest extends FunSuite with Matchers {

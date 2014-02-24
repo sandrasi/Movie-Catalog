@@ -1,9 +1,9 @@
 package com.github.sandrasi.moviecatalog
 
-import scala.language.implicitConversions
+import com.github.sandrasi.moviecatalog.common.LocalizedTextConverters.stringToLocalizedText
 import java.util.Locale
 import java.util.Locale.US
-import com.github.sandrasi.moviecatalog.common.LocalizedTextConverters._
+import scala.language.implicitConversions
 
 package object domain {
 

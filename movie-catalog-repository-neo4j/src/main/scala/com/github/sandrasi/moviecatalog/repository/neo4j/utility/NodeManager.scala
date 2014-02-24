@@ -1,20 +1,20 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.{Map => MutableMap}
-import org.neo4j.graphdb._
-import org.neo4j.graphdb.Direction._
-import java.util.{UUID, Locale}
-import java.util.Locale._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
+import java.io.Closeable
+import java.util.{Locale, UUID}
+import java.util.Locale._
+import org.neo4j.graphdb._
+import org.neo4j.graphdb.Direction._
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{Map => MutableMap}
 
 private[neo4j] class NodeManager(db: GraphDatabaseService) {
 

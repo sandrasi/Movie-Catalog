@@ -1,14 +1,14 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 
-import java.util.{UUID, Locale}
-import java.util.Locale.US
-import org.neo4j.cypher.ExecutionEngine
-import org.neo4j.graphdb.GraphDatabaseService
-import org.neo4j.kernel.EmbeddedGraphDatabase
 import com.github.sandrasi.moviecatalog.domain.Entity
 import com.github.sandrasi.moviecatalog.repository.{Repository, RepositoryFactory}
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.{EntityFactory, IndexManager, NodeManager}
+import com.github.sandrasi.moviecatalog.repository.neo4j.utility.{EntityFactory, NodeManager}
+import java.io.Closeable
+import java.util.{UUID, Locale}
+import java.util.Locale.US
+import org.neo4j.graphdb.GraphDatabaseService
+import org.neo4j.graphdb.factory.GraphDatabaseFactory
 
 class Neo4jRepository(db: GraphDatabaseService) extends Repository with TransactionSupport {
 

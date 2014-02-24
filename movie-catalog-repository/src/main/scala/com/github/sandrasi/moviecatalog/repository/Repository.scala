@@ -1,8 +1,9 @@
 package com.github.sandrasi.moviecatalog.repository
 
-import scala.collection.mutable.{Map => MutableMap}
-import java.util.{Locale, UUID}
 import com.github.sandrasi.moviecatalog.domain.Entity
+import java.io.Closeable
+import java.util.{Locale, UUID}
+import scala.collection.mutable.{Map => MutableMap}
 
 trait Repository {
 

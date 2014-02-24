@@ -1,12 +1,10 @@
 package com.github.sandrasi.moviecatalog.common
 
 import java.util.Locale
-import java.util.Locale.ENGLISH
-import java.util.Locale.US
+import java.util.Locale.{ENGLISH, US}
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
 class LocalizedTextTest extends FunSuite with Matchers {

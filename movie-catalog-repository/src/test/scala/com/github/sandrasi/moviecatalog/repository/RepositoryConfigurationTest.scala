@@ -1,9 +1,8 @@
 package com.github.sandrasi.moviecatalog.repository
 
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.scalatest.{BeforeAndAfterEach, FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
 class RepositoryConfigurationTest extends FunSuite with BeforeAndAfterEach with Matchers {

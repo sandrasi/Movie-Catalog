@@ -1,8 +1,8 @@
 package com.github.sandrasi.moviecatalog.common
 
-import scala.language.implicitConversions
 import java.util.Locale
 import java.util.Locale.US
+import scala.language.implicitConversions
 
 object LocalizedTextConverters {
 

@@ -1,10 +1,9 @@
 package com.github.sandrasi.moviecatalog.domain
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
+import org.junit.runner.RunWith
+import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class SubtitleTest extends FunSuite with Matchers {

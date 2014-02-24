@@ -1,26 +1,23 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j
 package utility
 
-import scala.collection.JavaConverters._
-import java.util.Locale
-import org.joda.time.{Duration, LocalDate}
-import org.neo4j.graphdb.Direction._
-import org.neo4j.graphdb.NotFoundException
-import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 import com.github.sandrasi.moviecatalog.domain._
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType.IsA
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager._
+import java.util.{Locale, UUID}
+import org.joda.time.{Duration, LocalDate}
+import org.junit.runner.RunWith
+import org.neo4j.graphdb.Direction._
+import org.neo4j.graphdb.{Node, NotFoundException}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
+import org.scalatest.junit.JUnitRunner
+import scala.collection.JavaConverters._
 
 // TODO (sandrasi): use the genres in the movie entities as soon as the genres are saved with the movie
 @RunWith(classOf[JUnitRunner])

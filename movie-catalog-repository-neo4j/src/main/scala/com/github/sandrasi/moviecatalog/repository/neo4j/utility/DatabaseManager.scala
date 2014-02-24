@@ -1,19 +1,16 @@
 package com.github.sandrasi.moviecatalog.repository.neo4j.utility
 
-import java.util.UUID
-import scala.collection.JavaConverters._
-import scala.collection.mutable.{Map => MutableMap}
-import org.neo4j.graphdb.{GraphDatabaseService, Node}
-import org.neo4j.graphdb.Direction._
-import org.apache.lucene.search.{TermQuery, BooleanQuery}
-import org.apache.lucene.index.Term
-import org.apache.lucene.search.BooleanClause.Occur._
 import com.github.sandrasi.moviecatalog.common.Validate
 import com.github.sandrasi.moviecatalog.domain.Entity
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.EntityRelationshipType._
-import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.SubreferenceRelationshipType
 import com.github.sandrasi.moviecatalog.repository.neo4j.transaction.TransactionSupport
-import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
+import java.io.Closeable
+import java.util.UUID
+import org.neo4j.graphdb.{DynamicLabel, Label, GraphDatabaseService, Node}
+import org.neo4j.cypher.ExecutionEngine
+import org.neo4j.tooling.GlobalGraphOperations
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{Map => MutableMap}
+import scala.reflect.runtime.universe
 
 private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends TransactionSupport {
 
