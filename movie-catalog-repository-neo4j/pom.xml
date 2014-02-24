@@ -17,7 +17,7 @@
     <name>Movie catalog Neo4J repository</name>
 
     <properties>
-        <org.neo4j.version>1.9.M05</org.neo4j.version>
+        <org.neo4j.version>2.0.0</org.neo4j.version>
     </properties>
 
     <dependencies>
@@ -25,6 +25,11 @@
             <groupId>com.github.sandrasi</groupId>
             <artifactId>movie-catalog-repository</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}.${scala.patch}</version>
         </dependency>
         <dependency>
             <groupId>org.joda</groupId>
@@ -41,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.library.version}</artifactId>
+            <artifactId>scalatest_${scala.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>

@@ -14,8 +14,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <scala.version>2.10.0</scala.version>
-        <scala.library.version>2.10</scala.library.version>
+        <scala.version>2.10</scala.version>
+        <scala.patch>3</scala.patch>
     </properties>
 
     <modules>
@@ -32,7 +32,7 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.2</version>
+                <version>2.3</version>
             </dependency>
             <!-- The joda-convert is an optional dependency in joda-time.
                  The Scala compiler, however, requires that all classes
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>org.joda</groupId>
                 <artifactId>joda-convert</artifactId>
-                <version>1.3.1</version>
+                <version>1.5</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -54,10 +54,14 @@
             </dependency>
             <dependency>
                 <groupId>org.scalatest</groupId>
-                <artifactId>scalatest_${scala.library.version}</artifactId>
-                <version>1.9.1</version>
+                <artifactId>scalatest_${scala.version}</artifactId>
+                <version>2.0</version>
                 <scope>test</scope>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.scala-lang</groupId>
+                        <artifactId>scala-reflect</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
@@ -71,11 +75,11 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
+            <version>${scala.version}.${scala.patch}</version>
         </dependency>
         <dependency>
             <groupId>org.clapper</groupId>
-            <artifactId>grizzled-slf4j_${scala.library.version}</artifactId>
+            <artifactId>grizzled-slf4j_${scala.version}</artifactId>
             <version>1.0.1</version>
         </dependency>
     </dependencies>
@@ -87,7 +91,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.1.3</version>
+                <version>3.1.6</version>
                 <executions>
                     <execution>
                         <goals>
