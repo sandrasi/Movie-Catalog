@@ -7,7 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
-class SubtitleTest extends FunSuite with ShouldMatchers {
+class SubtitleTest extends FunSuite with Matchers {
 
   test("should create subtitle with specified language code and without language name") {
     val subject = Subtitle("en")

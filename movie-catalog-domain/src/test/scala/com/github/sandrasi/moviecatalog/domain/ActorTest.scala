@@ -8,7 +8,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
 @RunWith(classOf[JUnitRunner])
-class ActorTest extends FunSuite with ShouldMatchers {
+class ActorTest extends FunSuite with Matchers {
 
   private final val JohnTravolta = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
   private final val VincentVega = Character("Vincent Vega")

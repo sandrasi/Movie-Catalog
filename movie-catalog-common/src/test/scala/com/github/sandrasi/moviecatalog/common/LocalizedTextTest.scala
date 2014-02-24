@@ -9,7 +9,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
-class LocalizedTextTest extends FunSuite with ShouldMatchers {
+class LocalizedTextTest extends FunSuite with Matchers {
 
   test("should create localized text with specified text and default locale") {
     val subject = LocalizedText("localized text")

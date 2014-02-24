@@ -11,7 +11,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
 import com.github.sandrasi.moviecatalog.repository.neo4j.utility.MovieCatalogDbConstants._
 
 @RunWith(classOf[JUnitRunner])
-class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with ShouldMatchers with MovieCatalogNeo4jSupport {
+class PropertyManagerTest extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with Matchers with MovieCatalogNeo4jSupport {
   
   test("should get the uuid property") {
     val uuid = UUID.randomUUID()

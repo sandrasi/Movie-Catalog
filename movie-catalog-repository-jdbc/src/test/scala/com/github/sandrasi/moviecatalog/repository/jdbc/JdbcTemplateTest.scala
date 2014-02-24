@@ -9,7 +9,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
-class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers {
+class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers {
 
   private var ds: DataSource = _
   private var subject: JdbcTemplate = _

@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
-class ValidateTest extends FunSuite with ShouldMatchers {
+class ValidateTest extends FunSuite with Matchers {
 
   test("should throw an exception if the expression is false with a default message") {
     val ex = intercept[IllegalArgumentException] {

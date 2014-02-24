@@ -7,7 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CrewRelationshipType._
 
 @RunWith(classOf[JUnitRunner])
-class CrewRelationshipTypeTest extends FunSuite with ShouldMatchers {
+class CrewRelationshipTypeTest extends FunSuite with Matchers {
 
   test("should list all crew relationship type values") {
     CrewRelationshipType.values should be(List(Actor, Actress))

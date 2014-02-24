@@ -8,7 +8,7 @@ import org.joda.time.LocalDate
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
 @RunWith(classOf[JUnitRunner])
-class PersonTest extends FunSuite with ShouldMatchers {
+class PersonTest extends FunSuite with Matchers {
 
   test("should create person with given name and attributes") {
     val subject = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")

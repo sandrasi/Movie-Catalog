@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.domain.utility.Gender._
 
-class GenderTest extends FunSuite with ShouldMatchers {
+class GenderTest extends FunSuite with Matchers {
 
   test("should list all gender values") {
     Gender.values should be(List(Male, Female))

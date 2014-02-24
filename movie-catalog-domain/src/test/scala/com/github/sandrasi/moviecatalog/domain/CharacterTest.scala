@@ -7,7 +7,7 @@ import org.junit.runner.RunWith
 import org.joda.time.LocalDate
 
 @RunWith(classOf[JUnitRunner])
-class CharacterTest extends FunSuite with ShouldMatchers {
+class CharacterTest extends FunSuite with Matchers {
 
   test("should create character with specified name and default attributes") {
     val subject = Character("Vincent Vega")

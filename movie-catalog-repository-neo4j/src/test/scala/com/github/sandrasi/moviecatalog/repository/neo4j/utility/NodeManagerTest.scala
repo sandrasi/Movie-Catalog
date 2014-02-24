@@ -24,7 +24,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.utility.PropertyManager
 
 // TODO (sandrasi): use the genres in the movie entities as soon as the genres are saved with the movie
 @RunWith(classOf[JUnitRunner])
-class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
+class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with MovieCatalogNeo4jSupport {
 
   private var subject: NodeManager = _
 

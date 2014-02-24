@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.DigitalContainerRelationshipType._
 
-class DigitalContainerRelationshipTypeTest extends FunSuite with ShouldMatchers {
+class DigitalContainerRelationshipTypeTest extends FunSuite with Matchers {
 
   test("should list all digital container relationship type values") {
     DigitalContainerRelationshipType.values should be(List(WithContent, WithSoundtrack, WithSubtitle))

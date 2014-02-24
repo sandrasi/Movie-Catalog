@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.MotionPictureRelationshipType._
 
-class MotionPictureRelationshipTypeTest extends FunSuite with ShouldMatchers {
+class MotionPictureRelationshipTypeTest extends FunSuite with Matchers {
 
   test("should list all motion picture relationship type values") {
     MotionPictureRelationshipType.values should be(List(HasGenre))

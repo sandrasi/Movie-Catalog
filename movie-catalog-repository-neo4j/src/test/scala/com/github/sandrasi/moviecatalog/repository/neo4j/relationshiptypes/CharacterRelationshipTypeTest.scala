@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.repository.neo4j.relationshiptypes.CharacterRelationshipType._
 
-class CharacterRelationshipTypeTest extends FunSuite with ShouldMatchers {
+class CharacterRelationshipTypeTest extends FunSuite with Matchers {
 
   test("should list all character relationship type values") {
     CharacterRelationshipType.values should be(List(Played, AppearedIn))

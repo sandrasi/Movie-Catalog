@@ -9,7 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
-class SoundtrackTest extends FunSuite with ShouldMatchers {
+class SoundtrackTest extends FunSuite with Matchers {
 
   test("should create soundtrack with specified language and format codes and without language and format names") {
     val subject = Soundtrack("en", "dts")

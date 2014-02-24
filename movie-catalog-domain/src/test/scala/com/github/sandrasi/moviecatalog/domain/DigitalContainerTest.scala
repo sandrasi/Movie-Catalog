@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
-class DigitalContainerTest extends FunSuite with ShouldMatchers {
+class DigitalContainerTest extends FunSuite with Matchers {
 
   private final val PulpFiction = Movie("Pulp fiction")
   private final val EnglishSoundtrack = Soundtrack("en", "dts")

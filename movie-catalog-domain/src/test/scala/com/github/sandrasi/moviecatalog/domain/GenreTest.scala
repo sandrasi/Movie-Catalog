@@ -7,7 +7,7 @@ import com.github.sandrasi.moviecatalog.common.LocalizedText
 import org.junit.runner.RunWith
 
 @RunWith(classOf[JUnitRunner])
-class GenreTest extends FunSuite with ShouldMatchers {
+class GenreTest extends FunSuite with Matchers {
 
   test("should create genre with given code and name") {
     val subject = Genre("crime", "Crime")

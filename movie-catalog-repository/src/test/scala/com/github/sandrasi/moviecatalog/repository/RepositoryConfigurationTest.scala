@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 @RunWith(classOf[JUnitRunner])
-class RepositoryConfigurationTest extends FunSuite with BeforeAndAfterEach with ShouldMatchers {
+class RepositoryConfigurationTest extends FunSuite with BeforeAndAfterEach with Matchers {
 
   private var subject: TestRepositoryFactory.RepositoryConfiguration = _
 

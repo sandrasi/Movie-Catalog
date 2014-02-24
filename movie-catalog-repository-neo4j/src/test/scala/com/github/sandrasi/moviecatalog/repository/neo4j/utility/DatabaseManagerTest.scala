@@ -10,7 +10,7 @@ import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatal
 import java.util.UUID
 
 @RunWith(classOf[JUnitRunner])
-class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
+class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with MovieCatalogNeo4jSupport {
 
   private var subject: DatabaseManager = _
 

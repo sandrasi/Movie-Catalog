@@ -16,7 +16,7 @@ import com.github.sandrasi.moviecatalog.domain.utility.Gender.Male
 import com.github.sandrasi.moviecatalog.repository.neo4j.test.utility.MovieCatalogNeo4jSupport
 
 @RunWith(classOf[JUnitRunner])
-class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with ShouldMatchers with MovieCatalogNeo4jSupport {
+class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with MovieCatalogNeo4jSupport {
 
   private var subject: Neo4jRepository = _
 

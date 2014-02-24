@@ -9,7 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.github.sandrasi.moviecatalog.common.LocalizedText
 
 @RunWith(classOf[JUnitRunner])
-class MovieTest extends FunSuite with ShouldMatchers {
+class MovieTest extends FunSuite with Matchers {
 
   private final val EnglishMovieTitle = LocalizedText("Pulp fiction")
   private final val HungarianMovieTitle = LocalizedText("Ponyvaregény")(new Locale("hu", "HU"))
