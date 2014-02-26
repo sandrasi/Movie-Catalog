@@ -52,7 +52,7 @@ class ActorTest extends FunSuite with Matchers {
     }
   }
 
-  test("should not create actor with null id version") {
+  test("should not create actor with null id") {
     intercept[IllegalArgumentException] {
       new Actor(JohnTravolta, VincentVega, PulpFiction, 0, id = null)
     }
