@@ -76,11 +76,11 @@ class CharacterTest extends FunSuite with Matchers {
     val otherCharacterWithDifferentCreator = character.copy(creator = Some("Robert Rodriguez"))
     val otherCharacterWithDifferentCreationDate = character.copy(creationDate = Some(new LocalDate(2000, 1, 1)))
 
-    character should not equal(null)
-    character should not equal(new AnyRef)
-    character should not equal(otherCharacterWithDifferentName)
-    character should not equal(otherCharacterWithDifferentCreator)
-    character should not equal(otherCharacterWithDifferentCreationDate)
+    character should not equal null
+    character should not equal new AnyRef
+    character should not equal otherCharacterWithDifferentName
+    character should not equal otherCharacterWithDifferentCreator
+    character should not equal otherCharacterWithDifferentDateOfCreation
     character should equal(character)
     character should equal(otherCharacter)
   }

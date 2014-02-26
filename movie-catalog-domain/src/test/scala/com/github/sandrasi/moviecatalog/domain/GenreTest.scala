@@ -58,9 +58,9 @@ class GenreTest extends FunSuite with Matchers {
     val otherGenreWithDifferentCode = genre.copy(code = "thriller")
     val otherGenreWithDifferentName = genre.copy(name = Some("Thriller"))
 
-    genre should not equal(null)
-    genre should not equal(new AnyRef)
-    genre should not equal(otherGenreWithDifferentCode)
+    genre should not equal null
+    genre should not equal new AnyRef
+    genre should not equal otherGenreWithDifferentCode
     genre should equal(otherGenreWithDifferentName)
     genre should equal(genre)
     genre should equal(otherGenre)

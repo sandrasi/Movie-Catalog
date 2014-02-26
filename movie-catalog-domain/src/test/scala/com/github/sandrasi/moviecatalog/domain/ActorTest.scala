@@ -65,11 +65,11 @@ class ActorTest extends FunSuite with Matchers {
     val otherActorWithDifferentCharacter = actor.copy(character = Character("Jules Winnfield"))
     val otherActorWithDifferentMotionPicture = actor.copy(motionPicture = Movie("Die hard: With a vengeance"))
 
-    actor should not equal(null)
-    actor should not equal(new AnyRef)
-    actor should not equal(otherActorWithDifferentPerson)
-    actor should not equal(otherActorWithDifferentCharacter)
-    actor should not equals(otherActorWithDifferentMotionPicture)
+    actor should not equal null
+    actor should not equal new AnyRef
+    actor should not equal otherActorWithDifferentPerson
+    actor should not equal otherActorWithDifferentCharacter
+    actor should not equals otherActorWithDifferentMotionPicture
     actor should equal(actor)
     actor should equal(otherActor)
   }

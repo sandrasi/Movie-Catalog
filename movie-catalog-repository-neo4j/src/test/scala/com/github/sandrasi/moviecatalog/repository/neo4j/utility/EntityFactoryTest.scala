@@ -18,7 +18,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
   
   test("should return the same entity factory instance for the same database") {
-    subject should be theSameInstanceAs(EntityFactory(db))
+    subject should be theSameInstanceAs EntityFactory(db)
   }
 
   test("should return different entity factory instances for different databases") {

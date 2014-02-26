@@ -44,10 +44,10 @@ class LocalizedTextTest extends FunSuite with Matchers {
     val otherLocalizedTextWithDifferentText = LocalizedText("different text")
     val otherLocalizedTextWithDifferentLocale = LocalizedText("localized text")(ENGLISH)
 
-    localizedText should not equal(null)
-    localizedText should not equal(new AnyRef)
-    localizedText should not equal(otherLocalizedTextWithDifferentText)
-    localizedText should not equal(otherLocalizedTextWithDifferentLocale)
+    localizedText should not equal null
+    localizedText should not equal new AnyRef
+    localizedText should not equal otherLocalizedTextWithDifferentText
+    localizedText should not equal otherLocalizedTextWithDifferentLocale
     localizedText should equal(localizedText)
     localizedText should equal(otherLocalizedText)
   }

@@ -30,7 +30,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should return the same unique node factory instance for the same database") {
-    subject should be theSameInstanceAs(NodeManager(db))
+    subject should be theSameInstanceAs NodeManager(db)
   }
 
   test("should return different unique node factory instances for different databases") {
@@ -76,7 +76,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val actorNode = subject.createNodeFrom(actor)
       val anotherActorNode = subject.createNodeFrom(anotherActor)
-      actorNode.getId should not equal(anotherActorNode.getId)
+      actorNode.getId should not equal anotherActorNode.getId
     }
   }
 
@@ -89,7 +89,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val actorNode = subject.createNodeFrom(actor)
       val anotherActorNode = subject.createNodeFrom(anotherActor)
-      actorNode.getId should not equal(anotherActorNode.getId)
+      actorNode.getId should not equal anotherActorNode.getId
     }
   }
 
@@ -102,7 +102,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val actorNode = subject.createNodeFrom(actor)
       val anotherActorNode = subject.createNodeFrom(anotherActor)
-      actorNode.getId should not equal(anotherActorNode.getId)
+      actorNode.getId should not equal anotherActorNode.getId
     }
   }
 
@@ -129,7 +129,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val characterNode = subject.createNodeFrom(VincentVega)
       val anotherCharacterNode = subject.createNodeFrom(VincentVega.copy(name = "Jules Winnfield"))
-      characterNode.getId should not equal(anotherCharacterNode.getId)
+      characterNode.getId should not equal anotherCharacterNode.getId
     }
   }
 
@@ -168,7 +168,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
       val anotherDigitalContainerNode = subject.createNodeFrom(anotherDigitalContainer)
-      digitalContainerNode.getId should not equal(anotherDigitalContainerNode.getId)
+      digitalContainerNode.getId should not equal anotherDigitalContainerNode.getId
     }
   }
 
@@ -182,7 +182,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
       val anotherDigitalContainerNode = subject.createNodeFrom(anotherDigitalContainer)
-      digitalContainerNode.getId should not equal(anotherDigitalContainerNode.getId)
+      digitalContainerNode.getId should not equal anotherDigitalContainerNode.getId
     }
   }
 
@@ -196,7 +196,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
       val anotherDigitalContainerNode = subject.createNodeFrom(anotherDigitalContainer)
-      digitalContainerNode.getId should not equal(anotherDigitalContainerNode.getId)
+      digitalContainerNode.getId should not equal anotherDigitalContainerNode.getId
     }
   }
 
@@ -210,7 +210,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
       val anotherDigitalContainerNode = subject.createNodeFrom(anotherDigitalContainer)
-      digitalContainerNode.getId should not equal(anotherDigitalContainerNode.getId)
+      digitalContainerNode.getId should not equal anotherDigitalContainerNode.getId
     }
   }
 
@@ -224,7 +224,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val digitalContainerNode = subject.createNodeFrom(digitalContainer)
       val anotherDigitalContainerNode = subject.createNodeFrom(anotherDigitalContainer)
-      digitalContainerNode.getId should not equal(anotherDigitalContainerNode.getId)
+      digitalContainerNode.getId should not equal anotherDigitalContainerNode.getId
     }
   }
 
@@ -268,7 +268,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val genreNode = subject.createNodeFrom(Crime)
       val anotherGenreNode = subject.createNodeFrom(Crime.copy(code = "thriller"))
-      genreNode.getId should not equal(anotherGenreNode.getId)
+      genreNode.getId should not equal anotherGenreNode.getId
     }
   }
 
@@ -301,7 +301,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
       val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = "Die hard: With a vengeance"))
-      movieNode.getId should not equal(anotherMovieNode.getId)
+      movieNode.getId should not equal anotherMovieNode.getId
     }
   }
 
@@ -311,7 +311,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
       val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = new LocalizedText(PulpFiction.originalTitle.text)))
-      movieNode.getId should not equal(anotherMovieNode.getId)
+      movieNode.getId should not equal anotherMovieNode.getId
     }
   }
 
@@ -321,7 +321,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
       val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = new LocalizedText(PulpFiction.originalTitle.text)))
-      movieNode.getId should not equal(anotherMovieNode.getId)
+      movieNode.getId should not equal anotherMovieNode.getId
     }
   }
 
@@ -331,7 +331,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
       val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(originalTitle = new LocalizedText(PulpFiction.originalTitle.text)))
-      movieNode.getId should not equal(anotherMovieNode.getId)
+      movieNode.getId should not equal anotherMovieNode.getId
     }
   }
 
@@ -340,7 +340,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
       val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(releaseDate = Some(new LocalDate(1995, 5, 19))))
-      movieNode.getId should not equal(anotherMovieNode.getId)
+      movieNode.getId should not equal anotherMovieNode.getId
     }
   }
 
@@ -370,7 +370,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
       val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(name = "Samuel Leroy Jackson"))
-      personNode.getId should not equal(anotherPersonNode.getId)
+      personNode.getId should not equal anotherPersonNode.getId
     }
   }
 
@@ -379,7 +379,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
       val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(gender = Female))
-      personNode.getId should not equal(anotherPersonNode.getId)
+      personNode.getId should not equal anotherPersonNode.getId
     }
   }
 
@@ -388,7 +388,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
       val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(dateOfBirth = new LocalDate(1948, 12, 21)))
-      personNode.getId should not equal(anotherPersonNode.getId)
+      personNode.getId should not equal anotherPersonNode.getId
     }
   }
 
@@ -397,7 +397,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val personNode = subject.createNodeFrom(JohnTravolta)
       val anotherPersonNode = subject.createNodeFrom(JohnTravolta.copy(placeOfBirth = "Washington, D.C., U.S."))
-      personNode.getId should not equal(anotherPersonNode.getId)
+      personNode.getId should not equal anotherPersonNode.getId
     }
   }
 
@@ -459,7 +459,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val soundtrackNode = subject.createNodeFrom(EnglishSoundtrack)
       val anotherSoundtrackNode = subject.createNodeFrom(EnglishSoundtrack.copy(languageCode = "hu"))
-      soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
+      soundtrackNode.getId should not equal anotherSoundtrackNode.getId
     }
   }
 
@@ -468,7 +468,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val soundtrackNode = subject.createNodeFrom(EnglishSoundtrack)
       val anotherSoundtrackNode = subject.createNodeFrom(EnglishSoundtrack.copy(formatCode = "dd5.1"))
-      soundtrackNode.getId should not equal(anotherSoundtrackNode.getId)
+      soundtrackNode.getId should not equal anotherSoundtrackNode.getId
     }
   }
 
@@ -512,7 +512,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     transaction(tx) {
       val subtitleNode = subject.createNodeFrom(EnglishSubtitle)
       val anotherSubtitleNode = subject.createNodeFrom(EnglishSubtitle.copy(languageCode = "hu"))
-      subtitleNode.getId should not equal(anotherSubtitleNode.getId)
+      subtitleNode.getId should not equal anotherSubtitleNode.getId
     }
   }
 

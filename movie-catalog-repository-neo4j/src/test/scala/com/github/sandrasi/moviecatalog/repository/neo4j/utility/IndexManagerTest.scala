@@ -17,7 +17,7 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
   }
 
   test("should return the same index manager instance for the same database") {
-    subject should be theSameInstanceAs(IndexManager(db))
+    subject should be theSameInstanceAs IndexManager(db)
   }
 
   test("should return different index manager instances for different databases") {

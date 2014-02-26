@@ -63,9 +63,9 @@ class SubtitleTest extends FunSuite with Matchers {
     val otherSubtitleWithDifferentLanguageCode = subtitle.copy(languageCode = "hu")
     val otherSubtitleWithDifferentLanguageName = subtitle.copy(languageName = Some("English"))
 
-    subtitle should not equal(null)
-    subtitle should not equal(new AnyRef)
-    subtitle should not equal(otherSubtitleWithDifferentLanguageCode)
+    subtitle should not equal null
+    subtitle should not equal new AnyRef
+    subtitle should not equal otherSubtitleWithDifferentLanguageCode
     subtitle should equal(subtitle)
     subtitle should equal(otherSubtitle)
     subtitle should equal(otherSubtitleWithDifferentLanguageName)

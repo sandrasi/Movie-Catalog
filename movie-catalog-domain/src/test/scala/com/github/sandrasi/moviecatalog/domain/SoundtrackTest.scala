@@ -104,10 +104,10 @@ class SoundtrackTest extends FunSuite with Matchers {
     val otherSoundtrackWithDifferentLanguageName = soundtrack.copy(languageName = Some("English"))
     val otherSoundtrackWithDifferentFormatName = soundtrack.copy(formatName = Some("DTS"))
 
-    soundtrack should not equal(null)
-    soundtrack should not equal(new AnyRef)
-    soundtrack should not equal(otherSoundtrackWithDifferentLanguageCode)
-    soundtrack should not equal(otherSoundtrackWithDifferentFormatCode)
+    soundtrack should not equal null
+    soundtrack should not equal new AnyRef
+    soundtrack should not equal otherSoundtrackWithDifferentLanguageCode
+    soundtrack should not equal otherSoundtrackWithDifferentFormatCode
     soundtrack should equal(soundtrack)
     soundtrack should equal(otherSoundtrack)
     soundtrack should equal(otherSoundtrackWithDifferentLanguageName)

@@ -38,7 +38,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val storeDir = Files.createTempDirectory(UUID.randomUUID.toString).toString
     configuration.setFromString("storeDir", storeDir)(Neo4jRepository.configurationMetaData.get("storeDir").get.parameterConverter)
     val subject = Neo4jRepository(configuration)
-    subject should not be(null)
+    subject should not be null
     subject.shutdown()
     Files.walkFileTree(Paths.get(storeDir),
       new SimpleFileVisitor[Path] {
@@ -106,7 +106,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   test("should insert actor into the database and return a managed instance") {
     val actor = Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction))
     val savedActor = subject.save(actor)
-    savedActor.id should not be(None)
+    savedActor.id should not be None
     savedActor should equal(actor)
     try {
       getNode(savedActor)
@@ -117,7 +117,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should insert character into the database and return a managed instance") {
     val savedCharacter = subject.save(VincentVega)
-    savedCharacter.id should not be(None)
+    savedCharacter.id should not be None
     savedCharacter should equal(VincentVega)
     try {
       getNode(savedCharacter)
@@ -129,7 +129,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   test("should insert digital container into the database and return a managed instance") {
     val digitalContainer = DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle)))
     val savedDigitalContainer = subject.save(digitalContainer)
-    savedDigitalContainer.id should not be(None)
+    savedDigitalContainer.id should not be None
     savedDigitalContainer should equal(digitalContainer)
     try {
       getNode(savedDigitalContainer)
@@ -140,7 +140,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should insert genre into the database and return a managed instance") {
     val savedGenre = subject.save(Crime)
-    savedGenre.id should not be(None)
+    savedGenre.id should not be None
     savedGenre should equal(Crime)
     try {
       getNode(savedGenre)
@@ -151,7 +151,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should insert movie into the database and return a managed instance") {
     val savedMovie = subject.save(PulpFiction)
-    savedMovie.id should not be(None)
+    savedMovie.id should not be None
     savedMovie should equal(PulpFiction)
     try {
       getNode(savedMovie)
@@ -162,7 +162,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should insert person into the database and return a managed instance") {
     val savedPerson = subject.save(JohnTravolta)
-    savedPerson.id should not be(None)
+    savedPerson.id should not be None
     savedPerson should equal(JohnTravolta)
     try {
       getNode(savedPerson)
@@ -173,7 +173,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should insert soundtrack into the database and return a managed instance") {
     val savedSoundtrack = subject.save(EnglishSoundtrack)
-    savedSoundtrack.id should not be(None)
+    savedSoundtrack.id should not be None
     savedSoundtrack should equal(EnglishSoundtrack)
     try {
       getNode(savedSoundtrack)
@@ -184,7 +184,7 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
 
   test("should insert subtitle into the database and return a managed instance") {
     val savedSubtitle = subject.save(EnglishSubtitle)
-    savedSubtitle.id should not be(None)
+    savedSubtitle.id should not be None
     savedSubtitle should equal(EnglishSubtitle)
     try {
       getNode(savedSubtitle)
@@ -337,55 +337,55 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     val actress = insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
     val cast = subject.query(classOf[Cast]).toList
-    cast should (contain(actor.asInstanceOf[Cast]) and contain(actress.asInstanceOf[Cast]) and have size(2))
+    cast should (contain(actor.asInstanceOf[Cast]) and contain(actress.asInstanceOf[Cast]) and have size 2)
   }
   
   test("should return all actors from the database") {
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     val actors = subject.query(classOf[Actor]).toList
-    actors should (contain(actor) and have size(1))
+    actors should (contain(actor) and have size 1)
   }
 
   test("should return all characters from the database") {
     val character = insertEntity(VincentVega)
     val characters = subject.query(classOf[Character]).toList
-    characters should (contain(character) and have size(1))
+    characters should (contain(character) and have size 1)
   }
 
   test("should return all digital containers from the database") {
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction)))
     val digitalContainers = subject.query(classOf[DigitalContainer]).toList
-    digitalContainers should (contain(digitalContainer) and have size(1))
+    digitalContainers should (contain(digitalContainer) and have size 1)
   }
 
   test("should return all genres from the database") {
     val genre = insertEntity(Crime)
     val genres = subject.query(classOf[Genre]).toList
-    genres should (contain(genre) and have size(1))
+    genres should (contain(genre) and have size 1)
   }
 
   test("should return all movies from the database") {
     val movie = insertEntity(PulpFiction)
     val movies = subject.query(classOf[Movie]).toList
-    movies should (contain(movie) and have size(1))
+    movies should (contain(movie) and have size 1)
   }
 
   test("should return all persons from the database") {
     val person = insertEntity(JohnTravolta)
     val persons = subject.query(classOf[Person]).toList
-    persons should (contain(person) and have size(1))
+    persons should (contain(person) and have size 1)
   }
 
   test("should return all soundtracks from the database") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     val soundtracks = subject.query(classOf[Soundtrack]).toList
-    soundtracks should (contain(soundtrack) and have size(1))
+    soundtracks should (contain(soundtrack) and have size 1)
   }
 
   test("should return all subtitles from the database") {
     val subtitle = insertEntity(EnglishSubtitle)
     val subtitles = subject.query(classOf[Subtitle]).toList
-    subtitles should (contain(subtitle) and have size(1))
+    subtitles should (contain(subtitle) and have size 1)
   }
 
   test("should return entities matching the criterion from the database") {
@@ -393,6 +393,6 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
     insertEntity(Actress(insertEntity(UmaThurman), insertEntity(MiaWallace), movie))
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), movie))
     val maleCast = subject.query(classOf[Cast], (c: Cast) => c.isInstanceOf[Actor]).toList
-    maleCast should (contain(actor.asInstanceOf[Cast]) and have size(1))
+    maleCast should (contain(actor.asInstanceOf[Cast]) and have size 1)
   }
 }

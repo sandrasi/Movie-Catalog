@@ -13,7 +13,7 @@ class PersonTest extends FunSuite with Matchers {
     val subject = Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
     subject.name should be("John Joseph Travolta")
     subject.gender should be(Male)
-    subject.dateOfBirth should  be(new LocalDate(1954, 2, 18))
+    subject.dateOfBirth should be(new LocalDate(1954, 2, 18))
     subject.placeOfBirth should be("Englewood, New Jersey, U.S.")
     subject.version should be(0)
     subject.id should be(None)
@@ -63,12 +63,12 @@ class PersonTest extends FunSuite with Matchers {
     val otherPersonWithDifferentDateOfBirth = person.copy(dateOfBirth = new LocalDate(1948, 12, 21))
     val otherPersonWithDifferentPlaceOfBirth = person.copy(placeOfBirth = "Washington, D.C., U.S.")
 
-    person should not equal(null)
-    person should not equal(new AnyRef)
-    person should not equal(otherPersonWithDifferentName)
-    person should not equal(otherPersonWithDifferentGender)
-    person should not equal(otherPersonWithDifferentDateOfBirth)
-    person should not equal(otherPersonWithDifferentPlaceOfBirth)
+    person should not equal null
+    person should not equal new AnyRef
+    person should not equal otherPersonWithDifferentName
+    person should not equal otherPersonWithDifferentGender
+    person should not equal otherPersonWithDifferentDateOfBirth
+    person should not equal otherPersonWithDifferentPlaceOfBirth
     person should equal(person)
     person should equal(otherPerson)
   }

@@ -81,11 +81,11 @@ class DigitalContainerTest extends FunSuite with Matchers {
     val otherDigitalContainerWithDifferentSoundtracks = digitalContainer.copy(soundtracks = Set(HungarianSoundtrack))
     val otherDigitalContainerWithDifferentSubtitles = digitalContainer.copy(subtitles = Set(HungarianSubtitle))
 
-    digitalContainer should not equal(null)
-    digitalContainer should not equal(new AnyRef)
-    digitalContainer should not equal(otherDigitalContainerWithDifferentMotionPicture)
-    digitalContainer should not equal(otherDigitalContainerWithDifferentSoundtracks)
-    digitalContainer should not equal(otherDigitalContainerWithDifferentSubtitles)
+    digitalContainer should not equal null
+    digitalContainer should not equal new AnyRef
+    digitalContainer should not equal otherDigitalContainerWithDifferentMotionPicture
+    digitalContainer should not equal otherDigitalContainerWithDifferentSoundtracks
+    digitalContainer should not equal otherDigitalContainerWithDifferentSubtitles
     digitalContainer should equal(digitalContainer)
     digitalContainer should equal(otherDigitalContainer)
   }

@@ -117,13 +117,13 @@ class MovieTest extends FunSuite with Matchers {
     val otherMovieWithDifferentRuntime = movie.copy(runtime = Some(Duration.standardMinutes(131)))
     val otherMovieWithDifferentReleaseDate = movie.copy(releaseDate = Some(new LocalDate(1995, 5, 19)))
 
-    movie should not equal(null)
-    movie should not equal(new AnyRef)
-    movie should not equal(otherMovieWithDifferentOriginalTitle)
+    movie should not equal null
+    movie should not equal new AnyRef
+    movie should not equal otherMovieWithDifferentOriginalTitle
     movie should equal(otherMovieWithDifferentLocalizedTitles)
     movie should equal(otherMovieWithDifferentGenres)
     movie should equal(otherMovieWithDifferentRuntime)
-    movie should not equal(otherMovieWithDifferentReleaseDate)
+    movie should not equal otherMovieWithDifferentDateOfRelease
     movie should equal(movie)
     movie should equal(otherMovie)
   }
