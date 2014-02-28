@@ -28,7 +28,7 @@ sealed trait IdSupport[A] extends Equals {
 
 sealed trait VersionSupport {
 
-  Validate.isTrue(version >= 0)
+  Validate.valid(version >= 0)
 
   def version: Long
 }
@@ -225,7 +225,7 @@ sealed trait Cast extends Crew {
 
 case class Actor(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
 
-  Validate.isTrue(person.gender == Male)
+  Validate.valid(person.gender == Male)
 
   override def equals(o: Any): Boolean = o match {
     case other: Actor => other.canEqual(this) && super.equals(o)
@@ -246,7 +246,7 @@ object Actor {
 
 case class Actress(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
 
-  Validate.isTrue(person.gender == Female)
+  Validate.valid(person.gender == Female)
 
   override def equals(o: Any): Boolean = o match {
     case other: Actress => other.canEqual(this) && super.equals(o)
@@ -273,7 +273,7 @@ case class Soundtrack(languageCode: String, formatCode: String, languageName: Op
   Validate.notNull(formatName)
   if (languageName.isDefined) Validate.notBlank(languageName.get.text)
   if (formatName.isDefined) Validate.notBlank(formatName.get.text)
-  if (languageName.isDefined && formatName.isDefined) Validate.isTrue(languageName.get.locale == formatName.get.locale)
+  if (languageName.isDefined && formatName.isDefined) Validate.valid(languageName.get.locale == formatName.get.locale)
 
   override def equals(o: Any): Boolean = o match {
     case other: Soundtrack => other.canEqual(this) && (languageCode == other.languageCode) && (formatCode == other.formatCode)
