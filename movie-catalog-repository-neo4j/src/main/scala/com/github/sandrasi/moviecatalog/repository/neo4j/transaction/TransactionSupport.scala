@@ -12,7 +12,7 @@ trait TransactionSupport {
       tx.success()
       result
     } finally {
-      tx.finish()
+      tx.close()
     }
   }
 }
