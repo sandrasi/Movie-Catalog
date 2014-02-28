@@ -34,7 +34,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
       case ClassPerson => createPersonFrom(n)
       case ClassSoundtrack => createSoundtrackFrom(n, locale)
       case ClassSubtitle => createSubtitleFrom(n, locale)
-      case _ => throw new IllegalArgumentException("Unsupported entity type: %s".format(entityType.getName))
+      case _ => throw new IllegalArgumentException(s"Unsupported entity type: ${entityType.getName}")
     }
   }
   
@@ -42,7 +42,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
   
   private def createAbstractCastFrom(n: Node, l: Locale) = if (DbMgr.isNodeOfType(n, classOf[Actor])) createActorFrom(n, l)
     else if (DbMgr.isNodeOfType(n, classOf[Actress])) createActressFrom(n, l)
-    else throw new IllegalArgumentException("%s cannot be instantiated from node [%d]".format(ClassCast.getName, n.getId))
+    else throw new IllegalArgumentException(s"${ClassCast.getName} cannot be instantiated from node [${n.getId}}]")
 
   private def createActorFrom(n: Node, l: Locale) = Actor(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actor]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode, l), getLong(n, Version), getUuid(n))
 

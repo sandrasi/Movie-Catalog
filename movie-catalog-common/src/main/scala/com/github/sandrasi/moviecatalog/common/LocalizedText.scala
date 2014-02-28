@@ -20,5 +20,5 @@ case class LocalizedText(text: String)(implicit val locale: Locale = US) {
     result
   }
 
-  override def toString: String = """"%s" [%s]""".format(text, locale)
+  override def toString: String = s"LocalizedText($text)($locale)"
 }

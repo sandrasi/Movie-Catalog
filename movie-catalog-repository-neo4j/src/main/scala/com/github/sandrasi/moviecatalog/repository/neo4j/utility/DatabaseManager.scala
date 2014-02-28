@@ -25,8 +25,8 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
   }
 
   def getNodeOf(e: Entity): Node = e.id.flatMap(getNodeById(_)) match {
-    case Some(n) => if (isNodeOfType(n, e.getClass)) n else throw new ClassCastException("Node [id: %d] is not of type %s".format(n.getId, e.getClass.getName))
-    case None => throw new NoSuchElementException("%s is not in the database".format(e))
+    case Some(n) => if (isNodeOfType(n, e.getClass)) n else throw new ClassCastException(s"Node [id: ${n.getId}] is not of type ${e.getClass.getName}".format(n.getId, e.getClass.getName))
+    case None => throw new NoSuchElementException(s"$e is not in the database")
   }
 
   def createNodeFor(e: Entity): Node = if (e.id.isEmpty) {
@@ -35,7 +35,7 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
     PropertyManager.setUuid(node, uuid)
     EntityIdIndex.add(node, Uuid, uuid.toString)
     node
-  } else throw new IllegalStateException("Entity %s already has an id: %s".format(e, e.id.get))
+  } else throw new IllegalStateException(s"Entity $e already has an id: $id")
 
   def getSubreferenceNode[A <: Entity](c: Class[A]): Node = db.getNodeById(getSubreferenceNodeId(c))
 
@@ -44,7 +44,7 @@ private[neo4j] class DatabaseManager(db: GraphDatabaseService) extends Transacti
   private def getSubreferenceNodeId[A <: Entity](c: Class[A]): Long = try {
     getOrCreateSubreferenceNodeId(SubreferenceRelationshipType.forClass(c))
   } catch {
-    case _: NoSuchElementException => throw new IllegalArgumentException("Unsupported entity type %s".format(c.getName))
+    case _: NoSuchElementException => throw new IllegalArgumentException(s"Unsupported entity type ${c.getName}")
   }
 
   private def getOrCreateSubreferenceNodeId(relType: SubreferenceRelationshipType): Long = Option(db.getReferenceNode.getSingleRelationship(relType, OUTGOING)).map(_.getEndNode).getOrElse(createSubreferenceNodeForRelationshipType(relType)).getId

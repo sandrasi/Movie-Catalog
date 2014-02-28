@@ -25,7 +25,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
 
   def getNode(uuid: UUID): Node = DbMgr.getNodeById(uuid) match {
     case Some(n) => n
-    case _ => throw new NoSuchElementException("No node has the id %s".format(uuid))
+    case _ => throw new NoSuchElementException(s"No node has the id $uuid")
   }
 
   def createNodeFrom(e: Entity)(implicit tx: Transaction, l: Locale = US): Node = lock(e) { withExistenceCheck(e) {
@@ -59,8 +59,8 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   def deleteNodeOf(e: Entity)(implicit tx: Transaction) {
     lock(e) {
       val n = DbMgr.getNodeOf(e)
-      if (n.hasRelationship(INCOMING)) throw new IllegalStateException("%s is referenced by other entities".format(e))
-      if (!hasExpectedVersion(n, e.version)) throw new IllegalStateException("%s is out of date".format(e))
+      if (n.hasRelationship(INCOMING)) throw new IllegalStateException(s"$e is referenced by other entities")
+      if (!hasExpectedVersion(n, e.version)) throw new IllegalStateException(s"$e is out of date")
       n.getRelationships(OUTGOING).asScala.foreach(_.delete())
       n.delete()
       n
@@ -76,7 +76,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
 
   private def withExistenceCheck(e: Entity)(dbOp: => Node) = {
     val node = IdxMgr.lookUpExact(e)
-    if (node.isEmpty || Some(getUuid(node.get)) == e.id) dbOp else throw new IllegalArgumentException("Entity %s already exists".format(e))
+    if (node.isEmpty || Some(getUuid(node.get)) == e.id) dbOp else throw new IllegalArgumentException(s"Entity $e already exists")
   }
 
   private def connectNodeToSubreferenceNode[A <: Entity](n: Node, c: Class[A]): Node = { n.createRelationshipTo(DbMgr.getSubreferenceNode(c), IsA); n }
