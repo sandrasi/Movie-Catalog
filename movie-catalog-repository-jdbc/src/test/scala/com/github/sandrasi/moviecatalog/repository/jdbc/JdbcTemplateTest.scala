@@ -57,9 +57,7 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
 
     val it = subject.query("SELECT text_field, number_field FROM test_table", new TestRowMapper)
     it.next()
-    intercept[NoSuchElementException] {
-      it.next()
-    }
+    intercept[NoSuchElementException] { it.next() }
   }
 
   test("should retrieve query result as list") {
@@ -81,9 +79,7 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
   }
 
   test("should not execute query with incorrect number of arguments") {
-    intercept[SQLException] {
-      subject.query("SELECT * FROM test_table WHERE text_field = ?", new TestRowMapper)
-    }
+    intercept[SQLException] { subject.query("SELECT * FROM test_table WHERE text_field = ?", new TestRowMapper) }
   }
 
   test("should execute update and return the number of affected rows") {
@@ -102,9 +98,7 @@ class JdbcTemplateTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
   }
 
   test("should not execute update with incorrect number of arguments") {
-    intercept[SQLException] {
-      subject.update("INSERT INTO test_table (text_field, number_field) VALUES (?, ?)")
-    }
+    intercept[SQLException] { subject.update("INSERT INTO test_table (text_field, number_field) VALUES (?, ?)") }
   }
 
   private def newDataSource(url: String, user: String = "sa", password: String = "sa") = {

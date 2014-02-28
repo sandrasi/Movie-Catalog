@@ -33,45 +33,31 @@ class DigitalContainerTest extends FunSuite with Matchers {
   }
   
   test("should not create digital container with null motion picture") {
-    intercept[IllegalArgumentException] {
-      DigitalContainer(null)
-    }
+    intercept[IllegalArgumentException] { DigitalContainer(null) }
   }
 
   test("should not create digital container with null soundtracks") {
-    intercept[IllegalArgumentException] {
-      DigitalContainer(PulpFiction, soundtracks = null)
-    }
+    intercept[IllegalArgumentException] { DigitalContainer(PulpFiction, soundtracks = null) }
   }
 
   test("should not create digital container with null soundtrack") {
-    intercept[IllegalArgumentException] {
-      DigitalContainer(PulpFiction, soundtracks = Set(null))
-    }
+    intercept[IllegalArgumentException] { DigitalContainer(PulpFiction, soundtracks = Set(null)) }
   }
 
   test("should not create digital container with null subtitles") {
-    intercept[IllegalArgumentException] {
-      DigitalContainer(PulpFiction, subtitles = null)
-    }
+    intercept[IllegalArgumentException] { DigitalContainer(PulpFiction, subtitles = null) }
   }
 
   test("should not create digital container with null subtitle") {
-    intercept[IllegalArgumentException] {
-      DigitalContainer(PulpFiction, subtitles = Set(null))
-    }
+    intercept[IllegalArgumentException] { DigitalContainer(PulpFiction, subtitles = Set(null)) }
   }
 
   test("should not create digital container with negative version") {
-    intercept[IllegalArgumentException] {
-      DigitalContainer(PulpFiction, version = -1)
-    }
+    intercept[IllegalArgumentException] { DigitalContainer(PulpFiction, version = -1) }
   }
 
   test("should not create digital container with null id") {
-    intercept[IllegalArgumentException] {
-      new DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle), 0, id = null)
-    }
+    intercept[IllegalArgumentException] { new DigitalContainer(PulpFiction, Set(EnglishSoundtrack), Set(EnglishSubtitle), 0, id = null) }
   }
 
   test("should compare two objects for equality") {

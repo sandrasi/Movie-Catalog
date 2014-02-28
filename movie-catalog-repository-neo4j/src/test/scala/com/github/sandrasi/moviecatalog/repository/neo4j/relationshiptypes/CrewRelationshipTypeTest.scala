@@ -34,8 +34,6 @@ class CrewRelationshipTypeTest extends FunSuite with Matchers {
   }
 
   test("should not create crew relationship type from unsupported an class") {
-    intercept[NoSuchElementException] {
-      CrewRelationshipType.forClass(classOf[Any])
-    }
+    intercept[NoSuchElementException] { CrewRelationshipType.forClass(classOf[Any]) }
   }
 }

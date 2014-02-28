@@ -49,63 +49,43 @@ class MovieTest extends FunSuite with Matchers {
   }
 
   test("should not create movie with null original title") {
-    intercept[IllegalArgumentException] {
-      Movie(null)
-    }
+    intercept[IllegalArgumentException] { Movie(null) }
   }
 
   test("should not create movie with blank original title") {
-    intercept[IllegalArgumentException] {
-      Movie("  ")
-    }
+    intercept[IllegalArgumentException] { Movie("  ") }
   }
 
   test("should not create movie with null localized title") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, null, Set(Crime, Thriller), Some(Duration.standardMinutes(154)), Some(new LocalDate(1994, 10, 14)), 0, None)
-    }
+    intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, null, Set(Crime, Thriller), Some(Duration.standardMinutes(154)), Some(new LocalDate(1994, 10, 14)), 0, None) }
   }
 
   test("should not create movie with blank localized title") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, "  ", Set(Crime, Thriller), Duration.standardMinutes(154), new LocalDate(1994, 10, 14))
-    }
+    intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, "  ", Set(Crime, Thriller), Duration.standardMinutes(154), new LocalDate(1994, 10, 14)) }
   }
 
   test("should not create movie with null genres") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, genres = null)
-    }
+    intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, genres = null) }
   }
 
   test("should not create movie with null genre") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, genres = Set(null))
-    }
+    intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, genres = Set(null)) }
   }
 
   test("should not create movie with null runtime") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), null, Some(new LocalDate(1994, 10, 14)), 0, None)
-    }
+    intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), null, Some(new LocalDate(1994, 10, 14)), 0, None) }
   }
 
   test("should not create movie with null release date") {
-    intercept[IllegalArgumentException] {
-      Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), null, 0, None)
-    }
+    intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), null, 0, None) }
   }
 
   test("should not create movie with negative version") {
-    intercept[IllegalArgumentException] {
-      Movie("Pulp fiction", version = -1)
-    }
+    intercept[IllegalArgumentException] { Movie("Pulp fiction", version = -1) }
   }
 
   test("should not create movie with null id") {
-    intercept[IllegalArgumentException] {
-      Movie("Pulp fiction", Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), Some(new LocalDate(1994, 10, 14)), 0, null)
-    }
+    intercept[IllegalArgumentException] { Movie("Pulp fiction", Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), Some(new LocalDate(1994, 10, 14)), 0, null) }
   }
 
   test("should compare two objects for equality") {

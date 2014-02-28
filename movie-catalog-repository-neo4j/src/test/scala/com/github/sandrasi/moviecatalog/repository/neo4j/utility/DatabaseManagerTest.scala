@@ -25,9 +25,7 @@ class DatabaseManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   }
 
   test("should not instantiate the node manager if the database is null") {
-    intercept[IllegalArgumentException] {
-      DatabaseManager(null)
-    }
+    intercept[IllegalArgumentException] { DatabaseManager(null) }
   }
 
   test("should return the node representing the entity") {

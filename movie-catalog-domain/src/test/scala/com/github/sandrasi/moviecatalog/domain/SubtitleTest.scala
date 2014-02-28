@@ -22,39 +22,27 @@ class SubtitleTest extends FunSuite with Matchers {
   }
   
   test("should not create subtitle with null language code") {
-    intercept[IllegalArgumentException] {
-      Subtitle(null)
-    }
+    intercept[IllegalArgumentException] { Subtitle(null) }
   }
 
   test("should not create subtitle with blank language code") {
-    intercept[IllegalArgumentException] {
-      Subtitle("  ")
-    }
+    intercept[IllegalArgumentException] { Subtitle("  ") }
   }
 
   test("should not create subtitle with null language name") {
-    intercept[IllegalArgumentException] {
-      new Subtitle("en", null, 0, None)
-    }
+    intercept[IllegalArgumentException] { new Subtitle("en", null, 0, None) }
   }
 
   test("should not create subtitle with blank language name") {
-    intercept[IllegalArgumentException] {
-      Subtitle("en", languageName = "  ")
-    }
+    intercept[IllegalArgumentException] { Subtitle("en", languageName = "  ") }
   }
 
   test("should not create subtitle with negative version") {
-    intercept[IllegalArgumentException] {
-      Subtitle("en", version = -1)
-    }
+    intercept[IllegalArgumentException] { Subtitle("en", version = -1) }
   }
 
   test("should not create subtitle with null id") {
-    intercept[IllegalArgumentException] {
-      new Subtitle("en", Some("English"), 0, id = null)
-    }
+    intercept[IllegalArgumentException] { new Subtitle("en", Some("English"), 0, id = null) }
   }
 
   test("should compare two objects for equality") {

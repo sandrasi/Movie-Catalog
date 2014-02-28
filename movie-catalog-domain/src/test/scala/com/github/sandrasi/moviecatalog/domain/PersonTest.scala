@@ -20,39 +20,27 @@ class PersonTest extends FunSuite with Matchers {
   }
   
   test("should not create person with null name") {
-    intercept[IllegalArgumentException] {
-      Person(null, Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
-    }
+    intercept[IllegalArgumentException] { Person(null, Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.") }
   }
 
   test("should not create person with null gender") {
-    intercept[IllegalArgumentException] {
-      Person("John Joseph Travolta", null, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.")
-    }
+    intercept[IllegalArgumentException] { Person("John Joseph Travolta", null, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.") }
   }
 
   test("should not create person with null date of birth") {
-    intercept[IllegalArgumentException] {
-      Person("John Joseph Travolta", Male, null, "Englewood, New Jersey, U.S.")
-    }
+    intercept[IllegalArgumentException] { Person("John Joseph Travolta", Male, null, "Englewood, New Jersey, U.S.") }
   }
 
   test("should not create person with null place of birth") {
-    intercept[IllegalArgumentException] {
-      Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), null)
-    }
+    intercept[IllegalArgumentException] { Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), null) }
   }
 
   test("should not create person with negative version") {
-    intercept[IllegalArgumentException] {
-      Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", version = -1)
-    }
+    intercept[IllegalArgumentException] { Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", version = -1) }
   }
 
   test("should not create person with null id") {
-    intercept[IllegalArgumentException] {
-      new Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", 0, id = null)
-    }
+    intercept[IllegalArgumentException] { new Person("John Joseph Travolta", Male, new LocalDate(1954, 2, 18), "Englewood, New Jersey, U.S.", 0, id = null) }
   }
 
   test("should compare two objects for equality") {

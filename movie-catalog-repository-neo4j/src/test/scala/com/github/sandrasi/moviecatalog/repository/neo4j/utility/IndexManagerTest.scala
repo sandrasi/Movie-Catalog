@@ -25,9 +25,7 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
   }
 
   test("should not instantiate the index manager if the database is null") {
-    intercept[IllegalArgumentException] {
-      IndexManager(null)
-    }
+    intercept[IllegalArgumentException] { IndexManager(null) }
   }
 
   test("should find the same actor") {

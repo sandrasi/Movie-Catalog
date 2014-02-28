@@ -28,45 +28,31 @@ class CharacterTest extends FunSuite with Matchers {
   }
   
   test("should not create character with null name") {
-    intercept[IllegalArgumentException] {
-      Character(null, "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    }
+    intercept[IllegalArgumentException] { Character(null, "Quentin Tarantino", new LocalDate(1994, 10, 14)) }
   }
 
   test("should not create character with blank name") {
-    intercept[IllegalArgumentException] {
-      Character("  ", "Quentin Tarantino", new LocalDate(1994, 10, 14))
-    }
+    intercept[IllegalArgumentException] { Character("  ", "Quentin Tarantino", new LocalDate(1994, 10, 14)) }
   }
 
   test("should not create character with null creator") {
-    intercept[IllegalArgumentException] {
-      Character("Vincent Vega", null, Some(new LocalDate(1994, 10, 14)), 0, None)
-    }
+    intercept[IllegalArgumentException] { Character("Vincent Vega", null, Some(new LocalDate(1994, 10, 14)), 0, None) }
   }
 
   test("should not create character with blank creator") {
-    intercept[IllegalArgumentException] {
-      Character("Vincent Vega", Some("  "), Some(new LocalDate(1994, 10, 14)), 0, None)
-    }
+    intercept[IllegalArgumentException] { Character("Vincent Vega", "  ", new LocalDate(1994, 10, 14)) }
   }
 
   test("should not create character with null creationDate") {
-    intercept[IllegalArgumentException] {
-      Character("Vincent Vega", Some("Quentin Tarantino"), null, 0, None)
-    }
+    intercept[IllegalArgumentException] { Character("Vincent Vega", Some("Quentin Tarantino"), null, 0, None) }
   }
 
   test("should not create character with negative version") {
-    intercept[IllegalArgumentException] {
-      Character("Vincent Vega", version = -1)
-    }
+    intercept[IllegalArgumentException] { Character("Vincent Vega", version = -1) }
   }
 
   test("should not create character with null id") {
-    intercept[IllegalArgumentException] {
-      Character("Vincent Vega", Some("Quentin Tarantino"), Some(new LocalDate(1994, 10, 14)), 0, null)
-    }
+    intercept[IllegalArgumentException] { Character("Vincent Vega", Some("Quentin Tarantino"), Some(new LocalDate(1994, 10, 14)), 0, null) }
   }
 
   test("should compare two objects for equality") {

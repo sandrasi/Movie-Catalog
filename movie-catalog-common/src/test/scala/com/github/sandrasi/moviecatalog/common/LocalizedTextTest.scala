@@ -27,15 +27,11 @@ class LocalizedTextTest extends FunSuite with Matchers {
   }
 
   test("should not create localized text with null text") {
-    intercept[IllegalArgumentException] {
-      LocalizedText(null)
-    }
+    intercept[IllegalArgumentException] { LocalizedText(null) }
   }
 
   test("should not create localized text with null locale") {
-    intercept[IllegalArgumentException]{
-      LocalizedText("localized text")(null)
-    }
+    intercept[IllegalArgumentException]{ LocalizedText("localized text")(null) }
   }
 
   test("should compare two objects for equality") {

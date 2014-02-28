@@ -23,39 +23,27 @@ class ActorTest extends FunSuite with Matchers {
   }
 
   test("should not create actor with null person") {
-    intercept[IllegalArgumentException] {
-      Actor(null, VincentVega, PulpFiction)
-    }
+    intercept[IllegalArgumentException] { Actor(null, VincentVega, PulpFiction) }
   }
 
   test("should not create actor with null character") {
-    intercept[IllegalArgumentException] {
-      Actor(JohnTravolta, null, PulpFiction)
-    }
+    intercept[IllegalArgumentException] { Actor(JohnTravolta, null, PulpFiction) }
   }
 
   test("should not create actor with null motion picture") {
-    intercept[IllegalArgumentException] {
-      Actor(JohnTravolta, VincentVega, null)
-    }
+    intercept[IllegalArgumentException] { Actor(JohnTravolta, VincentVega, null) }
   }
   
   test("should not create female actor") {
-    intercept[IllegalArgumentException] {
-      Actor(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S."), Character("Mia Wallace"), Movie("Pulp fiction"))
-    }
+    intercept[IllegalArgumentException] { Actor(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S."), Character("Mia Wallace"), Movie("Pulp fiction")) }
   }
 
   test("should not create actor with negative version") {
-    intercept[IllegalArgumentException] {
-      Actor(JohnTravolta, VincentVega, PulpFiction, version = -1)
-    }
+    intercept[IllegalArgumentException] { Actor(JohnTravolta, VincentVega, PulpFiction, version = -1) }
   }
 
   test("should not create actor with null id") {
-    intercept[IllegalArgumentException] {
-      new Actor(JohnTravolta, VincentVega, PulpFiction, 0, id = null)
-    }
+    intercept[IllegalArgumentException] { new Actor(JohnTravolta, VincentVega, PulpFiction, 0, id = null) }
   }
   
   test("should compare two objects for equality") {

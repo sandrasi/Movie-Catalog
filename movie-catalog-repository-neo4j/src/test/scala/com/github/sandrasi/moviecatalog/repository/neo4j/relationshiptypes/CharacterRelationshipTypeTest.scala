@@ -14,10 +14,8 @@ class CharacterRelationshipTypeTest extends FunSuite with Matchers {
     CharacterRelationshipType.valueOf("AppearedIn") should be(AppearedIn)
   }
 
-  test("should not create character relationship type value from string not matching any of the enums' name") {
-    intercept[NoSuchElementException] {
-      CharacterRelationshipType.valueOf("does not match")
-    }
+  test("should not create character relationship type value from string not matching any of the enum names") {
+    intercept[NoSuchElementException] { CharacterRelationshipType.valueOf("does not match") }
   }
 
   test("should retrieve the name of the character relationship type") {

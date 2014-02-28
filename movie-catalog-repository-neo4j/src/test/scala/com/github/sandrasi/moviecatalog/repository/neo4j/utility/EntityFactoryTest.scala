@@ -26,9 +26,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should not instantiate entity factory if the database is null") {
-    intercept[IllegalArgumentException] {
-      EntityFactory(null)
-    }
+    intercept[IllegalArgumentException] { EntityFactory(null) }
   }
   
   test("should create cast entity from actor node") {
@@ -212,15 +210,11 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
   }
 
   test("should not create entity if the node represents a different type of entity") {
-    intercept[ClassCastException] {
-      subject.createEntityFrom(createNodeFrom(VincentVega), classOf[Movie]) should be(None)
-    }
+    intercept[ClassCastException] { transaction(db) { subject.createEntityFrom(createNodeFrom(VincentVega), classOf[Movie]) should be(None) } }
   }
 
   test("should not create entity if the node does not represent an entity") {
-    intercept[ClassCastException] {
-      subject.createEntityFrom(createNode(), classOf[Person]) should be(None)
-    }
+    intercept[ClassCastException] { transaction(db) { subject.createEntityFrom(createNode(), classOf[Person]) should be(None) } }
   }
 
   test("should not create unsupported entity from node") {

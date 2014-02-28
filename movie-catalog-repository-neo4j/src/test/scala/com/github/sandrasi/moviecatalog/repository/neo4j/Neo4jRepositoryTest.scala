@@ -271,65 +271,49 @@ class Neo4jRepositoryTest extends FunSuite with BeforeAndAfterAll with BeforeAnd
   test("should delete actor from the database") {
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     subject.delete(actor)
-    intercept[NoSuchElementException] {
-      getNode(actor)
-    }
+    intercept[NoSuchElementException] { getNodeOf(actor) }
   }
 
   test("should delete character from the database") {
     val character = insertEntity(VincentVega)
     subject.delete(character)
-    intercept[NoSuchElementException] {
-      getNode(character)
-    }
+    intercept[NoSuchElementException] { getNodeOf(character) }
   }
   
   test("should delete digital container from the database") {
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack)), Set(insertEntity(EnglishSubtitle))))
     subject.delete(digitalContainer)
-    intercept[NoSuchElementException] {
-      getNode(digitalContainer)
-    }
+    intercept[NoSuchElementException] { getNodeOf(digitalContainer) }
   }
 
   test("should delete genre from the database") {
     val genre = insertEntity(Crime)
     subject.delete(genre)
-    intercept[NoSuchElementException] {
-      getNode(genre)
-    }
+    intercept[NoSuchElementException] { getNodeOf(genre) }
   }
 
   test("should delete movie from the database") {
     val movie = insertEntity(PulpFiction)
     subject.delete(movie)
-    intercept[NoSuchElementException] {
-      getNode(movie)
-    }
+    intercept[NoSuchElementException] { getNodeOf(movie) }
   }
   
   test("should delete person from the database") {
     val person = insertEntity(JohnTravolta)
     subject.delete(person)
-    intercept[NoSuchElementException] {
-      getNode(person)
-    }
+    intercept[NoSuchElementException] { getNodeOf(person) }
   }
   
   test("should delete soundtrack from the database") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     subject.delete(soundtrack)
-    intercept[NoSuchElementException] {
-      getNode(soundtrack)
-    }
+    intercept[NoSuchElementException] { getNodeOf(soundtrack) }
   }
 
   test("should delete subtitle from the database") {
     val subtitle = insertEntity(EnglishSubtitle)
     subject.delete(subtitle)
-    intercept[NoSuchElementException] {
-      getNode(subtitle)
-    }
+    intercept[NoSuchElementException] { getNodeOf(subtitle) }
   }
 
   test("should return all cast from the database") {

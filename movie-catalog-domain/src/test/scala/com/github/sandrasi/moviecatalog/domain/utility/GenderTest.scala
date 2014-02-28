@@ -15,8 +15,6 @@ class GenderTest extends FunSuite with Matchers {
   }
 
   test("should not create gender value from string not matching any of the enums' name") {
-    intercept[NoSuchElementException] {
-      Gender.valueOf("does not match")
-    }
+    intercept[NoSuchElementException] { Gender.valueOf("does not match") }
   }
 }

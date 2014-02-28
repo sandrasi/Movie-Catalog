@@ -31,69 +31,47 @@ class SoundtrackTest extends FunSuite with Matchers {
   }
 
   test("should not create soundtrack with null language code") {
-    intercept[IllegalArgumentException] {
-      Soundtrack(null, "dts")
-    }
+    intercept[IllegalArgumentException] { Soundtrack(null, "dts") }
   }
 
   test("should not create soundtrack with blank language code") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("  ", "dts")
-    }
+    intercept[IllegalArgumentException] { Soundtrack("  ", "dts") }
   }
 
   test("should not create soundtrack with null format code") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("en", null)
-    }
+    intercept[IllegalArgumentException] { Soundtrack("en", null) }
   }
 
   test("should not create soundtrack with blank format code") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("en", "  ")
-    }
+    intercept[IllegalArgumentException] { Soundtrack("en", "  ") }
   }
 
   test("should not create soundtrack with null language name") {
-    intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0, None)
-    }
+    intercept[IllegalArgumentException] { new Soundtrack("en", "dts", null, Some(LocalizedText("DTS")), 0, None) }
   }
 
   test("should not create soundtrack with blank language name") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("en", "dts", languageName = "  ")
-    }
+    intercept[IllegalArgumentException] { Soundtrack("en", "dts", languageName = "  ") }
   }
 
   test("should not create soundtrack with null format name") {
-    intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0, None)
-    }
+    intercept[IllegalArgumentException] { new Soundtrack("en", "dts", Some(LocalizedText("English")), null, 0, None) }
   }
 
   test("should not create soundtrack with blank format name") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("en", "dts", formatName = "  ")
-    }
+    intercept[IllegalArgumentException] { Soundtrack("en", "dts", formatName = "  ") }
   }
 
   test("should not create soundtrack with language and format names having different locale") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("en", "dts", LocalizedText("English")(US), LocalizedText("DTS")(new Locale("hu", "HU")))
-    }
+    intercept[IllegalArgumentException] { Soundtrack("en", "dts", LocalizedText("English")(US), LocalizedText("DTS")(new Locale("hu", "HU"))) }
   }
 
   test("should not create soundtrack with negative version") {
-    intercept[IllegalArgumentException] {
-      Soundtrack("en", "dts", version = -1)
-    }
+    intercept[IllegalArgumentException] { Soundtrack("en", "dts", version = -1) }
   }
 
   test("should not create soundtrack with null id") {
-    intercept[IllegalArgumentException] {
-      new Soundtrack("en", "dts", Some("English"), Some("DTS"), 0, id = null)
-    }
+    intercept[IllegalArgumentException] { new Soundtrack("en", "dts", Some("English"), Some("DTS"), 0, id = null) }
   }
 
   test("should compare two objects for equality") {

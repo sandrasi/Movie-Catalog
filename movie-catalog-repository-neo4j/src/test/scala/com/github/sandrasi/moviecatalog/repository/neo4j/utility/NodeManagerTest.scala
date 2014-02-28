@@ -38,9 +38,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not instantiate the unique node factory if the database is null") {
-    intercept[IllegalArgumentException] {
-      NodeManager(null)
-    }
+    intercept[IllegalArgumentException] { NodeManager(null) }
   }
 
   test("should create node from actor") {
@@ -240,17 +238,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from genre without name") {
     implicit val tx = db.beginTx()
     val genreNode = transaction(tx) { subject.createNodeFrom(Genre("crime")) }
-    intercept[NotFoundException] {
-      genreNode.getProperty(GenreName)
-    }
+    intercept[NotFoundException] { transaction(db) { genreNode.getProperty(GenreName) } }
   }
 
   test("should not create node from genre if the name locale does not match the current locale") {
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.createNodeFrom(Genre("crime", LocalizedText("Krimi")(HungarianLocale))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.createNodeFrom(Genre("crime", LocalizedText("Krimi")(HungarianLocale))) } }
   }
 
   test("should not create node from genre if a node already exists for that genre") {
@@ -415,33 +409,25 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from soundtrack without language name") {
     implicit val tx = db.beginTx()
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = "DTS")) }
-    intercept[NotFoundException] {
-      soundtrackNode.getProperty(SoundtrackLanguageName)
-    }
+    intercept[NotFoundException] { transaction(db) { soundtrackNode.getProperty(SoundtrackLanguageName) } }
   }
 
   test("should create node from soundtrack without format name") {
     implicit val tx = db.beginTx()
     val soundtrackNode = transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", "English")) }
-    intercept[NotFoundException] {
-      soundtrackNode.getProperty(SoundtrackFormatName)
-    }
+    intercept[NotFoundException] { transaction(db) { soundtrackNode.getProperty(SoundtrackFormatName) } }
   }
 
   test("should not create node from soundtrack if the language name locale does not match the current locale") {
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", LocalizedText("Angol")(HungarianLocale))) } }
   }
 
   test("should not create node from soundtrack if the format name locale does not match the current locale") {
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = LocalizedText("DTS")(HungarianLocale))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.createNodeFrom(Soundtrack("en", "dts", formatName = LocalizedText("DTS")(HungarianLocale))) } }
   }
 
   test("should not create node from soundtrack if a node already exists for that soundtrack") {
@@ -484,17 +470,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   test("should create node from subtitle without language name") {
     implicit val tx = db.beginTx()
     val subtitleNode = transaction(tx) { subject.createNodeFrom(Subtitle("en")) }
-    intercept[NotFoundException] {
-      subtitleNode.getProperty(SubtitleLanguageName)
-    }
+    intercept[NotFoundException] { transaction(db) { subtitleNode.getProperty(SubtitleLanguageName) } }
   }
 
   test("should not create node from subtitle if the language name locale does not match the current locale") {
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.createNodeFrom(Subtitle("en", LocalizedText("Angol")(HungarianLocale))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.createNodeFrom(Subtitle("en", LocalizedText("Angol")(HungarianLocale))) } }
   }
 
   test("should not create node from subtitle if a node already exists for that subtitle") {
@@ -538,17 +520,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val anotherMovie = insertEntity(Movie("Die hard: With a vengeance"))
     insertEntity(Actor(anotherPerson, anotherCharacter, anotherMovie))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(actor.copy(person = anotherPerson, character = anotherCharacter, motionPicture = anotherMovie)) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(actor.copy(person = anotherPerson, character = anotherCharacter, motionPicture = anotherMovie)) } }
   }
 
   test("should not update actor node if the version of the actor does not match the version of the node") {
     val actor = insertEntity(Actor(insertEntity(JohnTravolta), insertEntity(VincentVega), insertEntity(PulpFiction)))
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(actor.copy(person = insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), character = insertEntity(Character("Zeus Carver")), motionPicture = insertEntity(Movie("Die hard: With a vengeance")), version = actor.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(actor.copy(person = insertEntity(Person("Samuel Leroy Jackson", Male, new LocalDate(1948, 12, 21), "Washington, D.C., U.S.")), character = insertEntity(Character("Zeus Carver")), motionPicture = insertEntity(Movie("Die hard: With a vengeance")), version = actor.version + 1)) } }
   }
 
   test("should update character node") {
@@ -567,17 +545,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val character = insertEntity(VincentVega)
     insertEntity(Character("Jules Winnfield", "Quentin Tarantino", new LocalDate(1994, 10, 14)))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(character.copy(name = "Jules Winnfield")) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(character.copy(name = "Jules Winnfield")) } }
   }
 
   test("should not update character node if the version of the character does not match the version of the node") {
     val character = insertEntity(VincentVega)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(character.copy(name = "Jules Winnfield", version = character.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(character.copy(name = "Jules Winnfield", version = character.version + 1)) } }
   }
 
   test("should update digital container node") {
@@ -602,19 +576,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val anotherSubtitleNode = insertEntity(ItalianSubtitle)
     insertEntity(DigitalContainer(anotherMovieNode, Set(anotherSoundtrackNode), Set(anotherSubtitleNode)))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) {
-        subject.updateNodeOf(digitalContainer.copy(motionPicture = anotherMovieNode, soundtracks = Set(anotherSoundtrackNode), subtitles = Set(anotherSubtitleNode)))
-      }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(digitalContainer.copy(motionPicture = anotherMovieNode, soundtracks = Set(anotherSoundtrackNode), subtitles = Set(anotherSubtitleNode))) } }
   }
 
   test("should not update digital container node if the version of the digital container does not match the version of the node") {
     val digitalContainer = insertEntity(DigitalContainer(insertEntity(PulpFiction), Set(insertEntity(EnglishSoundtrack), insertEntity(HungarianSoundtrack)), Set(insertEntity(EnglishSubtitle), insertEntity(HungarianSubtitle))))
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(digitalContainer.copy(motionPicture = insertEntity(Movie("Die hard: With a vengeance")), soundtracks = Set(insertEntity(ItalianSoundtrack)), subtitles = Set(insertEntity(ItalianSubtitle)), version = digitalContainer.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(digitalContainer.copy(motionPicture = insertEntity(Movie("Die hard: With a vengeance")), soundtracks = Set(insertEntity(ItalianSoundtrack)), subtitles = Set(insertEntity(ItalianSubtitle)), version = digitalContainer.version + 1)) } }
   }
 
   test("should update genre node") {
@@ -648,26 +616,20 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val genre = insertEntity(Crime)
     insertEntity(Thriller)
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", name = Some("Thriller"))) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", name = Some("Thriller"))) } }
   }
 
   test("should not update genre node if the version of the genre does not match the version of the node") {
     val genre = insertEntity(Crime)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", version = genre.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", version = genre.version + 1)) } }
   }
 
   test("should not update genre node if the name locale does not match the current locale") {
     val genre = insertEntity(Crime)
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", name = Some(LocalizedText("Krimi")(HungarianLocale)))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(genre.copy(code = "thriller", name = Some(LocalizedText("Krimi")(HungarianLocale)))) } }
   }
 
   test("should update movie node") {
@@ -690,17 +652,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     insertEntity(Movie("Die hard: With a vengeance", LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale), Set(), Duration.standardMinutes(131), new LocalDate(1995, 5, 19)))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), runtime = Some(Duration.standardMinutes(131)), releaseDate = Some(new LocalDate(1995, 5, 19)))) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), runtime = Some(Duration.standardMinutes(131)), dateOfRelease = Some(new LocalDate(1995, 5, 19)))) } }
   }
 
   test("should not update movie node if the version of the movie does not match the version of the node") {
     val movie = insertEntity(PulpFiction)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), runtime = Some(Duration.standardMinutes(131)), releaseDate = Some(new LocalDate(1995, 5, 19)), version = movie.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), runtime = Some(Duration.standardMinutes(131)), dateOfRelease = Some(new LocalDate(1995, 5, 19)), version = movie.version + 1)) } }
   }
 
   test("should update person node") {
@@ -720,17 +678,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val person = insertEntity(JohnTravolta)
     insertEntity(Person("Uma Karuna Thurman", Female, new LocalDate(1970, 4, 29), "Boston, Massachusetts, U.S."))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.")) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.")) } }
   }
 
   test("should not update person node if the version of the person does not match the version of the node") {
     val person = insertEntity(JohnTravolta)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.", version = person.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(person.copy(name = "Uma Karuna Thurman", gender = Female, dateOfBirth = new LocalDate(1970, 4, 29), placeOfBirth = "Boston, Massachusetts, U.S.", version = person.version + 1)) } }
   }
 
   test("should update soundtrack node") {
@@ -769,26 +723,20 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val soundtrack = insertEntity(EnglishSoundtrack)
     insertEntity(Soundtrack("it", "dd5.1", "Italian", "Dolby Digital 5.1"))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"))) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"))) } }
   }
 
   test("should not update soundtrack node if the version of the soundtrack does not match the version of the node") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"), version = soundtrack.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some("Italian"), formatName = Some("Dolby Digital 5.1"), version = soundtrack.version + 1)) } }
   }
 
   test("should not update soundtrack node if the language name locale and format name locale do not match the current locale") {
     val soundtrack = insertEntity(EnglishSoundtrack)
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some(LocalizedText("Olasz")(HungarianLocale)), formatName = Some(LocalizedText("Dolby Digital 5.1")(HungarianLocale)))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(soundtrack.copy(languageCode = "it", formatCode = "dd5.1", languageName = Some(LocalizedText("Olasz")(HungarianLocale)), formatName = Some(LocalizedText("Dolby Digital 5.1")(HungarianLocale)))) } }
   }
 
   test("should update subtitle node") {
@@ -822,26 +770,20 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val subtitle = insertEntity(EnglishSubtitle)
     insertEntity(Subtitle("it", "Italian"))
     implicit val tx = db.beginTx()
-    intercept[IllegalArgumentException] {
-      transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some("Italian"))) }
-    }
+    intercept[IllegalArgumentException] { transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some("Italian"))) } }
   }
 
   test("should not update subtitle node if the version of the subtitle does not match the version of the node") {
     val subtitle = insertEntity(EnglishSubtitle)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some("Italian"), version = subtitle.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some("Italian"), version = subtitle.version + 1)) } }
   }
 
   test("should not update subtitle node if the language name locale does not match the current locale") {
     val subtitle = insertEntity(EnglishSubtitle)
     implicit val tx = db.beginTx()
     implicit val locale = AmericanLocale
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some(LocalizedText("Olasz")(HungarianLocale)))) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.updateNodeOf(subtitle.copy(languageCode = "it", languageName = Some(LocalizedText("Olasz")(HungarianLocale)))) } }
   }
 
   test("should delete actor node") {
@@ -858,9 +800,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     assert(!movieNode.hasRelationship(INCOMING))
     assert(!dbMgr.getSubreferenceNode(classOf[Cast]).hasRelationship(INCOMING, IsA))
     assert(!dbMgr.getSubreferenceNode(classOf[Actor]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(actorNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(actorNode.getId) }
   }
 
   test("should delete character node") {
@@ -869,9 +809,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) { subject.deleteNodeOf(createCharacterFrom(characterNode)) }
     assert(!dbMgr.getSubreferenceNode(classOf[Character]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(characterNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(characterNode.getId) }
   }
 
   test("should delete digital container node") {
@@ -886,9 +824,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     assert(!soundtrackNode.hasRelationship(INCOMING))
     assert(!subtitleNode.hasRelationship(INCOMING))
     assert(!dbMgr.getSubreferenceNode(classOf[DigitalContainer]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(digitalContainerNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(digitalContainerNode.getId) }
   }
 
   test("should delete movie node") {
@@ -897,9 +833,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) { subject.deleteNodeOf(createMovieFrom(movieNode)) }
     assert(!dbMgr.getSubreferenceNode(classOf[Movie]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(movieNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(movieNode.getId) }
   }
 
   test("should delete person node") {
@@ -908,9 +842,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) { subject.deleteNodeOf(createPersonFrom(personNode)) }
     assert(!dbMgr.getSubreferenceNode(classOf[Person]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(personNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(personNode.getId) }
   }
 
   test("should delete soundtrack node") {
@@ -919,9 +851,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) { subject.deleteNodeOf(createSoundtrackFrom(soundtrackNode)) }
     assert(!dbMgr.getSubreferenceNode(classOf[Soundtrack]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(soundtrackNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(soundtrackNode.getId) }
   }
 
   test("should delete subtitle node") {
@@ -930,17 +860,13 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) { subject.deleteNodeOf(createSubtitleFrom(subtitleNode)) }
     assert(!dbMgr.getSubreferenceNode(classOf[Subtitle]).hasRelationship(INCOMING, IsA))
-    intercept[NotFoundException] {
-      db.getNodeById(subtitleNode.getId)
-    }
+    intercept[NotFoundException] { db.getNodeById(subtitleNode.getId) }
   }
 
   test("should not delete node if the version of the entity does not match the version of the node") {
     val character = insertEntity(VincentVega)
     implicit val tx = db.beginTx()
-    intercept[IllegalStateException] {
-      transaction(tx) { subject.deleteNodeOf(character.copy(version = character.version + 1)) }
-    }
+    intercept[IllegalStateException] { transaction(tx) { subject.deleteNodeOf(character.copy(version = character.version + 1)) } }
   }
 
   test("should not delete node if at least one node references it") {
@@ -949,9 +875,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     implicit val tx = db.beginTx()
     transaction(tx) {
       node.createRelationshipTo(characterNode, new TestRelationshipType("test"))
-      intercept[IllegalStateException] {
-        subject.deleteNodeOf(createCharacterFrom(characterNode))
-      }
+      intercept[IllegalStateException] { subject.deleteNodeOf(createCharacterFrom(characterNode)) }
     }
   }
 
@@ -1006,8 +930,6 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
   }
 
   test("should not find nodes of unsupported entity type") {
-    intercept[IllegalArgumentException] {
-      subject.getNodesOfType(classOf[Entity])
-    }
+    intercept[IllegalArgumentException] { subject.getNodesOfType(classOf[Entity]) }
   }
 }

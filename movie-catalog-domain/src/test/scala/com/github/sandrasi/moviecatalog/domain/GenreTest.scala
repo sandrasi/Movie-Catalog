@@ -17,39 +17,27 @@ class GenreTest extends FunSuite with Matchers {
   }
 
   test("should not create genre with null code") {
-    intercept[IllegalArgumentException] {
-      Genre(null, "Crime")
-    }
+    intercept[IllegalArgumentException] { Genre(null, "Crime") }
   }
 
   test("should not create genre with blank code") {
-    intercept[IllegalArgumentException] {
-      Genre("  ", "Crime")
-    }
+    intercept[IllegalArgumentException] {       Genre("  ", "Crime") }
   }
 
   test("should not create genre with null name") {
-    intercept[IllegalArgumentException] {
-      new Genre("crime", null, 0, None)
-    }
+    intercept[IllegalArgumentException] { new Genre("crime", null, 0, None) }
   }
 
   test("should not create genre with blank name") {
-    intercept[IllegalArgumentException] {
-      Genre("crime", "  ")
-    }
+    intercept[IllegalArgumentException] { Genre("crime", "  ") }
   }
 
   test("should not create genre with negative version") {
-    intercept[IllegalArgumentException] {
-      Genre("crime", version = -1)
-    }
+    intercept[IllegalArgumentException] { Genre("crime", version = -1) }
   }
 
   test("should not create genre with null id") {
-    intercept[IllegalArgumentException] {
-      new Genre("crime", Some("Crime"), 0, id = null)
-    }
+    intercept[IllegalArgumentException] { new Genre("crime", Some("Crime"), 0, id = null) }
   }
 
   test("should compare two objects for equality") {

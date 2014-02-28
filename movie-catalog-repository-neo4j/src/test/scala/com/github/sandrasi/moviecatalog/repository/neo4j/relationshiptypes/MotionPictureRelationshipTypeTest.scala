@@ -14,9 +14,7 @@ class MotionPictureRelationshipTypeTest extends FunSuite with Matchers {
   }
 
   test("should not create motion picture relationship type value from string not matching any of the enums' name") {
-    intercept[NoSuchElementException] {
-      MotionPictureRelationshipType.valueOf("does not match")
-    }
+    intercept[NoSuchElementException] { MotionPictureRelationshipType.valueOf("does not match") }
   }
 
   test("should retrieve the name of the mition picture relationship type") {
