@@ -47,8 +47,6 @@ case class Character(name: String, creator: Option[String], creationDate: Option
     case _ => false
   }
 
-  override def canEqual(o: Any) = o.isInstanceOf[Character]
-
   override def hashCode: Int = {
     var result = 2
     result = 3 * result + name.hashCode
@@ -77,8 +75,6 @@ case class Genre(code: String, name: Option[LocalizedText], version: Long, id: O
     case other: Genre => other.canEqual(this) && code == other.code
     case _ => false
   }
-
-  override def canEqual(o: Any): Boolean = o.isInstanceOf[Genre]
 
   override def hashCode: Int = {
     var result = 2
@@ -132,8 +128,6 @@ case class Movie(originalTitle: LocalizedText, localizedTitle: Option[LocalizedT
     case other: Movie => other.canEqual(this) && super.equals(o)
     case _ => false
   }
-
-  override def canEqual(o: Any) = o.isInstanceOf[Movie]
 }
 
 object Movie {
@@ -158,8 +152,6 @@ case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfB
     case other: Person => other.canEqual(this) && (name == other.name) && (gender == other.gender) && (dateOfBirth == other.dateOfBirth) && (placeOfBirth == other.placeOfBirth)
     case _ => false
   }
-
-  override def canEqual(o: Any) = o.isInstanceOf[Person]
 
   override def hashCode: Int = {
     var result = 2
@@ -193,14 +185,14 @@ sealed trait Crew extends Entity {
     case _ => false
   }
 
+  override def canEqual(o: Any) = o.isInstanceOf[Crew]
+
   override def hashCode: Int = {
     var result = 2
     result = 3 * result + person.hashCode
     result = 3 * result + motionPicture.hashCode
     result
   }
-
-  override def canEqual(o: Any) = o.isInstanceOf[Crew]
 }
 
 sealed trait Cast extends Crew {
@@ -222,13 +214,6 @@ sealed trait Cast extends Crew {
 case class Actor(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
 
   Validate.valid(person.gender == Male)
-
-  override def equals(o: Any): Boolean = o match {
-    case other: Actor => other.canEqual(this) && super.equals(o)
-    case _ => false
-  }
-
-  override def canEqual(o: Any) = o.isInstanceOf[Actor]
 }
 
 object Actor {
@@ -243,13 +228,6 @@ object Actor {
 case class Actress(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
 
   Validate.valid(person.gender == Female)
-
-  override def equals(o: Any): Boolean = o match {
-    case other: Actress => other.canEqual(this) && super.equals(o)
-    case _ => false
-  }
-
-  override def canEqual(o: Any) = o.isInstanceOf[Actress]
 }
 
 object Actress {
@@ -275,8 +253,6 @@ case class Soundtrack(languageCode: String, formatCode: String, languageName: Op
     case other: Soundtrack => other.canEqual(this) && (languageCode == other.languageCode) && (formatCode == other.formatCode)
     case _ => false
   }
-
-  override def canEqual(o: Any) = o.isInstanceOf[Soundtrack]
 
   override def hashCode: Int = {
     var result = 2
@@ -307,8 +283,6 @@ case class Subtitle(languageCode: String, languageName: Option[LocalizedText], v
     case _ => false
   }
 
-  override def canEqual(o: Any) = o.isInstanceOf[Subtitle]
-
   override def hashCode: Int = {
     var result = 2
     result = 3 * result + languageCode.hashCode
@@ -334,8 +308,6 @@ case class DigitalContainer(motionPicture: MotionPicture, soundtracks: Set[Sound
     case other: DigitalContainer => other.canEqual(this) && (motionPicture == other.motionPicture) && (soundtracks == other.soundtracks) && (subtitles == other.subtitles)
     case _ => false
   }
-
-  override def canEqual(o: Any) = o.isInstanceOf[DigitalContainer]
 
   override def hashCode: Int = {
     var result = 2
