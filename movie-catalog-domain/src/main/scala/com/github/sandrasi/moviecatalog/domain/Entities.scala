@@ -20,8 +20,8 @@ sealed trait IdSupport[A] extends Equals {
   override def canEqual(o: Any): Boolean = o.isInstanceOf[IdSupport[_]]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + id.hashCode
+    var result = 2
+    result = 3 * result + id.hashCode
     result
   }
 }
@@ -50,10 +50,10 @@ case class Character(name: String, creator: Option[String], creationDate: Option
   override def canEqual(o: Any) = o.isInstanceOf[Character]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + name.hashCode
-    result = 5 * result + creator.hashCode
-    result = 5 * result + creationDate.hashCode
+    var result = 2
+    result = 3 * result + name.hashCode
+    result = 3 * result + creator.hashCode
+    result = 3 * result + creationDate.hashCode
     result
   }
 }
@@ -81,8 +81,8 @@ case class Genre(code: String, name: Option[LocalizedText], version: Long, id: O
   override def canEqual(o: Any): Boolean = o.isInstanceOf[Genre]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + code.hashCode
+    var result = 2
+    result = 3 * result + code.hashCode
     result
   }
 }
@@ -119,9 +119,9 @@ sealed trait MotionPicture extends Entity {
   override def canEqual(o: Any) = o.isInstanceOf[MotionPicture]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + originalTitle.hashCode
-    result = 5 * result + releaseDate.hashCode
+    var result = 2
+    result = 3 * result + originalTitle.hashCode
+    result = 3 * result + releaseDate.hashCode
     result
   }
 }
@@ -162,10 +162,10 @@ case class Person(name: String, gender: Gender, dateOfBirth: LocalDate, placeOfB
   override def canEqual(o: Any) = o.isInstanceOf[Person]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + name.hashCode
-    result = 5 * result + dateOfBirth.hashCode
-    result = 5 * result + gender.hashCode
+    var result = 2
+    result = 3 * result + name.hashCode
+    result = 3 * result + dateOfBirth.hashCode
+    result = 3 * result + gender.hashCode
     result
   }
 }
@@ -194,9 +194,9 @@ sealed trait Crew extends Entity {
   }
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + person.hashCode
-    result = 5 * result + motionPicture.hashCode
+    var result = 2
+    result = 3 * result + person.hashCode
+    result = 3 * result + motionPicture.hashCode
     result
   }
 
@@ -216,11 +216,7 @@ sealed trait Cast extends Crew {
 
   override def canEqual(o: Any) = o.isInstanceOf[Cast]
 
-  override def hashCode: Int = {
-    var result = super.hashCode
-    result = 5 * result + character.hashCode
-    result
-  }
+  override def hashCode: Int = 2 * super.hashCode + character.hashCode
 }
 
 case class Actor(person: Person, character: Character, motionPicture: MotionPicture, version: Long, id: Option[UUID]) extends Cast {
@@ -283,9 +279,9 @@ case class Soundtrack(languageCode: String, formatCode: String, languageName: Op
   override def canEqual(o: Any) = o.isInstanceOf[Soundtrack]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + languageCode.hashCode
-    result = 5 * result + formatCode.hashCode
+    var result = 2
+    result = 3 * result + languageCode.hashCode
+    result = 3 * result + formatCode.hashCode
     result
   }
 }
@@ -314,8 +310,8 @@ case class Subtitle(languageCode: String, languageName: Option[LocalizedText], v
   override def canEqual(o: Any) = o.isInstanceOf[Subtitle]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + languageCode.hashCode
+    var result = 2
+    result = 3 * result + languageCode.hashCode
     result
   }
 }
@@ -342,10 +338,10 @@ case class DigitalContainer(motionPicture: MotionPicture, soundtracks: Set[Sound
   override def canEqual(o: Any) = o.isInstanceOf[DigitalContainer]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + motionPicture.hashCode
-    result = 5 * result + soundtracks.hashCode
-    result = 5 * result + subtitles.hashCode
+    var result = 2
+    result = 3 * result + motionPicture.hashCode
+    result = 3 * result + soundtracks.hashCode
+    result = 3 * result + subtitles.hashCode
     result
   }
 }

@@ -16,9 +16,9 @@ case class LocalizedText(text: String)(implicit val locale: Locale = US) {
   def canEqual(o: Any): Boolean = o.isInstanceOf[LocalizedText]
 
   override def hashCode: Int = {
-    var result = 3
-    result = 5 * result + text.hashCode
-    result = 5 * result + locale.hashCode
+    var result = 2
+    result = 3 * result + text.hashCode
+    result = 3 * result + locale.hashCode
     result
   }
 
