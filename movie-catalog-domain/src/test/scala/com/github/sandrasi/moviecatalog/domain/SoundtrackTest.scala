@@ -21,13 +21,11 @@ class SoundtrackTest extends FunSuite with Matchers {
   }
   
   test("should create soundtrack with specified language name") {
-    val subject = Soundtrack("en", "dts", languageName = "English")
-    subject.languageName should be(Some(LocalizedText("English")))
+    Soundtrack("en", "dts", languageName = "English").languageName should be(Some(LocalizedText("English")))
   }
 
   test("should create soundtrack with specified format name") {
-    val subject = Soundtrack("en", "dts", formatName = "DTS")
-    subject.formatName should be(Some(LocalizedText("DTS")))
+    Soundtrack("en", "dts", formatName = "DTS").formatName should be(Some(LocalizedText("DTS")))
   }
 
   test("should not create soundtrack with null language code") {

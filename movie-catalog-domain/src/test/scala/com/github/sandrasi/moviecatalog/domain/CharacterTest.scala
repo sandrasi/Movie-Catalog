@@ -18,13 +18,11 @@ class CharacterTest extends FunSuite with Matchers {
   }
 
   test("should create character with specified creator") {
-    val subject = Character("Vincent Vega", creator = "Quentin Tarantino")
-    subject.creator should be(Some("Quentin Tarantino"))
+    Character("Vincent Vega", creator = "Quentin Tarantino").creator should be(Some("Quentin Tarantino"))
   }
 
   test("should create character with specified creation date") {
-    val subject = Character("Vincent Vega", dateOfCreation = new LocalDate(1994, 10, 14))
-    subject.dateOfCreation should be(Some(new LocalDate(1994, 10, 14)))
+    Character("Vincent Vega", dateOfCreation = new LocalDate(1994, 10, 14)).dateOfCreation should be(Some(new LocalDate(1994, 10, 14)))
   }
   
   test("should not create character with null name") {

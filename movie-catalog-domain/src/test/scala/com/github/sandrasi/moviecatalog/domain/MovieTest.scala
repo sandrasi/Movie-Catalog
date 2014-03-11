@@ -29,23 +29,19 @@ class MovieTest extends FunSuite with Matchers {
   }
 
   test("should create movie with specified localized title") {
-    val subject = Movie(EnglishMovieTitle, localizedTitle = HungarianMovieTitle)
-    subject.localizedTitle should be(Some(HungarianMovieTitle))
+    Movie(EnglishMovieTitle, localizedTitle = HungarianMovieTitle).localizedTitle should be(Some(HungarianMovieTitle))
   }
 
   test("should create movie with specified genres") {
-    val subject = Movie(EnglishMovieTitle, genres = Set(Crime, Thriller))
-    subject.genres should be(Set(Crime, Thriller))
+    Movie(EnglishMovieTitle, genres = Set(Crime, Thriller)).genres should be(Set(Crime, Thriller))
   }
 
   test("should create movie with specified runtime") {
-    val subject = Movie(EnglishMovieTitle, runtime = Duration.standardMinutes(154))
-    subject.runtime should be(Some(Duration.standardMinutes(154)))
+    Movie(EnglishMovieTitle, runtime = Duration.standardMinutes(154)).runtime should be(Some(Duration.standardMinutes(154)))
   }
 
-  test("should create movie with specified release date") {
-    val subject = Movie(EnglishMovieTitle, dateOfRelease = new LocalDate(1994, 10, 14))
-    subject.releaseDate should be(Some(new LocalDate(1994, 10, 14)))
+  test("should create movie with specified date of release") {
+    Movie(EnglishMovieTitle, dateOfRelease = new LocalDate(1994, 10, 14)).dateOfRelease should be(Some(new LocalDate(1994, 10, 14)))
   }
 
   test("should not create movie with null original title") {

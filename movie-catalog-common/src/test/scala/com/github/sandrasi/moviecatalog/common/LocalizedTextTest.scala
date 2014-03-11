@@ -16,14 +16,12 @@ class LocalizedTextTest extends FunSuite with Matchers {
   }
 
   test("should create localized text with specified locale") {
-    val subject = new LocalizedText("honosított szöveg")(new Locale("hu", "HU"))
-    subject.locale should be(new Locale("hu", "HU"))
+    new LocalizedText("honosított szöveg")(new Locale("hu", "HU")).locale should be(new Locale("hu", "HU"))
   }
 
   test("should create localized text with implicit locale") {
     implicit val hungarianLocale = new Locale("hu", "HU")
-    val subject = LocalizedText("honosított szöveg")
-    subject.locale should be(hungarianLocale)
+    LocalizedText("honosított szöveg").locale should be(hungarianLocale)
   }
 
   test("should not create localized text with null text") {

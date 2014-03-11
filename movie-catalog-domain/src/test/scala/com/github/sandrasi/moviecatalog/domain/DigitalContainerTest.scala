@@ -23,13 +23,11 @@ class DigitalContainerTest extends FunSuite with Matchers {
   }
 
   test("should create digital container with specified soundtracks") {
-    val subject = DigitalContainer(PulpFiction, soundtracks = Set(EnglishSoundtrack, HungarianSoundtrack))
-    subject.soundtracks should be(Set(EnglishSoundtrack, HungarianSoundtrack))
+    DigitalContainer(PulpFiction, soundtracks = Set(EnglishSoundtrack, HungarianSoundtrack)).soundtracks should be(Set(EnglishSoundtrack, HungarianSoundtrack))
   }
 
   test("should create digital container with specified subtitles") {
-    val subject = DigitalContainer(PulpFiction, subtitles = Set(EnglishSubtitle, HungarianSubtitle))
-    subject.subtitles should be(Set(EnglishSubtitle, HungarianSubtitle))
+    DigitalContainer(PulpFiction, subtitles = Set(EnglishSubtitle, HungarianSubtitle)).subtitles should be(Set(EnglishSubtitle, HungarianSubtitle))
   }
   
   test("should not create digital container with null motion picture") {

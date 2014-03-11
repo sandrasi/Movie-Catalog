@@ -17,8 +17,7 @@ class SubtitleTest extends FunSuite with Matchers {
   }
   
   test("should create subtitle with specified language name") {
-    val subject = Subtitle("en", "English")
-    subject.languageName should be(Some(LocalizedText("English")))
+    Subtitle("en", "English").languageName should be(Some(LocalizedText("English")))
   }
   
   test("should not create subtitle with null language code") {
