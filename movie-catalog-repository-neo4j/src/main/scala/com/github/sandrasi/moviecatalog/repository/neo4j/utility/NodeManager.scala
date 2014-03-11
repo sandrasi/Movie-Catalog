@@ -129,7 +129,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
     if (m.localizedTitle.isDefined) addOrReplaceLocalizedText(n, MovieLocalizedTitle, m.localizedTitle.get) else deleteLocalizedText(n, MovieLocalizedTitle, l)
     m.genres.map(DbMgr.getNodeOf(_)).foreach(n.createRelationshipTo(_, HasGenre))
     if (m.runtime.isDefined) setDuration(n, MovieRuntime, m.runtime.get) else deleteProperty(n, MovieRuntime)
-    if (m.releaseDate.isDefined) setLocalDate(n, MovieReleaseDate, m.releaseDate.get) else deleteProperty(n, MovieReleaseDate)
+    if (m.dateOfRelease.isDefined) setLocalDate(n, MovieDateOfRelease, m.dateOfRelease.get) else deleteProperty(n, MovieDateOfRelease)
     setVersion(n, m)
     IdxMgr.index(n, m)
     n

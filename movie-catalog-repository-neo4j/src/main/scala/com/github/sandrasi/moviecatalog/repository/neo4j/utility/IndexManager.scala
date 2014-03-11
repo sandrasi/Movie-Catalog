@@ -72,7 +72,7 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
     MotionPictureIndex.add(n, MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)
     MotionPictureIndex.add(n, MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)
     MotionPictureIndex.add(n, MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)
-    if (m.releaseDate.isDefined) MotionPictureIndex.add(n, MovieReleaseDate, ValueContext.numeric(m.releaseDate.get.toDateTimeAtStartOfDay.getMillis)) else MotionPictureIndex.remove(n, MovieReleaseDate)
+    if (m.dateOfRelease.isDefined) MotionPictureIndex.add(n, MovieDateOfRelease, ValueContext.numeric(m.dateOfRelease.get.toDateTimeAtStartOfDay.getMillis)) else MotionPictureIndex.remove(n, MovieDateOfRelease)
   }
 
   private def index(n: Node, p: Person) {
@@ -180,10 +180,10 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
     query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleLanguage, m.originalTitle.locale.getLanguage)), MUST)
     query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleCountry, m.originalTitle.locale.getCountry)), MUST)
     query.add(new TermQuery(new Term(MovieOriginalTitle + LocaleVariant, m.originalTitle.locale.getVariant)), MUST)
-    if (m.releaseDate.isDefined) {
-      val rdm = m.releaseDate.get.toDateTimeAtStartOfDay.getMillis
-      query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, rdm, rdm, true, true), MUST)
-    } else query.add(NumericRangeQuery.newLongRange(MovieReleaseDate, Long.MinValue, Long.MaxValue, true, true), MUST_NOT)
+    if (m.dateOfRelease.isDefined) {
+      val rdm = m.dateOfRelease.get.toDateTimeAtStartOfDay.getMillis
+      query.add(NumericRangeQuery.newLongRange(MovieDateOfRelease, rdm, rdm, true, true), MUST)
+    } else query.add(NumericRangeQuery.newLongRange(MovieDateOfRelease, Long.MinValue, Long.MaxValue, true, true), MUST_NOT)
     Option(MotionPictureIndex.query(query).getSingle)
   }
 

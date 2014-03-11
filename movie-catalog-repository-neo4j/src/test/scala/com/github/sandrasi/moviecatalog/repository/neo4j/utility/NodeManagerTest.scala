@@ -274,7 +274,7 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     getLocalizedText(movieNode, MovieOriginalTitle).get should be(PulpFiction.originalTitle)
     getLocalizedText(movieNode, MovieLocalizedTitle, HungarianLocale) should be(PulpFiction.localizedTitle)
     movieNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crimeGenreNode, thrillerGenreNode))
-    getLocalDate(movieNode, MovieReleaseDate) should be(PulpFiction.releaseDate)
+    getLocalDate(movieNode, MovieDateOfRelease) should be(PulpFiction.dateOfRelease)
     getDuration(movieNode, MovieRuntime) should be(PulpFiction.runtime)
     getLong(movieNode, Version) should be(PulpFiction.version)
     movieNode.getRelationships(IsA, OUTGOING).iterator().asScala.map(_.getEndNode).toTraversable should(contain(dbMgr.getSubreferenceNode(classOf[MotionPicture])) and contain(dbMgr.getSubreferenceNode(classOf[Movie])))
@@ -329,11 +329,11 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     }
   }
 
-  test("should create node from movie if the release date is different") {
+  test("should create node from movie if the date of release is different") {
     implicit val tx = db.beginTx()
     transaction(tx) {
       val movieNode = subject.createNodeFrom(PulpFiction)
-      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(releaseDate = Some(new LocalDate(1995, 5, 19))))
+      val anotherMovieNode = subject.createNodeFrom(PulpFiction.copy(dateOfRelease = Some(new LocalDate(1995, 5, 19))))
       movieNode.getId should not equal anotherMovieNode.getId
     }
   }
@@ -636,14 +636,14 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
     val movie = insertEntity(PulpFiction)
     val crime = createNodeFrom(Crime)
     val thriller = createNodeFrom(Thriller)
-    val modifiedMovie = movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), genres = Set(createGenreFrom(crime), createGenreFrom(thriller)), runtime = Some(Duration.standardMinutes(131)), releaseDate = Some(new LocalDate(1995, 5, 19)))
+    val modifiedMovie = movie.copy(originalTitle = "Die hard: With a vengeance", localizedTitle = Some(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale)), genres = Set(createGenreFrom(crime), createGenreFrom(thriller)), runtime = Some(Duration.standardMinutes(131)), dateOfRelease = Some(new LocalDate(1995, 5, 19)))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedMovie) }
     getLocalizedText(updatedNode, MovieOriginalTitle).get should be(LocalizedText("Die hard: With a vengeance"))
     getLocalizedText(updatedNode, MovieLocalizedTitle, HungarianLocale).get should be(LocalizedText("Die hard: Az élet mindig drága")(HungarianLocale))
     updatedNode.getRelationships(HasGenre, OUTGOING).asScala.map(_.getEndNode).toSet should be(Set(crime, thriller))
     getDuration(updatedNode, MovieRuntime).get should be(Duration.standardMinutes(131))
-    getLocalDate(updatedNode, MovieReleaseDate).get should be(new LocalDate(1995, 5, 19))
+    getLocalDate(updatedNode, MovieDateOfRelease).get should be(new LocalDate(1995, 5, 19))
     getLong(updatedNode, Version) should be(modifiedMovie.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(movie.id.get.toString)
   }

@@ -133,14 +133,14 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
     assert(!subject.exists(PulpFiction.copy(originalTitle = LocalizedText(PulpFiction.originalTitle.text)(HungarianLocale))))
   }
 
-  test("should not find the motion picture if it has a different release date") {
+  test("should not find the motion picture if it has a different date of release") {
     createNodeFrom(PulpFiction)
-    assert(!subject.exists(PulpFiction.copy(releaseDate = Some(new LocalDate(1995, 5, 19)))))
+    assert(!subject.exists(PulpFiction.copy(dateOfRelease = Some(new LocalDate(1995, 5, 19)))))
   }
 
-  test("should not find the motion picture if the release date is missing") {
+  test("should not find the motion picture if the date of release is missing") {
     createNodeFrom(PulpFiction)
-    assert(!subject.exists(PulpFiction.copy(releaseDate = None)))
+    assert(!subject.exists(PulpFiction.copy(dateOfRelease = None)))
   }
 
   test("should find the same person") {

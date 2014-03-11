@@ -23,7 +23,7 @@ class MovieTest extends FunSuite with Matchers {
     subject.genres should be('empty)
     subject.localizedTitle should be('empty)
     subject.runtime should be(None)
-    subject.releaseDate should be(None)
+    subject.dateOfRelease should be(None)
     subject.version should be(0)
     subject.id should be(None)
   }
@@ -44,7 +44,7 @@ class MovieTest extends FunSuite with Matchers {
   }
 
   test("should create movie with specified release date") {
-    val subject = Movie(EnglishMovieTitle, releaseDate = new LocalDate(1994, 10, 14))
+    val subject = Movie(EnglishMovieTitle, dateOfRelease = new LocalDate(1994, 10, 14))
     subject.releaseDate should be(Some(new LocalDate(1994, 10, 14)))
   }
 
@@ -76,7 +76,7 @@ class MovieTest extends FunSuite with Matchers {
     intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), null, Some(new LocalDate(1994, 10, 14)), 0, None) }
   }
 
-  test("should not create movie with null release date") {
+  test("should not create movie with null date of release") {
     intercept[IllegalArgumentException] { Movie(EnglishMovieTitle, Some(HungarianMovieTitle), Set(Crime, Thriller), Some(Duration.standardMinutes(154)), null, 0, None) }
   }
 
@@ -95,7 +95,7 @@ class MovieTest extends FunSuite with Matchers {
     val otherMovieWithDifferentLocalizedTitles = movie.copy(localizedTitle = Some(ItalianMovieTitle))
     val otherMovieWithDifferentGenres = movie.copy(genres = Set(Genre("action", "Action")))
     val otherMovieWithDifferentRuntime = movie.copy(runtime = Some(Duration.standardMinutes(131)))
-    val otherMovieWithDifferentReleaseDate = movie.copy(releaseDate = Some(new LocalDate(1995, 5, 19)))
+    val otherMovieWithDifferentDateOfRelease = movie.copy(dateOfRelease = Some(new LocalDate(1995, 5, 19)))
 
     movie should not equal null
     movie should not equal new AnyRef

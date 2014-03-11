@@ -58,7 +58,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def createGenreFrom(n: Node, l: Locale) = Genre(getString(n, GenreCode).get, getLocalizedText(n, GenreName, l), getLong(n, Version), Some(getUuid(n)))
 
-  private def createMovieFrom(n: Node, l: Locale) = Movie(getLocalizedText(n, MovieOriginalTitle).get, getLocalizedText(n, MovieLocalizedTitle, l), getGenres(n, l), getDuration(n, MovieRuntime), getLocalDate(n, MovieReleaseDate), getLong(n, Version), Some(getUuid(n)))
+  private def createMovieFrom(n: Node, l: Locale) = Movie(getLocalizedText(n, MovieOriginalTitle).get, getLocalizedText(n, MovieLocalizedTitle, l), getGenres(n, l), getDuration(n, MovieRuntime), getLocalDate(n, MovieDateOfRelease), getLong(n, Version), Some(getUuid(n)))
 
   private def getGenres(n: Node, l: Locale) = n.getRelationships(HasGenre, OUTGOING).asScala.map(r => createGenreFrom(r.getEndNode, l)).toSet
 

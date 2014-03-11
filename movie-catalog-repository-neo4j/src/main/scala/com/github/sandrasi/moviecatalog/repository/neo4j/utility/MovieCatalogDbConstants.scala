@@ -37,7 +37,7 @@ private[neo4j] object MovieCatalogDbConstants {
   final val MovieGenres = "genres"
   final val MovieLocalizedTitle = "localizedTitle"
   final val MovieOriginalTitle = "originalTitle"
-  final val MovieReleaseDate = "releaseDate"
+  final val MovieDateOfRelease = "dateOfRelease"
   final val MovieRuntime = "runtime"
 
   final val PersonDateOfBirth = "dateOfBirth"

@@ -143,7 +143,7 @@ class EntityFactoryTest extends FunSuite with BeforeAndAfterAll with BeforeAndAf
     movie.originalTitle should be(PulpFiction.originalTitle)
     movie.localizedTitle should be(PulpFiction.localizedTitle)
     movie.runtime should be(PulpFiction.runtime)
-    movie.releaseDate should be(PulpFiction.releaseDate)
+    movie.dateOfRelease should be(PulpFiction.dateOfRelease)
     movie.version should be(PulpFiction.version)
     movie.id.get.toString should be(movieNode.getProperty(Uuid).asInstanceOf[String])
   }
