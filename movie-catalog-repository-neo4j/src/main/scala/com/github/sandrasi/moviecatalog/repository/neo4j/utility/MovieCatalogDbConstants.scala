@@ -21,7 +21,7 @@ private[neo4j] object MovieCatalogDbConstants {
 
   final val CharacterName = "name"
   final val CharacterCreator = "creator"
-  final val CharacterCreationDate = "creationDate"
+  final val CharacterDateOfCreation = "dateOfCreation"
 
   final val DigitalContainerMotionPicture = "motionPicture"
   final val DigitalContainerSoundtrack = "soundtrack"

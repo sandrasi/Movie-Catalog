@@ -12,7 +12,7 @@ class CharacterTest extends FunSuite with Matchers {
     val subject = Character("Vincent Vega")
     subject.name should be("Vincent Vega")
     subject.creator should be(None)
-    subject.creationDate should be(None)
+    subject.dateOfCreation should be(None)
     subject.version should be(0)
     subject.id should be(None)
   }
@@ -23,8 +23,8 @@ class CharacterTest extends FunSuite with Matchers {
   }
 
   test("should create character with specified creation date") {
-    val subject = Character("Vincent Vega", creationDate = new LocalDate(1994, 10, 14))
-    subject.creationDate should be(Some(new LocalDate(1994, 10, 14)))
+    val subject = Character("Vincent Vega", dateOfCreation = new LocalDate(1994, 10, 14))
+    subject.dateOfCreation should be(Some(new LocalDate(1994, 10, 14)))
   }
   
   test("should not create character with null name") {
@@ -43,7 +43,7 @@ class CharacterTest extends FunSuite with Matchers {
     intercept[IllegalArgumentException] { Character("Vincent Vega", "  ", new LocalDate(1994, 10, 14)) }
   }
 
-  test("should not create character with null creationDate") {
+  test("should not create character with null dateOfCreation") {
     intercept[IllegalArgumentException] { Character("Vincent Vega", Some("Quentin Tarantino"), null, 0, None) }
   }
 
@@ -60,7 +60,7 @@ class CharacterTest extends FunSuite with Matchers {
     val otherCharacter = character.copy()
     val otherCharacterWithDifferentName = character.copy(name = "Mia Wallace")
     val otherCharacterWithDifferentCreator = character.copy(creator = Some("Robert Rodriguez"))
-    val otherCharacterWithDifferentCreationDate = character.copy(creationDate = Some(new LocalDate(2000, 1, 1)))
+    val otherCharacterWithDifferentDateOfCreation = character.copy(dateOfCreation = Some(new LocalDate(2000, 1, 1)))
 
     character should not equal null
     character should not equal new AnyRef

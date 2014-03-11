@@ -531,12 +531,12 @@ class NodeManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAfte
 
   test("should update character node") {
     val character = insertEntity(VincentVega)
-    val modifiedCharacter = character.copy(name = "Machete", creator = Some("Robert Rodriguez"), creationDate = Some(new LocalDate(2007, 4, 6)))
+    val modifiedCharacter = character.copy(name = "Machete", creator = Some("Robert Rodriguez"), dateOfCreation = Some(new LocalDate(2007, 4, 6)))
     implicit val tx = db.beginTx()
     val updatedNode = transaction(tx) { subject.updateNodeOf(modifiedCharacter) }
     getString(updatedNode, CharacterName).get should be("Machete")
     getString(updatedNode, CharacterCreator).get should be("Robert Rodriguez")
-    getLocalDate(updatedNode, CharacterCreationDate).get should be(new LocalDate(2007, 4, 6))
+    getLocalDate(updatedNode, CharacterDateOfCreation).get should be(new LocalDate(2007, 4, 6))
     getLong(updatedNode, Version) should be(modifiedCharacter.version + 1)
     updatedNode.getProperty(Uuid).asInstanceOf[String] should be(character.id.get.toString)
   }

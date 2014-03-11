@@ -51,7 +51,7 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
     CharacterIndex.remove(n)
     CharacterIndex.add(n, CharacterName, c.name)
     if (c.creator.isDefined) CharacterIndex.add(n, CharacterCreator, c.creator.get) else CharacterIndex.remove(n, CharacterCreator)
-    if (c.creationDate.isDefined) CharacterIndex.add(n, CharacterCreationDate, ValueContext.numeric(c.creationDate.get.toDateTimeAtStartOfDay.getMillis)) else CharacterIndex.remove(n, CharacterCreationDate)
+    if (c.dateOfCreation.isDefined) CharacterIndex.add(n, CharacterDateOfCreation, ValueContext.numeric(c.dateOfCreation.get.toDateTimeAtStartOfDay.getMillis)) else CharacterIndex.remove(n, CharacterDateOfCreation)
   }
 
   private def index(n: Node, dc: DigitalContainer) {
@@ -148,10 +148,10 @@ private[neo4j] class IndexManager(db: GraphDatabaseService) {
     query.add(new TermQuery(new Term(CharacterName, c.name)), MUST)
     if (c.creator.isDefined) query.add(new TermQuery(new Term(CharacterCreator, c.creator.get)), MUST)
     else query.add(new TermRangeQuery(CharacterCreator, Char.MinValue.toString, Char.MaxValue.toString, true, true), MUST_NOT)
-    if (c.creationDate.isDefined) {
-      val cdm = c.creationDate.get.toDateTimeAtStartOfDay.getMillis
-      query.add(NumericRangeQuery.newLongRange(CharacterCreationDate, cdm, cdm, true, true), MUST)
-    } else query.add(NumericRangeQuery.newLongRange(CharacterCreationDate, Long.MinValue, Long.MaxValue, true, true), MUST_NOT)
+    if (c.dateOfCreation.isDefined) {
+      val cdm = c.dateOfCreation.get.toDateTimeAtStartOfDay.getMillis
+      query.add(NumericRangeQuery.newLongRange(CharacterDateOfCreation, cdm, cdm, true, true), MUST)
+    } else query.add(NumericRangeQuery.newLongRange(CharacterDateOfCreation, Long.MinValue, Long.MaxValue, true, true), MUST_NOT)
     Option(CharacterIndex.query(query).getSingle)
   }
 

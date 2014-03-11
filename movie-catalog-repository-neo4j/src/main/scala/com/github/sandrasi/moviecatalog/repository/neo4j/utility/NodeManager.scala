@@ -96,7 +96,7 @@ private[neo4j] class NodeManager(db: GraphDatabaseService) {
   private def setProperties(n: Node, c: Character): Node = {
     setString(n, CharacterName, c.name)
     if (c.creator.isDefined) setString(n, CharacterCreator, c.creator.get) else deleteProperty(n, CharacterCreator)
-    if (c.creationDate.isDefined) setLocalDate(n, CharacterCreationDate, c.creationDate.get) else deleteProperty(n, CharacterCreationDate)
+    if (c.dateOfCreation.isDefined) setLocalDate(n, CharacterDateOfCreation, c.dateOfCreation.get) else deleteProperty(n, CharacterDateOfCreation)
     setVersion(n, c)
     IdxMgr.index(n, c)
     n

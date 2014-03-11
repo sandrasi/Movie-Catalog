@@ -48,7 +48,7 @@ private[neo4j] class EntityFactory private (db: GraphDatabaseService) {
 
   private def createActressFrom(n: Node, l: Locale) = Actress(createPersonFrom(n.getSingleRelationship(CrewRelationshipType.forClass(classOf[Actress]), OUTGOING).getEndNode), createCharacterFrom(n.getSingleRelationship(Played, OUTGOING).getEndNode), createMovieFrom(n.getSingleRelationship(AppearedIn, OUTGOING).getEndNode, l), getLong(n, Version), getUuid(n))
 
-  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName).get, getString(n, CharacterCreator), getLocalDate(n, CharacterCreationDate), getLong(n, Version), Some(getUuid(n)))
+  private def createCharacterFrom(n: Node) = Character(getString(n, CharacterName).get, getString(n, CharacterCreator), getLocalDate(n, CharacterDateOfCreation), getLong(n, Version), Some(getUuid(n)))
 
   private def createDigitalContainerFrom(n: Node, l: Locale) = DigitalContainer(createMovieFrom(n.getSingleRelationship(WithContent, OUTGOING).getEndNode, l), getSoundtracks(n, l), getSubtitles(n, l), getLong(n, Version), getUuid(n))
   

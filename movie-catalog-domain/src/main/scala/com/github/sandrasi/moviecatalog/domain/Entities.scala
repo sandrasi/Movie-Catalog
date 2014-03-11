@@ -35,15 +35,15 @@ sealed trait VersionSupport {
 
 sealed trait Entity extends IdSupport[UUID] with VersionSupport
 
-case class Character(name: String, creator: Option[String], creationDate: Option[LocalDate], version: Long, id: Option[UUID]) extends Entity {
+case class Character(name: String, creator: Option[String], dateOfCreation: Option[LocalDate], version: Long, id: Option[UUID]) extends Entity {
 
   Validate.notBlank(name)
   Validate.notNull(creator)
   if (creator.isDefined) Validate.notBlank(creator.get)
-  Validate.notNull(creationDate)
+  Validate.notNull(dateOfCreation)
 
   override def equals(o: Any): Boolean = o match {
-    case other: Character => other.canEqual(this) && (name == other.name) && (creator == other.creator) && (creationDate == other.creationDate)
+    case other: Character => other.canEqual(this) && (name == other.name) && (creator == other.creator) && (dateOfCreation == other.dateOfCreation)
     case _ => false
   }
 
@@ -51,7 +51,7 @@ case class Character(name: String, creator: Option[String], creationDate: Option
     var result = 2
     result = 3 * result + name.hashCode
     result = 3 * result + creator.hashCode
-    result = 3 * result + creationDate.hashCode
+    result = 3 * result + dateOfCreation.hashCode
     result
   }
 }
@@ -60,9 +60,9 @@ object Character {
 
   def apply(name: String,
             creator: String = null,
-            creationDate: LocalDate = null,
+            dateOfCreation: LocalDate = null,
             version: Long = 0,
-            id: UUID = null): Character = Character(name, Option(creator), Option(creationDate), version, Option(id))
+            id: UUID = null): Character = Character(name, Option(creator), Option(dateOfCreation), version, Option(id))
 }
 
 case class Genre(code: String, name: Option[LocalizedText], version: Long, id: Option[UUID]) extends Entity {

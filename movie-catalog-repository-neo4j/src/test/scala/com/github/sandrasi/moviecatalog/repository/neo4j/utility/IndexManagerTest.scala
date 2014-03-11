@@ -63,9 +63,9 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
     assert(!subject.exists(VincentVega.copy(creator = Some("Robert Rodriguez"))))
   }
 
-  test("should not find the character if the creation date is different") {
+  test("should not find the character if the date of creation is different") {
     createNodeFrom(VincentVega)
-    assert(!subject.exists(VincentVega.copy(creationDate = Some(new LocalDate(2000, 1, 1)))))
+    assert(!subject.exists(VincentVega.copy(dateOfCreation = Some(new LocalDate(2000, 1, 1)))))
   }
 
   test("should not find the character if the creator is missing") {
@@ -73,9 +73,9 @@ class IndexManagerTest extends FunSuite with BeforeAndAfterAll with BeforeAndAft
     assert(!subject.exists(VincentVega.copy(creator = None)))
   }
 
-  test("should not find the character if the creation date is missing") {
+  test("should not find the character if the date of creation is missing") {
     createNodeFrom(VincentVega)
-    assert(!subject.exists(VincentVega.copy(creationDate = None)))
+    assert(!subject.exists(VincentVega.copy(dateOfCreation = None)))
   }
 
   test("should find the same digital container") {
