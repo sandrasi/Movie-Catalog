@@ -13,7 +13,7 @@ class RepositoryConfigurationTest extends FunSuite with BeforeAndAfterEach with 
     subject = new TestRepositoryFactory.RepositoryConfiguration
   }
 
-  test("should put and get paramter to and from configuration") {
+  test("should put and get parameter to and from configuration") {
     subject.set("test parameter", "test value")
     subject.get("test parameter", classOf[String]) should be("test value")
   }

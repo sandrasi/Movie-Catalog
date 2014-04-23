@@ -13,7 +13,7 @@ class MotionPictureRelationshipTypeTest extends FunSuite with Matchers {
     MotionPictureRelationshipType.valueOf("HasGenre") should be(HasGenre)
   }
 
-  test("should not create motion picture relationship type value from string not matching any of the enums' name") {
+  test("should not create motion picture relationship type value from string not matching any of the enum names") {
     intercept[NoSuchElementException] { MotionPictureRelationshipType.valueOf("does not match") }
   }
 

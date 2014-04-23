@@ -15,7 +15,7 @@ class DigitalContainerRelationshipTypeTest extends FunSuite with Matchers {
     DigitalContainerRelationshipType.valueOf("WithSubtitle") should be(WithSubtitle)
   }
 
-  test("should not create digital container relationship type value from string not matching any of the enums' name") {
+  test("should not create digital container relationship type value from string not matching any of the enum names") {
     intercept[NoSuchElementException] { DigitalContainerRelationshipType.valueOf("does not match") }
   }
 
