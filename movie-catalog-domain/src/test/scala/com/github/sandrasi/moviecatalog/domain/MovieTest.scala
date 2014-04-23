@@ -13,7 +13,7 @@ class MovieTest extends FunSuite with Matchers {
 
   private final val EnglishMovieTitle = LocalizedText("Pulp fiction")
   private final val HungarianMovieTitle = LocalizedText("Ponyvaregény")(new Locale("hu", "HU"))
-  private final val ItalianMovieTitle = LocalizedText("Pulp fiction")(Locale.ITALY)
+  private final val ItalianMovieTitle = LocalizedText("Pulp fiction")(ITALY)
   private final val Crime = Genre("crime", "Crime")
   private final val Thriller = Genre("thriller", "Thriller")
 

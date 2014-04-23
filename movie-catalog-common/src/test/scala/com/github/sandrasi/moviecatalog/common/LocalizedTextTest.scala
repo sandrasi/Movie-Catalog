@@ -9,6 +9,8 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class LocalizedTextTest extends FunSuite with Matchers {
 
+  private val HU = new Locale("hu", "HU")
+
   test("should create localized text with specified text and default locale") {
     val subject = LocalizedText("localized text")
     subject.text should be("localized text")
@@ -16,12 +18,12 @@ class LocalizedTextTest extends FunSuite with Matchers {
   }
 
   test("should create localized text with specified locale") {
-    new LocalizedText("honosított szöveg")(new Locale("hu", "HU")).locale should be(new Locale("hu", "HU"))
+    LocalizedText("honosított szöveg")(HU).locale should be(HU)
   }
 
   test("should create localized text with implicit locale") {
-    implicit val hungarianLocale = new Locale("hu", "HU")
-    LocalizedText("honosított szöveg").locale should be(hungarianLocale)
+    implicit val hungarianLocale = HU
+    LocalizedText("honosított szöveg").locale should be(HU)
   }
 
   test("should not create localized text with null text") {
