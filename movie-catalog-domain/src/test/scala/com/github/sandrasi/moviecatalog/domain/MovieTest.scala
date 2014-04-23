@@ -20,8 +20,8 @@ class MovieTest extends FunSuite with Matchers {
   test("should create movie with specified original title and default attributes") {
     val subject = Movie(EnglishMovieTitle)
     subject.originalTitle should be(EnglishMovieTitle)
-    subject.genres should be('empty)
     subject.localizedTitle should be('empty)
+    subject.genres should be('empty)
     subject.runtime should be(None)
     subject.dateOfRelease should be(None)
     subject.version should be(0)
