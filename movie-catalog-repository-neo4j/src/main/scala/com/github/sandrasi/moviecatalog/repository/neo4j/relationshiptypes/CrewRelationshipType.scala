@@ -6,8 +6,8 @@ sealed trait CrewRelationshipType extends CrewRelationshipType.ClassBasedRelatio
 
 case object CrewRelationshipType extends AbstractClassBasedRelationshipType[CrewRelationshipType] {
 
-  case object Actor extends CrewRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.Actor] }
-  case object Actress extends CrewRelationshipType { override def forClass = classOf[com.github.sandrasi.moviecatalog.domain.Actress] }
+  case object Actor extends CrewRelationshipType { override def forClass = classOf[domain.Actor] }
+  case object Actress extends CrewRelationshipType { override def forClass = classOf[domain.Actress] }
 
   Actor; Actress
 }
