@@ -9,7 +9,7 @@ class RepositoryConfigurationTest extends FunSuite with BeforeAndAfterEach with 
 
   private var subject: TestRepositoryFactory.RepositoryConfiguration = _
 
-  override def beforeEach {
+  override def beforeEach() {
     subject = new TestRepositoryFactory.RepositoryConfiguration
   }
 
