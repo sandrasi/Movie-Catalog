@@ -15,7 +15,7 @@ class JdbcTemplate(val ds: DataSource) {
     val rs = ps.executeQuery
     new Iterator[A] {
 
-      jumpToFirstRecord()
+      rs.next()
 
       override def hasNext = {
         !conn.isClosed && !rs.isAfterLast
@@ -28,8 +28,6 @@ class JdbcTemplate(val ds: DataSource) {
           result
         } else throw new NoSuchElementException("No more records")
       }
-
-      private def jumpToFirstRecord() = rs.next
     }
   }
 
